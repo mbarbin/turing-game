@@ -3,6 +3,7 @@ open! Core
 type t = Code.t list [@@deriving equal, compare, sexp_of]
 
 let empty = []
+let to_list t = t
 
 let all =
   let open List.Let_syntax in

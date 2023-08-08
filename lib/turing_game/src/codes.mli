@@ -8,3 +8,4 @@ val empty : t
 val all : t
 val mem : t -> Code.t -> bool
 val init : f:(Code.t -> bool) -> t
+val to_list : t -> Code.t list
