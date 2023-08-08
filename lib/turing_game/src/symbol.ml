@@ -21,13 +21,20 @@ let color t : Color.t =
   | Circle -> Magenta
 ;;
 
-module Triple = struct
+module Tuple = struct
   type 'a t =
     { triangle : 'a
     ; square : 'a
     ; circle : 'a
     }
   [@@deriving compare, enumerate, equal, fields, hash, sexp_of]
+
+  let get t symbol =
+    match symbol with
+    | Triangle -> t.triangle
+    | Square -> t.square
+    | Circle -> t.circle
+  ;;
 
   let init ~f = { triangle = f Triangle; square = f Square; circle = f Circle }
 
@@ -72,4 +79,4 @@ module Triple = struct
     end)
 end
 
-let colors : Color.t Triple.t = Triple.init ~f:color
+let colors = Tuple.init ~f:color
