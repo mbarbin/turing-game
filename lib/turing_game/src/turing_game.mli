@@ -2,6 +2,7 @@ open! Core
 module Code = Code
 module Codes = Codes
 module Condition = Condition
+module Decoder = Decoder
 module Digit = Digit
 module Digits = Digits
 module Partition = Partition
