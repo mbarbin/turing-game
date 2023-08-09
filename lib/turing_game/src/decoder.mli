@@ -15,10 +15,6 @@ val verifiers : t -> Verifier.t Nonempty_list.t
 
 module Hypothesis : sig
   type t [@@deriving sexp_of]
-
-  module Short_sexp : sig
-    type nonrec t = t [@@deriving sexp_of]
-  end
 end
 
 (** Returns all the hypothesis that can be made regarding the verifiers of [t],

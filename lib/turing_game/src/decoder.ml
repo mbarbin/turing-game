@@ -129,18 +129,18 @@ module Hypothesis = struct
     ; number_of_remaining_codes : int [@sexp_drop_if ( = ) 1]
     ; remaining_codes : Codes.t (* Must be non empty. *)
     }
-  [@@deriving sexp_of]
 
-  module Short_sexp = struct
-    type nonrec t = t
-
-    let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes = _ } =
+  let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes } =
+    match remaining_codes |> Codes.to_list with
+    | [ code ] ->
       [%sexp
-        { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
-        ; number_of_remaining_codes : int
+        { code : Code.t; verifiers : (One_verifier.t, immutable) Array.Permissioned.t }]
+    | _ ->
+      [%sexp
+        { number_of_remaining_codes : int
+        ; verifiers : (One_verifier.t, immutable) Array.Permissioned.t
         }]
-    ;;
-  end
+  ;;
 end
 
 module Cycle_counter = struct
