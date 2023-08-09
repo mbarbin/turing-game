@@ -55,7 +55,12 @@ type t =
       ; count : int
       }
   | Is_smallest of { symbol : Symbol.t }
+  | Is_smallest_or_equally_smallest of { symbol : Symbol.t }
   | Is_biggest of { symbol : Symbol.t }
+  | Is_biggest_or_equally_biggest of { symbol : Symbol.t }
   | Has_odd_digits_count of { count : int }
   | Has_even_digits_count of { count : int }
+  | Are_increasing
+  | Are_decreasing
+  | Are_neither_increasing_nor_decreasing
 [@@deriving compare, equal, sexp_of]

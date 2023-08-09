@@ -335,7 +335,9 @@ let add_test_result t ~verifier ~code ~result =
       ; strict_hypotheses = None
       }
     in
-    Normalizer.normalize t
+    (* CR mbarbin: Try and remove the normalization. I suspect it may be not
+       required and not changing the overall complexity. *)
+    if false then Or_error.return t else Normalizer.normalize t
 ;;
 
 let add_test_result_exn t ~verifier ~code ~result =

@@ -23,12 +23,29 @@ let print_cmd =
 let solver_example_cmd =
   Command.basic
     ~summary:"solve an example"
-    (let%map_open.Command () = return () in
+    (let%map_open.Command n =
+       flag "n" (optional_with_default 1 int) ~doc:"N example number (1-20)"
+     in
      fun () ->
        let decoder =
-         Decoder.create
-           ~verifiers:
-             Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+         match n with
+         | 1 ->
+           Decoder.create
+             ~verifiers:
+               Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+         | 20 ->
+           Decoder.create
+             ~verifiers:
+               Verifier.Examples.
+                 [ verifier_11
+                 ; verifier_22
+                 ; verifier_30
+                 ; verifier_33
+                 ; verifier_34
+                 ; verifier_40
+                 ]
+         | n ->
+           raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in
        let solutions = Solver.solve ~decoder in
        print_s

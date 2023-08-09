@@ -140,6 +140,18 @@ let shrink_resolution_path ~decoder ~resolution_path =
   Queue.to_list shrunk |> List.dedup_and_sort ~compare:Resolution_path.compare
 ;;
 
+let rec choose_n n list =
+  let length = List.length list in
+  match compare n length |> Ordering.of_int with
+  | Greater -> []
+  | Equal -> [ list ]
+  | Less ->
+    (match list with
+     | [] -> []
+     | hd :: tl ->
+       List.map (choose_n (n - 1) tl) ~f:(fun list -> hd :: list) @ choose_n n tl)
+;;
+
 (* A note on the algorithm in use below.
 
    We go over trees of resolution paths that are expanded systematically, until
@@ -148,11 +160,11 @@ let shrink_resolution_path ~decoder ~resolution_path =
 let solve ~decoder =
   let verifiers = Decoder.verifiers decoder in
   let verifiers_groups =
-    Nonempty_list.map verifiers ~f:(fun verifier ->
-      Nonempty_list.filter_map verifiers ~f:(fun v ->
-        let name = v.name in
-        Option.some_if (not (Verifier.Name.equal name verifier.name)) name)
-      |> Nonempty_list.of_list_exn)
+    choose_n
+      3
+      (Nonempty_list.map verifiers ~f:(fun verifier -> verifier.name)
+       |> Nonempty_list.to_list)
+    |> List.map ~f:Nonempty_list.of_list_exn
   in
   let current_min_cost = ref Resolution_path.Cost.max_value in
   let current_solutions = Queue.create () in
@@ -172,7 +184,7 @@ let solve ~decoder =
          List.filter (Codes.all |> Codes.to_list) ~f:(fun code ->
            List.exists parent_path ~f:(fun round -> Code.equal code round.code) |> not)
        in
-       let%bind verifiers = Nonempty_list.to_list verifiers_groups in
+       let%bind verifiers = verifiers_groups in
        return
          { Resolution_path.rounds =
              Nonempty_list.of_list_exn

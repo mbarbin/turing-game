@@ -34,6 +34,14 @@ let sum t =
   !sum
 ;;
 
+let are_increasing { Symbol.Tuple.triangle; square; circle } =
+  Digit.to_int triangle < Digit.to_int square && Digit.to_int square < Digit.to_int circle
+;;
+
+let are_decreasing { Symbol.Tuple.triangle; square; circle } =
+  Digit.to_int triangle > Digit.to_int square && Digit.to_int square > Digit.to_int circle
+;;
+
 let verifies t ~condition =
   match (condition : Condition.t) with
   | Const bool -> bool
@@ -70,10 +78,19 @@ let verifies t ~condition =
     let value = Symbol.Tuple.get t symbol |> Digit.to_int in
     List.for_all Symbol.all ~f:(fun s ->
       Symbol.equal symbol s || Digit.to_int (Symbol.Tuple.get t s) > value)
+  | Is_smallest_or_equally_smallest { symbol } ->
+    let value = Symbol.Tuple.get t symbol |> Digit.to_int in
+    List.for_all Symbol.all ~f:(fun s -> Digit.to_int (Symbol.Tuple.get t s) >= value)
   | Is_biggest { symbol } ->
     let value = Symbol.Tuple.get t symbol |> Digit.to_int in
     List.for_all Symbol.all ~f:(fun s ->
       Symbol.equal symbol s || Digit.to_int (Symbol.Tuple.get t s) < value)
+  | Is_biggest_or_equally_biggest { symbol } ->
+    let value = Symbol.Tuple.get t symbol |> Digit.to_int in
+    List.for_all Symbol.all ~f:(fun s -> Digit.to_int (Symbol.Tuple.get t s) <= value)
   | Has_odd_digits_count { count } -> odd_digits_count t = count
   | Has_even_digits_count { count } -> even_digits_count t = count
+  | Are_increasing -> are_increasing t
+  | Are_decreasing -> are_decreasing t
+  | Are_neither_increasing_nor_decreasing -> not (are_increasing t || are_decreasing t)
 ;;
