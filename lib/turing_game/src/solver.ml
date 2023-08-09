@@ -1,23 +1,23 @@
 open! Core
 
-module Trace = struct
-  module Result = struct
+module Is_complete_result = struct
+  module Trace = struct
+    module Result = struct
+      type t =
+        { code : Code.t
+        ; verifier : Verifier.Name.t
+        ; result : bool
+        }
+      [@@deriving sexp_of]
+    end
+
     type t =
-      { code : Code.t
-      ; verifier : Verifier.Name.t
-      ; result : bool
+      { results : Result.t list
+      ; hypotheses : Decoder.Hypothesis.t list
       }
     [@@deriving sexp_of]
   end
 
-  type t =
-    { results : Result.t list
-    ; hypotheses : Decoder.Hypothesis.t list
-    }
-  [@@deriving sexp_of]
-end
-
-module Is_complete_result = struct
   type t =
     | Yes
     | No_with_counter_example of Trace.t
@@ -51,7 +51,10 @@ let is_complete_resolution_path_with_trace ~decoder ~(resolution_path : Resoluti
         | result :: tl ->
           (match Decoder.add_test_result decoder ~verifier ~code ~result with
            | Ok decoder ->
-             let results = { Trace.Result.verifier = name; code; result } :: results in
+             let results =
+               { Is_complete_result.Trace.Result.verifier = name; code; result }
+               :: results
+             in
              (match aux_verifier ~decoder ~results ~rounds ~code ~verifiers with
               | Yes -> aux_all tl
               | No_with_counter_example _ as no -> no)
@@ -70,6 +73,28 @@ let is_complete_resolution_path ~decoder ~resolution_path =
   match is_complete_resolution_path_with_trace ~decoder ~resolution_path with
   | Yes -> true
   | No_with_counter_example _ -> false
+;;
+
+let max_number_of_remaining_codes ~decoder ~(resolution_path : Resolution_path.t) =
+  let rec aux_round ~decoder ~rounds =
+    match (rounds : Resolution_path.Round.t list) with
+    | [] -> Decoder.hypotheses decoder |> List.length
+    | { code; verifiers } :: rounds ->
+      aux_verifier ~decoder ~rounds ~code ~verifiers:(verifiers |> Nonempty_list.to_list)
+  and aux_verifier ~decoder ~rounds ~code ~verifiers =
+    match verifiers with
+    | [] -> aux_round ~decoder ~rounds
+    | name :: verifiers ->
+      let verifier = Decoder.verifier_exn decoder ~name in
+      List.fold [ true; false ] ~init:1 ~f:(fun acc result ->
+        match Decoder.add_test_result decoder ~verifier ~code ~result with
+        | Ok decoder -> max acc (aux_verifier ~decoder ~rounds ~code ~verifiers)
+        | Error _ ->
+          (* This result is impossible as per the information already available,
+             so this doesn't change the computed max. *)
+          acc)
+  in
+  aux_round ~decoder ~rounds:(resolution_path.rounds |> Nonempty_list.to_list)
 ;;
 
 let shrink_resolution_path ~decoder ~resolution_path =
