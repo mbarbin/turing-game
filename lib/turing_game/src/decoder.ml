@@ -80,7 +80,7 @@ let verifier_exn t ~name =
   t.slots
   |> Array.Permissioned.to_list
   |> List.find_map_exn ~f:(fun slot ->
-    if Verifier.Name.equal name slot.verifier.name then Some slot.verifier else None)
+    Option.some_if (Verifier.Name.equal name slot.verifier.name) slot.verifier)
 ;;
 
 module Cycle_counter = struct
@@ -260,7 +260,7 @@ module Normalizer = struct
                 Nonempty_list.filter_map
                   remaining_conditions
                   ~f:(fun { index = _; condition; reachable } ->
-                    if reachable then Some condition else None)
+                    Option.some_if reachable condition)
               in
               (match remaining_conditions with
                | [] ->

@@ -20,4 +20,25 @@ let print_cmd =
      fun () -> print_s hello_world)
 ;;
 
-let main = Command.group ~summary:"" [ "print", print_cmd ]
+let solver_example_cmd =
+  Command.basic
+    ~summary:"solve an example"
+    (let%map_open.Command () = return () in
+     fun () ->
+       let decoder =
+         Decoder.create
+           ~verifiers:
+             Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+       in
+       let solutions = Solver.solve ~decoder in
+       print_s [%sexp (solutions : Resolution_path.t list)];
+       ())
+;;
+
+let main =
+  Command.group
+    ~summary:""
+    [ "print", print_cmd
+    ; "solver", Command.group ~summary:"solver" [ "example", solver_example_cmd ]
+    ]
+;;

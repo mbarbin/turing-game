@@ -6,11 +6,12 @@ let empty = []
 let to_list t = t
 
 let all =
-  let open List.Let_syntax in
-  let%bind triangle = Digit.all in
-  let%bind square = Digit.all in
-  let%bind circle = Digit.all in
-  [ { Symbol.Tuple.triangle; square; circle } ]
+  (let open List.Let_syntax in
+   let%bind triangle = Digit.all in
+   let%bind square = Digit.all in
+   let%bind circle = Digit.all in
+   [ { Symbol.Tuple.triangle; square; circle } ])
+  |> List.sort ~compare:Code.compare
 ;;
 
 let mem t (code : Code.t) = List.mem t code ~equal:Code.equal

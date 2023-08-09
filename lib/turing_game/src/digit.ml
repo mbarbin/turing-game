@@ -6,7 +6,7 @@ type t =
   | Three
   | Four
   | Five
-[@@deriving compare, enumerate, equal, hash, sexp_of]
+[@@deriving compare, enumerate, equal, hash]
 
 let to_int = function
   | One -> 1
@@ -15,6 +15,8 @@ let to_int = function
   | Four -> 4
   | Five -> 5
 ;;
+
+let sexp_of_t t = [%sexp (to_int t : int)]
 
 module Tuple = struct
   type 'a t =

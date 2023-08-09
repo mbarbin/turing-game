@@ -167,3 +167,10 @@ let%expect_test "shrink" =
         ((code 231) (verifiers (04 11))))))) |}];
   ()
 ;;
+
+let%expect_test "solve" =
+  let solutions = Solver.solve ~decoder in
+  print_s [%sexp (solutions : Resolution_path.t list)];
+  [%expect {||}];
+  ()
+;;
