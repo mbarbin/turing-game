@@ -126,7 +126,7 @@ module Hypothesis = struct
 
   type t =
     { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
-    ; number_of_remaining_codes : int
+    ; number_of_remaining_codes : int [@sexp_drop_if ( = ) 1]
     ; remaining_codes : Codes.t (* Must be non empty. *)
     }
   [@@deriving sexp_of]
