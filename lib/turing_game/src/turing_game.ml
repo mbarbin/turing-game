@@ -6,6 +6,8 @@ module Decoder = Decoder
 module Digit = Digit
 module Digits = Digits
 module Partition = Partition
+module Resolution_path = Resolution_path
+module Solver = Solver
 module Symbol = Symbol
 module Verifier = Verifier
 

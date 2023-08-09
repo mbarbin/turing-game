@@ -188,7 +188,8 @@ module Normalizer = struct
 
   module Reachable_condition = struct
     type t =
-      { condition : Condition.t
+      { index : int
+      ; condition : Condition.t
       ; mutable reachable : bool
       }
     [@@deriving sexp_of]
@@ -206,6 +207,7 @@ module Normalizer = struct
       { index : int
       ; status : Reachable_status.t
       }
+    [@@deriving sexp_of]
   end
 
   type t = { slots : (Tagged_slot.t, immutable) Array.Permissioned.t }
@@ -219,8 +221,8 @@ module Normalizer = struct
           | Undetermined { remaining_conditions } ->
             Undetermined
               { remaining_conditions =
-                  Nonempty_list.map remaining_conditions ~f:(fun condition ->
-                    { Reachable_condition.condition; reachable = false })
+                  Nonempty_list.mapi remaining_conditions ~f:(fun index condition ->
+                    { Reachable_condition.index; condition; reachable = false })
               }
         in
         { Tagged_slot.index; status })
@@ -246,30 +248,41 @@ module Normalizer = struct
   let normalize decoder =
     let t = of_decoder ~decoder in
     tag t ~decoder;
-    let slots =
-      Array.Permissioned.map2_exn decoder.slots t.slots ~f:(fun slot normalized_slot ->
-        let updated_status =
-          match slot.status, normalized_slot.status with
-          | Determined _, _ -> None
-          | Undetermined _, Determined -> assert false
-          | Undetermined _, Undetermined { remaining_conditions } ->
-            let remaining_conditions =
-              Nonempty_list.filter_map
-                remaining_conditions
-                ~f:(fun { condition; reachable } ->
-                  if reachable then Some condition else None)
-            in
-            (match remaining_conditions with
-             | [] -> assert false
-             | [ condition ] -> Some (Slot.Status.Determined { condition })
-             | hd :: (_ :: _ as tl) ->
-               Some (Slot.Status.Undetermined { remaining_conditions = hd :: tl }))
-        in
-        match updated_status with
-        | None -> slot
-        | Some status -> { slot with status })
-    in
-    { slots; strict_hypotheses = None }
+    with_return (fun { return } ->
+      let slots =
+        Array.Permissioned.map2_exn decoder.slots t.slots ~f:(fun slot tagged_slot ->
+          let updated_status =
+            match slot.status, tagged_slot.status with
+            | Determined _, _ -> None
+            | Undetermined _, Determined -> assert false
+            | Undetermined _, Undetermined { remaining_conditions } ->
+              let remaining_conditions =
+                Nonempty_list.filter_map
+                  remaining_conditions
+                  ~f:(fun { index = _; condition; reachable } ->
+                    if reachable then Some condition else None)
+              in
+              (match remaining_conditions with
+               | [] ->
+                 let hypotheses = hypotheses decoder ~strict:true in
+                 return
+                   (Or_error.error_s
+                      [%sexp
+                        "No remaining condition"
+                        , { decoder : t
+                          ; slot : Slot.t
+                          ; tagged_slot : Tagged_slot.t
+                          ; hypotheses : Hypothesis.t list
+                          }])
+               | [ condition ] -> Some (Slot.Status.Determined { condition })
+               | hd :: (_ :: _ as tl) ->
+                 Some (Slot.Status.Undetermined { remaining_conditions = hd :: tl }))
+          in
+          match updated_status with
+          | None -> slot
+          | Some status -> { slot with status })
+      in
+      Or_error.return { slots; strict_hypotheses = None })
   ;;
 end
 
@@ -322,7 +335,7 @@ let add_test_result t ~verifier ~code ~result =
       ; strict_hypotheses = None
       }
     in
-    return (Normalizer.normalize t)
+    Normalizer.normalize t
 ;;
 
 let add_test_result_exn t ~verifier ~code ~result =

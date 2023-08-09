@@ -1,7 +1,36 @@
 open! Core
 
+module Trace : sig
+  module Result : sig
+    type t =
+      { code : Code.t
+      ; verifier : Verifier.Name.t
+      ; result : bool
+      }
+    [@@deriving sexp_of]
+  end
+
+  type t =
+    { results : Result.t list
+    ; hypotheses : Decoder.Hypothesis.t list
+    }
+  [@@deriving sexp_of]
+end
+
+module Is_complete_result : sig
+  type t =
+    | Yes
+    | No_with_counter_example of Trace.t
+  [@@deriving sexp_of]
+end
+
 (** A resolution_path is said to be complete if it forces the resolution down to
     a single remaining hypothesis. *)
+val is_complete_resolution_path_with_trace
+  :  decoder:Decoder.t
+  -> resolution_path:Resolution_path.t
+  -> Is_complete_result.t
+
 val is_complete_resolution_path
   :  decoder:Decoder.t
   -> resolution_path:Resolution_path.t
