@@ -11,6 +11,7 @@ depends: [
   "ocaml" {>= "5.0"}
   "dune" {>= "3.9"}
   "core" {>= "v0.16" & < "v0.17"}
+  "core_kernel" {>= "v0.16" & < "v0.17"}
   "core_unix" {>= "v0.16" & < "v0.17"}
   "ppx_jane" {>= "v0.16" & < "v0.17"}
   "ppx_js_style" {>= "v0.16" & < "v0.17"}

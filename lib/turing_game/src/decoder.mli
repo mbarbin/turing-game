@@ -5,10 +5,10 @@ type t [@@deriving sexp_of]
 module Verifier : sig
   type t
 
-  val create : Condition.t list -> t
+  val create : Condition.t Nonempty_list.t -> t
 end
 
-val create : Verifier.t list -> t
+val create : Verifier.t Nonempty_list.t -> t
 
 module Hypothesis : sig
   type t [@@deriving sexp_of]

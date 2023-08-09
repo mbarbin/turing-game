@@ -1,14 +1,14 @@
 open! Core
 
 module Verifier = struct
-  type t = Condition.t list [@@deriving equal, sexp_of]
+  type t = Condition.t Nonempty_list.t [@@deriving equal, sexp_of]
 
   let create t = t
 end
 
 module Verifier_status = struct
   type t =
-    | Undetermined of { remaining_conditions : Condition.t list }
+    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
     | Determined of { condition : Condition.t }
   [@@deriving equal, sexp_of]
 end
@@ -39,18 +39,19 @@ let add_test_result_exn t ~verifier ~code ~result =
             }]
   | Undetermined { remaining_conditions } ->
     let remaining_conditions =
-      List.filter remaining_conditions ~f:(fun condition ->
+      Nonempty_list.filter remaining_conditions ~f:(fun condition ->
         Bool.equal result (Code.verifies code ~condition))
     in
     (match remaining_conditions with
      | [ condition ] -> t.verifiers_status.(i) <- Determined { condition }
-     | _ :: _ :: _ -> t.verifiers_status.(i) <- Undetermined { remaining_conditions }
+     | hd :: (_ :: _ as tl) ->
+       t.verifiers_status.(i) <- Undetermined { remaining_conditions = hd :: tl }
      | [] ->
        raise_s [%sexp "Unexpected result", "Verifier has no remaining possible condition"])
 ;;
 
 let create verifiers =
-  let verifiers = Array.of_list verifiers in
+  let verifiers = verifiers |> Nonempty_list.to_array in
   { verifiers
   ; verifiers_status =
       Array.map verifiers ~f:(fun remaining_conditions ->
@@ -141,7 +142,7 @@ let hypotheses t =
     let id = t.verifiers.(i) in
     match verifier_status with
     | Undetermined { remaining_conditions } ->
-      List.iter remaining_conditions ~f:(fun condition ->
+      Nonempty_list.iter remaining_conditions ~f:(fun condition ->
         Queue.enqueue verifiers.(i) { id; condition })
     | Determined { condition } -> Queue.enqueue verifiers.(i) { id; condition });
   let verifiers =
