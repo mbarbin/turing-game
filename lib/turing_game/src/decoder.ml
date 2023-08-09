@@ -113,14 +113,10 @@ let verifiers t =
 module Hypothesis = struct
   module One_verifier = struct
     type t =
-      { id : Verifier.t
+      { name : string
       ; condition : Condition.t
       }
     [@@deriving equal, sexp_of]
-
-    module Short_sexp = struct
-      let sexp_of_t { id = _; condition } = [%sexp (condition : Condition.t)]
-    end
 
     let remaining_codes t ~remaining_codes =
       Codes.filter remaining_codes ~f:(fun code ->
@@ -140,7 +136,7 @@ module Hypothesis = struct
 
     let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes = _ } =
       [%sexp
-        { verifiers : (One_verifier.Short_sexp.t, immutable) Array.Permissioned.t
+        { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
         ; number_of_remaining_codes : int
         }]
     ;;
@@ -177,12 +173,12 @@ let hypotheses ?(strict = true) (t : t) =
     Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
   Array.Permissioned.iteri t.slots ~f:(fun i slot ->
-    let id = slot.verifier in
+    let name = slot.verifier.name in
     match slot.status with
     | Undetermined { remaining_conditions } ->
       Nonempty_list.iter remaining_conditions ~f:(fun condition ->
-        Queue.enqueue verifiers.(i) { id; condition })
-    | Determined { condition } -> Queue.enqueue verifiers.(i) { id; condition });
+        Queue.enqueue verifiers.(i) { name; condition })
+    | Determined { condition } -> Queue.enqueue verifiers.(i) { name; condition });
   let verifiers =
     Array.map verifiers ~f:(fun queue ->
       { Cycle_counter.values = Queue.to_array queue; current_value = 0 })
