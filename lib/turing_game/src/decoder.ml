@@ -95,21 +95,6 @@ let verifiers t =
   |> Nonempty_list.of_list_exn
 ;;
 
-(* An hypothesis on the nature of verifiers means choosing one single condition
-   for each verifier, as well as a result for it. For each hypothesis, we may
-   construct the set of codes that verify such condition. If that set is not a
-   singleton, we can discard that hypothesis.
-
-   Are there hypotheses that are more probable than others?
-
-   Or are we rather trying to propose tests to run such that they remove the
-   most hypothesis?
-
-   A proposal is a code to run through a verifier, which gives back a result.
-   Once we have applied that result, we are left with a state that has a
-   remaining number of hypothesis.
-*)
-
 module Hypothesis = struct
   module One_verifier = struct
     type t =
@@ -126,7 +111,7 @@ module Hypothesis = struct
 
   type t =
     { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
-    ; number_of_remaining_codes : int [@sexp_drop_if ( = ) 1]
+    ; number_of_remaining_codes : int
     ; remaining_codes : Codes.t (* Must be non empty. *)
     }
 
