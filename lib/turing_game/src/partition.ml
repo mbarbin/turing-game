@@ -1,21 +1,24 @@
 open! Core
 
-type t = Condition.t array [@@deriving equal, sexp_of]
+type t = Condition.t Nonempty_list.t [@@deriving equal, sexp_of]
 
-let verify_counts t =
+let verify_counts (t : t) =
   with_return (fun { return } ->
-    let counts = Array.map t ~f:(fun _ -> ref 0) in
+    let counts = Array.init (Nonempty_list.length t) ~f:(fun _ -> ref 0) in
     List.iter (Codes.all |> Codes.to_list) ~f:(fun code ->
-      let verifies = Array.map t ~f:(fun condition -> Code.verifies code ~condition) in
-      if Array.count verifies ~f:Fn.id <> 1
+      let verifies =
+        Nonempty_list.map t ~f:(fun condition -> Code.verifies code ~condition)
+      in
+      if Nonempty_list.count verifies ~f:Fn.id <> 1
       then
         return
           (Or_error.error_s
              [%sexp
                "Code does not verify exactly 1 condition"
                , (t : t)
-               , { code : Code.t; verifies : bool array }])
-      else Array.iteri verifies ~f:(fun i result -> if result then incr counts.(i)));
+               , { code : Code.t; verifies : bool Nonempty_list.t }])
+      else
+        Nonempty_list.iteri verifies ~f:(fun i result -> if result then incr counts.(i)));
     let counts = Array.map counts ~f:(fun count -> !count) in
     if Array.exists counts ~f:(fun count -> count = 0)
     then

@@ -1,6 +1,7 @@
 open! Core
 
 type t =
+  | Const of bool
   | Equal_value of
       { symbol : Symbol.t
       ; value : Digit.t

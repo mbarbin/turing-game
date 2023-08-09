@@ -31,6 +31,7 @@ let sum t =
 
 let verifies t ~condition =
   match (condition : Condition.t) with
+  | Const bool -> bool
   | Equal_value { symbol; value } -> Digit.equal (Symbol.Tuple.get t symbol) value
   | Greater_than_value { symbol; value } ->
     Digit.to_int (Symbol.Tuple.get t symbol) > Digit.to_int value

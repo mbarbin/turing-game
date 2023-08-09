@@ -3,12 +3,15 @@ open! Core
 type t [@@deriving sexp_of]
 
 module Verifier : sig
-  type t
+  type t [@@deriving sexp_of]
 
-  val create : Condition.t Nonempty_list.t -> t
+  val create : name:string -> conditions:Condition.t Nonempty_list.t -> t
 end
 
-val create : Verifier.t Nonempty_list.t -> t
+val create : verifiers:Verifier.t Nonempty_list.t -> t
+
+(** Returns the verifiers used to create [t]. *)
+val verifiers : t -> Verifier.t Nonempty_list.t
 
 module Hypothesis : sig
   type t [@@deriving sexp_of]
@@ -22,4 +25,4 @@ val hypotheses : t -> Hypothesis.t list
 
 (** During the course of the decoding, the decoder will request some tests to be
     run. Use this function to inform back [t] of the test result. *)
-val add_test_result_exn : t -> verifier:Verifier.t -> code:Code.t -> result:bool -> unit
+val add_test_result_exn : t -> verifier:Verifier.t -> code:Code.t -> result:bool -> t

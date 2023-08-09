@@ -1,30 +1,43 @@
 open! Core
 
 module Verifier = struct
-  type t = Condition.t Nonempty_list.t [@@deriving equal, sexp_of]
+  type t =
+    { name : string
+    ; conditions : Condition.t Nonempty_list.t
+    }
+  [@@deriving equal, sexp_of]
 
-  let create t = t
+  let create ~name ~conditions = { name; conditions }
 end
 
-module Verifier_status = struct
+module Slot = struct
+  module Status = struct
+    type t =
+      | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
+      | Determined of { condition : Condition.t }
+    [@@deriving equal, sexp_of]
+  end
+
   type t =
-    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
-    | Determined of { condition : Condition.t }
+    { index : int
+    ; verifier : Verifier.t
+    ; status : Status.t
+    }
   [@@deriving equal, sexp_of]
 end
 
-type t =
-  { verifiers : Verifier.t array
-  ; verifiers_status : Verifier_status.t array
-  }
-[@@deriving equal, sexp_of]
+type t = { slots : (Slot.t, immutable) Array.Permissioned.t } [@@deriving sexp_of]
 
 let add_test_result_exn t ~verifier ~code ~result =
-  let i =
-    Array.find_mapi_exn t.verifiers ~f:(fun i v ->
-      if phys_equal verifier v then Some i else None)
+  let slot =
+    match
+      Array.Permissioned.find t.slots ~f:(fun slot -> phys_equal verifier slot.verifier)
+    with
+    | Some slot -> slot
+    | None -> raise_s [%sexp "Verifier not found in t", { verifier : Verifier.t }]
   in
-  match t.verifiers_status.(i) with
+  let index = slot.index in
+  match slot.status with
   | Determined { condition } ->
     (* Nothing to learn. *)
     let expected_result = Code.verifies code ~condition in
@@ -33,30 +46,53 @@ let add_test_result_exn t ~verifier ~code ~result =
       raise_s
         [%sexp
           "Unexpected result"
-          , { verifier_status =
+          , { index : int
+            ; verifier_status =
                 Determined
                   { condition : Condition.t; expected_result : bool; result : bool }
-            }]
+            }];
+    t
   | Undetermined { remaining_conditions } ->
-    let remaining_conditions =
-      Nonempty_list.filter remaining_conditions ~f:(fun condition ->
-        Bool.equal result (Code.verifies code ~condition))
+    let status =
+      let remaining_conditions =
+        Nonempty_list.filter remaining_conditions ~f:(fun condition ->
+          Bool.equal result (Code.verifies code ~condition))
+      in
+      match remaining_conditions with
+      | [ condition ] -> Slot.Status.Determined { condition }
+      | hd :: (_ :: _ as tl) ->
+        Slot.Status.Undetermined { remaining_conditions = hd :: tl }
+      | [] ->
+        raise_s
+          [%sexp
+            "Unexpected result"
+            , "Verifier has no remaining possible condition"
+            , { index : int }]
     in
-    (match remaining_conditions with
-     | [ condition ] -> t.verifiers_status.(i) <- Determined { condition }
-     | hd :: (_ :: _ as tl) ->
-       t.verifiers_status.(i) <- Undetermined { remaining_conditions = hd :: tl }
-     | [] ->
-       raise_s [%sexp "Unexpected result", "Verifier has no remaining possible condition"])
+    { slots =
+        Array.Permissioned.mapi t.slots ~f:(fun i slot ->
+          if i = index then { slot with Slot.status } else slot)
+    }
 ;;
 
-let create verifiers =
-  let verifiers = verifiers |> Nonempty_list.to_array in
-  { verifiers
-  ; verifiers_status =
-      Array.map verifiers ~f:(fun remaining_conditions ->
-        Verifier_status.Undetermined { remaining_conditions })
+let create ~verifiers =
+  { slots =
+      verifiers
+      |> Nonempty_list.to_array
+      |> Array.Permissioned.of_array_id
+      |> Array.Permissioned.mapi ~f:(fun index verifier ->
+        { Slot.index
+        ; verifier
+        ; status = Undetermined { remaining_conditions = verifier.conditions }
+        })
   }
+;;
+
+let verifiers t =
+  t.slots
+  |> Array.Permissioned.to_list
+  |> List.map ~f:(fun slot -> slot.verifier)
+  |> Nonempty_list.of_list_exn
 ;;
 
 (* An hypothesis on the nature of verifiers means choosing one single condition
@@ -93,18 +129,20 @@ module Hypothesis = struct
   end
 
   type t =
-    { verifiers : One_verifier.t array
+    { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
     ; number_of_remaining_codes : int
     ; remaining_codes : Codes.t (* Must be non empty. *)
     }
-  [@@deriving equal, sexp_of]
+  [@@deriving sexp_of]
 
   module Short_sexp = struct
     type nonrec t = t
 
     let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes = _ } =
       [%sexp
-        { verifiers : One_verifier.Short_sexp.t array; number_of_remaining_codes : int }]
+        { verifiers : (One_verifier.Short_sexp.t, immutable) Array.Permissioned.t
+        ; number_of_remaining_codes : int
+        }]
     ;;
   end
 end
@@ -134,13 +172,13 @@ module Cycle_counter = struct
   ;;
 end
 
-let hypotheses t =
-  let verifiers : Hypothesis.One_verifier.t Queue.t Array.t =
-    Array.map t.verifiers_status ~f:(fun _ -> Queue.create ())
+let hypotheses (t : t) =
+  let verifiers : Hypothesis.One_verifier.t Queue.t array =
+    Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
-  Array.iteri t.verifiers_status ~f:(fun i verifier_status ->
-    let id = t.verifiers.(i) in
-    match verifier_status with
+  Array.Permissioned.iteri t.slots ~f:(fun i slot ->
+    let id = slot.verifier in
+    match slot.status with
     | Undetermined { remaining_conditions } ->
       Nonempty_list.iter remaining_conditions ~f:(fun condition ->
         Queue.enqueue verifiers.(i) { id; condition })
@@ -160,12 +198,17 @@ let hypotheses t =
   let hypotheses = Queue.create () in
   let rec loop () =
     let verifiers =
-      Array.map verifiers ~f:(fun { Cycle_counter.values; current_value } ->
+      verifiers
+      |> Array.Permissioned.of_array_id
+      |> Array.Permissioned.map ~f:(fun { Cycle_counter.values; current_value } ->
         values.(current_value))
     in
     let remaining_codes =
-      Array.fold verifiers ~init:Codes.all ~f:(fun remaining_codes one_verifier ->
-        Hypothesis.One_verifier.remaining_codes one_verifier ~remaining_codes)
+      Array.Permissioned.fold
+        verifiers
+        ~init:Codes.all
+        ~f:(fun remaining_codes one_verifier ->
+          Hypothesis.One_verifier.remaining_codes one_verifier ~remaining_codes)
     in
     let number_of_remaining_codes = Codes.length remaining_codes in
     if number_of_remaining_codes > 0
