@@ -9,6 +9,10 @@ val verifiers : t -> Verifier.t Nonempty_list.t
 
 val verifier_exn : t -> name:Verifier.Name.t -> Verifier.t
 
+(** Return the number of codes that are still possible given the information
+    known by [t]. This is cached inside [t]. *)
+val number_of_remaining_codes : t -> int
+
 module Hypothesis : sig
   type t [@@deriving sexp_of]
 end

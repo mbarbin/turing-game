@@ -11,8 +11,9 @@ module Round : sig
     { code : Code.t
     ; verifiers : Verifier.Name.t Nonempty_list.t
     }
+  [@@deriving compare, equal, hash, sexp_of]
 end
 
-type t = { rounds : Round.t Nonempty_list.t } [@@deriving sexp_of]
+type t = { rounds : Round.t Nonempty_list.t } [@@deriving compare, equal, hash, sexp_of]
 
 val number_of_rounds : t -> int

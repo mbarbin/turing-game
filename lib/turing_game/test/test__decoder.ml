@@ -117,11 +117,14 @@ let%expect_test "example of path" =
   let decoder =
     Decoder.create ~verifiers:[ verifier_04; verifier_09; verifier_11; verifier_14 ]
   in
-  let hypotheses = Decoder.hypotheses decoder in
-  let sexp_init = ref [%sexp (hypotheses : Decoder.Hypothesis.t list)] in
-  let print_progress ~decoder =
+  let info ~decoder =
+    let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
     let hypotheses = Decoder.hypotheses decoder in
-    let sexp = [%sexp (hypotheses : Decoder.Hypothesis.t list)] in
+    [%sexp { number_of_remaining_codes : int; hypotheses : Decoder.Hypothesis.t list }]
+  in
+  let sexp_init = ref (info ~decoder) in
+  let print_progress ~decoder =
+    let sexp = info ~decoder in
     let diff = Sexp_diff.Algo.diff ~original:!sexp_init ~updated:sexp () in
     print_string
       (Sexp_diff.Display.display_as_plain_string
@@ -136,24 +139,29 @@ let%expect_test "example of path" =
   print_progress ~decoder;
   [%expect
     {|
-     (
-    - ((code 221)
-    -  (verifiers
-    -   (((name 04) (condition (Less_than_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
-    -    ((name 11) (condition (Equal (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Circle)))))))
-    - ((code 231)
-    -  (verifiers
-    -   (((name 04) (condition (Less_than_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
-    -    ((name 11) (condition (Less_than (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Circle)))))))
-      ((code 241)
-       (verifiers
-                             ...26 unchanged lines...
-         ((name 11) (condition (Equal (a Triangle) (b Square))))
-         ((name 14) (condition (Is_smallest (symbol Circle)))))))) |}];
+     ((number_of_remaining_codes
+    -  7
+    +  5
+      )
+      (hypotheses
+       (
+    -   ((code 221)
+    -    (verifiers
+    -     (((name 04) (condition (Less_than_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
+    -      ((name 11) (condition (Equal (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Circle)))))))
+    -   ((code 231)
+    -    (verifiers
+    -     (((name 04) (condition (Less_than_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+    -      ((name 11) (condition (Less_than (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Circle)))))))
+        ((code 241)
+         (verifiers
+                              ...26 unchanged lines...
+           ((name 11) (condition (Equal (a Triangle) (b Square))))
+           ((name 14) (condition (Is_smallest (symbol Circle)))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result_exn decoder ~verifier:verifier_09 ~code ~result:true
@@ -161,30 +169,33 @@ let%expect_test "example of path" =
   print_progress ~decoder;
   [%expect
     {|
-     (((code 241)
-       (verifiers
-                               ...8 unchanged lines...
-         ((name 11) (condition (Greater_than (a Triangle) (b Square))))
-         ((name 14) (condition (Is_smallest (symbol Square)))))))
-    - ((code 443)
-    -  (verifiers
-    -   (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
-    -    ((name 11) (condition (Equal (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Circle)))))))
-    - ((code 543)
-    -  (verifiers
-    -   (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
-    -    ((name 11) (condition (Greater_than (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Circle)))))))
-    - ((code 553)
-    -  (verifiers
-    -   (((name 04) (condition (Greater_than_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
-    -    ((name 11) (condition (Equal (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Circle)))))))
-     ) |}];
+     ((number_of_remaining_codes
+    -  5
+    +  2
+      )
+      (hypotheses
+                               ...10 unchanged lines...
+           ((name 11) (condition (Greater_than (a Triangle) (b Square))))
+           ((name 14) (condition (Is_smallest (symbol Square)))))))
+    -   ((code 443)
+    -    (verifiers
+    -     (((name 04) (condition (Equal_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+    -      ((name 11) (condition (Equal (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Circle)))))))
+    -   ((code 543)
+    -    (verifiers
+    -     (((name 04) (condition (Equal_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+    -      ((name 11) (condition (Greater_than (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Circle)))))))
+    -   ((code 553)
+    -    (verifiers
+    -     (((name 04) (condition (Greater_than_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+    -      ((name 11) (condition (Equal (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Circle)))))))
+       ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result_exn decoder ~verifier:verifier_11 ~code ~result:true
@@ -192,35 +203,40 @@ let%expect_test "example of path" =
   print_progress ~decoder;
   [%expect
     {|
-     (((code 241)
-       (verifiers
-        (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-         ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
-         ((name 11) (condition (Less_than (a Triangle) (b Square))))
-         ((name 14) (condition (Is_smallest (symbol Circle)))))))
-    - ((code 545)
-    -  (verifiers
-    -   (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-    -    ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
-    -    ((name 11) (condition (Greater_than (a Triangle) (b Square))))
-    -    ((name 14) (condition (Is_smallest (symbol Square)))))))
-     ) |}];
+     ((number_of_remaining_codes
+    -  2
+    +  1
+      )
+      (hypotheses
+       (((code 241)
+         (verifiers
+          (((name 04) (condition (Equal_value (symbol Square) (value Four))))
+           ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
+           ((name 11) (condition (Less_than (a Triangle) (b Square))))
+           ((name 14) (condition (Is_smallest (symbol Circle)))))))
+    -   ((code 545)
+    -    (verifiers
+    -     (((name 04) (condition (Equal_value (symbol Square) (value Four))))
+    -      ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
+    -      ((name 11) (condition (Greater_than (a Triangle) (b Square))))
+    -      ((name 14) (condition (Is_smallest (symbol Square)))))))
+       ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result_exn decoder ~verifier:verifier_14 ~code ~result:false
   in
   print_progress ~decoder;
-  [%expect {|
-    (no changes) |}];
-  let hypotheses = Decoder.hypotheses decoder in
-  print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
+  [%expect {| (no changes) |}];
+  print_s (info ~decoder);
   [%expect
     {|
-    (((code 241)
-      (verifiers
-       (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-        ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
-        ((name 11) (condition (Less_than (a Triangle) (b Square))))
-        ((name 14) (condition (Is_smallest (symbol Circle)))))))) |}];
+    ((number_of_remaining_codes 1)
+     (hypotheses
+      (((code 241)
+        (verifiers
+         (((name 04) (condition (Equal_value (symbol Square) (value Four))))
+          ((name 09) (condition (Has_digit_count (digit Three) (count 0))))
+          ((name 11) (condition (Less_than (a Triangle) (b Square))))
+          ((name 14) (condition (Is_smallest (symbol Circle)))))))))) |}];
   ()
 ;;

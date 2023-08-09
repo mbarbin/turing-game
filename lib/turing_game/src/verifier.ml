@@ -1,7 +1,7 @@
 open! Core
 
 module Name = struct
-  type t = string [@@deriving compare, equal, sexp_of]
+  type t = string [@@deriving compare, equal, hash, sexp_of]
 end
 
 type t =

@@ -15,7 +15,9 @@ let is_complete_resolution_path ~decoder ~(resolution_path : Resolution_path.t) 
         match Decoder.add_test_result decoder ~verifier ~code ~result with
         | Ok decoder -> aux_verifier ~decoder ~rounds ~code ~verifiers
         | Error _ ->
-          (* This result is impossible as per the information already available. *)
+          (* This result is impossible as per the information already available,
+             so we shouldn't worry about whether we'll be determined in this
+             case. *)
           true)
   in
   aux_round ~decoder ~rounds:(resolution_path.rounds |> Nonempty_list.to_list)

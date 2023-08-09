@@ -16,88 +16,6 @@ module Slot = struct
   [@@deriving equal, sexp_of]
 end
 
-type t = { slots : (Slot.t, immutable) Array.Permissioned.t } [@@deriving sexp_of]
-
-let add_test_result t ~verifier ~code ~result =
-  let open Or_error.Let_syntax in
-  let slot =
-    match
-      Array.Permissioned.find t.slots ~f:(fun slot -> phys_equal verifier slot.verifier)
-    with
-    | Some slot -> slot
-    | None -> raise_s [%sexp "Verifier not found in t", { verifier : Verifier.t }]
-  in
-  let index = slot.index in
-  match slot.status with
-  | Determined { condition } ->
-    (* Nothing to learn. *)
-    let expected_result = Code.verifies code ~condition in
-    if Bool.equal expected_result result
-    then return t
-    else
-      Or_error.error_s
-        [%sexp
-          "Unexpected result"
-          , { index : int
-            ; verifier_status =
-                Determined
-                  { condition : Condition.t; expected_result : bool; result : bool }
-            }]
-  | Undetermined { remaining_conditions } ->
-    let%bind status =
-      let remaining_conditions =
-        Nonempty_list.filter remaining_conditions ~f:(fun condition ->
-          Bool.equal result (Code.verifies code ~condition))
-      in
-      match remaining_conditions with
-      | [ condition ] -> return (Slot.Status.Determined { condition })
-      | hd :: (_ :: _ as tl) ->
-        return (Slot.Status.Undetermined { remaining_conditions = hd :: tl })
-      | [] ->
-        Or_error.error_s
-          [%sexp
-            "Unexpected result"
-            , "Verifier has no remaining possible condition"
-            , { index : int }]
-    in
-    return
-      { slots =
-          Array.Permissioned.mapi t.slots ~f:(fun i slot ->
-            if i = index then { slot with Slot.status } else slot)
-      }
-;;
-
-let add_test_result_exn t ~verifier ~code ~result =
-  add_test_result t ~verifier ~code ~result |> Or_error.ok_exn
-;;
-
-let create ~verifiers =
-  { slots =
-      verifiers
-      |> Nonempty_list.to_array
-      |> Array.Permissioned.of_array_id
-      |> Array.Permissioned.mapi ~f:(fun index verifier ->
-        { Slot.index
-        ; verifier
-        ; status = Undetermined { remaining_conditions = verifier.conditions }
-        })
-  }
-;;
-
-let verifiers t =
-  t.slots
-  |> Array.Permissioned.to_list
-  |> List.map ~f:(fun slot -> slot.verifier)
-  |> Nonempty_list.of_list_exn
-;;
-
-let verifier_exn t ~name =
-  t.slots
-  |> Array.Permissioned.to_list
-  |> List.find_map_exn ~f:(fun slot ->
-    if Verifier.Name.equal name slot.verifier.name then Some slot.verifier else None)
-;;
-
 module Hypothesis = struct
   module One_verifier = struct
     type t =
@@ -131,6 +49,40 @@ module Hypothesis = struct
   ;;
 end
 
+type t =
+  { slots : (Slot.t, immutable) Array.Permissioned.t
+  ; mutable strict_hypotheses : Hypothesis.t list option
+  }
+[@@deriving sexp_of]
+
+let create ~verifiers =
+  { slots =
+      verifiers
+      |> Nonempty_list.to_array
+      |> Array.Permissioned.of_array_id
+      |> Array.Permissioned.mapi ~f:(fun index verifier ->
+        { Slot.index
+        ; verifier
+        ; status = Undetermined { remaining_conditions = verifier.conditions }
+        })
+  ; strict_hypotheses = None
+  }
+;;
+
+let verifiers t =
+  t.slots
+  |> Array.Permissioned.to_list
+  |> List.map ~f:(fun slot -> slot.verifier)
+  |> Nonempty_list.of_list_exn
+;;
+
+let verifier_exn t ~name =
+  t.slots
+  |> Array.Permissioned.to_list
+  |> List.find_map_exn ~f:(fun slot ->
+    if Verifier.Name.equal name slot.verifier.name then Some slot.verifier else None)
+;;
+
 module Cycle_counter = struct
   type 'a t =
     { values : 'a array
@@ -156,7 +108,7 @@ module Cycle_counter = struct
   ;;
 end
 
-let hypotheses ?(strict = true) (t : t) =
+let compute_hypotheses (t : t) ~strict =
   let verifiers : Hypothesis.One_verifier.t Queue.t array =
     Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
@@ -206,11 +158,173 @@ let hypotheses ?(strict = true) (t : t) =
   Queue.to_list hypotheses
 ;;
 
+let hypotheses ?(strict = true) t =
+  if strict
+  then (
+    match t.strict_hypotheses with
+    | Some hypotheses -> hypotheses
+    | None ->
+      let strict_hypotheses = compute_hypotheses t ~strict:true in
+      t.strict_hypotheses <- Some strict_hypotheses;
+      strict_hypotheses)
+  else compute_hypotheses t ~strict:false
+;;
+
+let number_of_remaining_codes t = hypotheses t ~strict:true |> List.length
+
 let is_determined t =
-  match hypotheses t with
+  match hypotheses t ~strict:true with
   | [] | _ :: _ :: _ -> None
   | [ hd ] ->
     (match Codes.to_list hd.remaining_codes with
      | [ code ] -> Some code
      | _ -> None)
+;;
+
+(* For all slots that are undetermined, remove the conditions that do not belong
+   to any valid strict hypothesis. This is a form of deduction. *)
+module Normalizer = struct
+  type decoder = t
+
+  module Reachable_condition = struct
+    type t =
+      { condition : Condition.t
+      ; mutable reachable : bool
+      }
+    [@@deriving sexp_of]
+  end
+
+  module Reachable_status = struct
+    type t =
+      | Determined
+      | Undetermined of { remaining_conditions : Reachable_condition.t Nonempty_list.t }
+    [@@deriving sexp_of]
+  end
+
+  module Tagged_slot = struct
+    type t =
+      { index : int
+      ; status : Reachable_status.t
+      }
+  end
+
+  type t = { slots : (Tagged_slot.t, immutable) Array.Permissioned.t }
+
+  let of_decoder ~(decoder : decoder) =
+    let slots =
+      Array.Permissioned.map decoder.slots ~f:(fun { index; status; verifier = _ } ->
+        let status : Reachable_status.t =
+          match status with
+          | Determined _ -> Determined
+          | Undetermined { remaining_conditions } ->
+            Undetermined
+              { remaining_conditions =
+                  Nonempty_list.map remaining_conditions ~f:(fun condition ->
+                    { Reachable_condition.condition; reachable = false })
+              }
+        in
+        { Tagged_slot.index; status })
+    in
+    { slots }
+  ;;
+
+  let tag (t : t) ~(decoder : decoder) =
+    let hypotheses = hypotheses decoder ~strict:true in
+    List.iter hypotheses ~f:(fun hypothesis ->
+      Array.Permissioned.iter2_exn
+        t.slots
+        hypothesis.verifiers
+        ~f:(fun { index = _; status } { name = _; condition } ->
+          match status with
+          | Determined -> ()
+          | Undetermined { remaining_conditions } ->
+            Nonempty_list.iter remaining_conditions ~f:(fun reachable_condition ->
+              if phys_equal reachable_condition.condition condition
+              then reachable_condition.reachable <- true)))
+  ;;
+
+  let normalize decoder =
+    let t = of_decoder ~decoder in
+    tag t ~decoder;
+    let slots =
+      Array.Permissioned.map2_exn decoder.slots t.slots ~f:(fun slot normalized_slot ->
+        let updated_status =
+          match slot.status, normalized_slot.status with
+          | Determined _, _ -> None
+          | Undetermined _, Determined -> assert false
+          | Undetermined _, Undetermined { remaining_conditions } ->
+            let remaining_conditions =
+              Nonempty_list.filter_map
+                remaining_conditions
+                ~f:(fun { condition; reachable } ->
+                  if reachable then Some condition else None)
+            in
+            (match remaining_conditions with
+             | [] -> assert false
+             | [ condition ] -> Some (Slot.Status.Determined { condition })
+             | hd :: (_ :: _ as tl) ->
+               Some (Slot.Status.Undetermined { remaining_conditions = hd :: tl }))
+        in
+        match updated_status with
+        | None -> slot
+        | Some status -> { slot with status })
+    in
+    { slots; strict_hypotheses = None }
+  ;;
+end
+
+let add_test_result t ~verifier ~code ~result =
+  let open Or_error.Let_syntax in
+  let slot =
+    match
+      Array.Permissioned.find t.slots ~f:(fun slot -> phys_equal verifier slot.verifier)
+    with
+    | Some slot -> slot
+    | None -> raise_s [%sexp "Verifier not found in t", { verifier : Verifier.t }]
+  in
+  let index = slot.index in
+  match slot.status with
+  | Determined { condition } ->
+    (* Nothing to learn. *)
+    let expected_result = Code.verifies code ~condition in
+    if Bool.equal expected_result result
+    then return t
+    else
+      Or_error.error_s
+        [%sexp
+          "Unexpected result"
+          , { index : int
+            ; verifier_status =
+                Determined
+                  { condition : Condition.t; expected_result : bool; result : bool }
+            }]
+  | Undetermined { remaining_conditions } ->
+    let%bind status =
+      let remaining_conditions =
+        Nonempty_list.filter remaining_conditions ~f:(fun condition ->
+          Bool.equal result (Code.verifies code ~condition))
+      in
+      match remaining_conditions with
+      | [ condition ] -> return (Slot.Status.Determined { condition })
+      | hd :: (_ :: _ as tl) ->
+        return (Slot.Status.Undetermined { remaining_conditions = hd :: tl })
+      | [] ->
+        Or_error.error_s
+          [%sexp
+            "Unexpected result"
+            , "Verifier has no remaining possible condition"
+            , { index : int }]
+    in
+    let t =
+      { slots =
+          Array.Permissioned.mapi t.slots ~f:(fun i slot ->
+            if i = index then { slot with Slot.status } else slot)
+      ; strict_hypotheses = None
+      }
+    in
+    return (Normalizer.normalize t)
+;;
+
+let add_test_result_exn t ~verifier ~code ~result =
+  add_test_result t ~verifier ~code ~result |> Or_error.ok_exn
 ;;
