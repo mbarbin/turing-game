@@ -15,7 +15,7 @@ let%expect_test "partition" =
     {|
     ("Code does not verify exactly 1 condition"
      ((Equal_value (symbol Triangle) (value One)))
-     ((code ((triangle Two) (square One) (circle One))) (verifies (false)))) |}];
+     ((code 211) (verifies (false)))) |}];
   test
     [ Equal_value { symbol = Triangle; value = One }
     ; Greater_than_value { symbol = Triangle; value = One }
@@ -48,8 +48,7 @@ let%expect_test "partition" =
     {|
     ("Code does not verify exactly 1 condition"
      ((Has_triplets true) (Has_twins true))
-     ((code ((triangle One) (square Two) (circle Three)))
-      (verifies (false false)))) |}];
+     ((code 123) (verifies (false false)))) |}];
   test [ Has_triplets true; Has_twins true; Has_no_triplets_no_twins ];
   [%expect {| (5 60 60) |}];
   test

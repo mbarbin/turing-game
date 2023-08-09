@@ -2,6 +2,11 @@ open! Core
 
 type t = Digit.t Symbol.Tuple.t [@@deriving compare, equal, hash, sexp_of]
 
+let sexp_of_t { Symbol.Tuple.triangle; square; circle } =
+  Sexp.Atom
+    (sprintf "%d%d%d" (Digit.to_int triangle) (Digit.to_int square) (Digit.to_int circle))
+;;
+
 let digit_counts t =
   let counts = Digit.Tuple.init ~f:(fun _ -> ref 0) in
   Symbol.Tuple.iter t ~f:(fun digit -> Digit.Tuple.get counts digit |> incr);

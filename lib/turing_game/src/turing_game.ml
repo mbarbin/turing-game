@@ -7,6 +7,7 @@ module Digit = Digit
 module Digits = Digits
 module Partition = Partition
 module Symbol = Symbol
+module Verifier = Verifier
 
 let hello_world = [%sexp "Hello, World!"]
 

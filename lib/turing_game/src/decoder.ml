@@ -1,15 +1,5 @@
 open! Core
 
-module Verifier = struct
-  type t =
-    { name : string
-    ; conditions : Condition.t Nonempty_list.t
-    }
-  [@@deriving equal, sexp_of]
-
-  let create ~name ~conditions = { name; conditions }
-end
-
 module Slot = struct
   module Status = struct
     type t =
@@ -28,7 +18,8 @@ end
 
 type t = { slots : (Slot.t, immutable) Array.Permissioned.t } [@@deriving sexp_of]
 
-let add_test_result_exn t ~verifier ~code ~result =
+let add_test_result t ~verifier ~code ~result =
+  let open Or_error.Let_syntax in
   let slot =
     match
       Array.Permissioned.find t.slots ~f:(fun slot -> phys_equal verifier slot.verifier)
@@ -41,38 +32,43 @@ let add_test_result_exn t ~verifier ~code ~result =
   | Determined { condition } ->
     (* Nothing to learn. *)
     let expected_result = Code.verifies code ~condition in
-    if not (Bool.equal expected_result result)
-    then
-      raise_s
+    if Bool.equal expected_result result
+    then return t
+    else
+      Or_error.error_s
         [%sexp
           "Unexpected result"
           , { index : int
             ; verifier_status =
                 Determined
                   { condition : Condition.t; expected_result : bool; result : bool }
-            }];
-    t
+            }]
   | Undetermined { remaining_conditions } ->
-    let status =
+    let%bind status =
       let remaining_conditions =
         Nonempty_list.filter remaining_conditions ~f:(fun condition ->
           Bool.equal result (Code.verifies code ~condition))
       in
       match remaining_conditions with
-      | [ condition ] -> Slot.Status.Determined { condition }
+      | [ condition ] -> return (Slot.Status.Determined { condition })
       | hd :: (_ :: _ as tl) ->
-        Slot.Status.Undetermined { remaining_conditions = hd :: tl }
+        return (Slot.Status.Undetermined { remaining_conditions = hd :: tl })
       | [] ->
-        raise_s
+        Or_error.error_s
           [%sexp
             "Unexpected result"
             , "Verifier has no remaining possible condition"
             , { index : int }]
     in
-    { slots =
-        Array.Permissioned.mapi t.slots ~f:(fun i slot ->
-          if i = index then { slot with Slot.status } else slot)
-    }
+    return
+      { slots =
+          Array.Permissioned.mapi t.slots ~f:(fun i slot ->
+            if i = index then { slot with Slot.status } else slot)
+      }
+;;
+
+let add_test_result_exn t ~verifier ~code ~result =
+  add_test_result t ~verifier ~code ~result |> Or_error.ok_exn
 ;;
 
 let create ~verifiers =
@@ -95,10 +91,17 @@ let verifiers t =
   |> Nonempty_list.of_list_exn
 ;;
 
+let verifier_exn t ~name =
+  t.slots
+  |> Array.Permissioned.to_list
+  |> List.find_map_exn ~f:(fun slot ->
+    if Verifier.Name.equal name slot.verifier.name then Some slot.verifier else None)
+;;
+
 module Hypothesis = struct
   module One_verifier = struct
     type t =
-      { name : string
+      { name : Verifier.Name.t
       ; condition : Condition.t
       }
     [@@deriving equal, sexp_of]
@@ -201,4 +204,13 @@ let hypotheses ?(strict = true) (t : t) =
   in
   loop ();
   Queue.to_list hypotheses
+;;
+
+let is_determined t =
+  match hypotheses t with
+  | [] | _ :: _ :: _ -> None
+  | [ hd ] ->
+    (match Codes.to_list hd.remaining_codes with
+     | [ code ] -> Some code
+     | _ -> None)
 ;;
