@@ -172,7 +172,7 @@ module Cycle_counter = struct
   ;;
 end
 
-let hypotheses (t : t) =
+let hypotheses ?(strict = true) (t : t) =
   let verifiers : Hypothesis.One_verifier.t Queue.t array =
     Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
@@ -211,7 +211,7 @@ let hypotheses (t : t) =
           Hypothesis.One_verifier.remaining_codes one_verifier ~remaining_codes)
     in
     let number_of_remaining_codes = Codes.length remaining_codes in
-    if number_of_remaining_codes > 0
+    if if strict then number_of_remaining_codes = 1 else number_of_remaining_codes > 0
     then
       Queue.enqueue
         hypotheses

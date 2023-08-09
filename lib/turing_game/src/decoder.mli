@@ -21,7 +21,11 @@ module Hypothesis : sig
   end
 end
 
-val hypotheses : t -> Hypothesis.t list
+(** Returns all the hypothesis that can be made regarding the verifiers of [t],
+    given all the information determined so far. [strict] is [true] by
+    default, and restrict the hypotheses given to those that yield a unique
+    solution. *)
+val hypotheses : ?strict:bool -> t -> Hypothesis.t list
 
 (** During the course of the decoding, the decoder will request some tests to be
     run. Use this function to inform back [t] of the test result. *)
