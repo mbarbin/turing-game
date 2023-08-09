@@ -18,11 +18,6 @@ end
 
 type t = { rounds : Round.t Nonempty_list.t } [@@deriving compare, equal, hash, sexp_of]
 
-(** The round is not rejected if the code was already used, and the verifier was
-    either already used with this code, or if this code was already used
-    before and the number of verifiers with it was not maxed out. *)
-val add_round : t -> code:Code.t -> verifier:Verifier.Name.t -> t option
-
 val number_of_rounds : t -> int
 
 module Cost : sig

@@ -55,23 +55,6 @@ val shrink_resolution_path
   -> resolution_path:Resolution_path.t
   -> Resolution_path.t list
 
-(** Given a resolution path, add a verifier in the current round, if it results
-    into a path that lead to a strictly reduced number of remaining codes. *)
-val add_verifier_to_resolution_path
-  :  decoder:Decoder.t
-  -> resolution_path:Resolution_path.t
-  -> verifier:Verifier.Name.t
-  -> Resolution_path.t option
-
-(** Given a resolution path, add a round if it results into a path that lead to
-    a strictly reduced number of remaining codes. *)
-val add_round_to_resolution_path
-  :  decoder:Decoder.t
-  -> resolution_path:Resolution_path.t
-  -> code:Code.t
-  -> verifier:Verifier.Name.t
-  -> Resolution_path.t option
-
 (** Proposes a few resolution path to solve the given decoder, among which that
     have the lowest cost. *)
 val solve : decoder:Decoder.t -> Resolution_path.t list

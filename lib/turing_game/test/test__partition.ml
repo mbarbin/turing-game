@@ -14,8 +14,7 @@ let%expect_test "partition" =
   [%expect
     {|
     ("Code does not verify exactly 1 condition"
-     ((Equal_value (symbol Triangle) (value One)))
-     ((code 211) (verifies (false)))) |}];
+     ((Equal_value (symbol Triangle) (value 1))) ((code 211) (verifies (false)))) |}];
   test
     [ Equal_value { symbol = Triangle; value = One }
     ; Greater_than_value { symbol = Triangle; value = One }
@@ -35,9 +34,9 @@ let%expect_test "partition" =
   [%expect
     {|
     ("This partition has empty subsets"
-     ((Less_than_value (symbol Triangle) (value One))
-      (Equal_value (symbol Triangle) (value One))
-      (Greater_than_value (symbol Triangle) (value One)))
+     ((Less_than_value (symbol Triangle) (value 1))
+      (Equal_value (symbol Triangle) (value 1))
+      (Greater_than_value (symbol Triangle) (value 1)))
      ((counts (0 25 100)))) |}];
   test [ Has_twins true; Has_twins false ];
   [%expect {| (60 65) |}];

@@ -140,40 +140,6 @@ let shrink_resolution_path ~decoder ~resolution_path =
   Queue.to_list shrunk |> List.dedup_and_sort ~compare:Resolution_path.compare
 ;;
 
-let add_verifier_to_resolution_path ~decoder ~resolution_path ~verifier =
-  let evaluation_1 = max_number_of_remaining_codes ~decoder ~resolution_path in
-  let resolution_path_2 =
-    let last_round_index = Resolution_path.number_of_rounds resolution_path - 1 in
-    { Resolution_path.rounds =
-        Nonempty_list.mapi resolution_path.rounds ~f:(fun i round ->
-          if i <> last_round_index
-          then round
-          else (
-            match Resolution_path.Round.add_verifier round ~name:verifier with
-            | None -> round
-            | Some round -> round))
-    }
-  in
-  if Resolution_path.equal resolution_path resolution_path_2
-  then None
-  else (
-    let evaluation_2 =
-      max_number_of_remaining_codes ~decoder ~resolution_path:resolution_path_2
-    in
-    Option.some_if (evaluation_2 < evaluation_1) resolution_path_2)
-;;
-
-let add_round_to_resolution_path ~decoder ~resolution_path ~code ~verifier =
-  let evaluation_1 = max_number_of_remaining_codes ~decoder ~resolution_path in
-  match Resolution_path.add_round resolution_path ~code ~verifier with
-  | None -> None
-  | Some resolution_path_2 ->
-    let evaluation_2 =
-      max_number_of_remaining_codes ~decoder ~resolution_path:resolution_path_2
-    in
-    Option.some_if (evaluation_2 < evaluation_1) resolution_path_2
-;;
-
 (* A note on the algorithm in use below.
 
    We go over trees of resolution paths that are expanded systematically, until
@@ -181,10 +147,16 @@ let add_round_to_resolution_path ~decoder ~resolution_path ~code ~verifier =
    resulting shrunk paths into consideration. *)
 let solve ~decoder =
   let verifiers = Decoder.verifiers decoder in
+  let verifiers_groups =
+    Nonempty_list.map verifiers ~f:(fun verifier ->
+      Nonempty_list.filter_map verifiers ~f:(fun v ->
+        let name = v.name in
+        Option.some_if (not (Verifier.Name.equal name verifier.name)) name)
+      |> Nonempty_list.of_list_exn)
+  in
   let current_min_cost = ref Resolution_path.Cost.max_value in
   let current_solutions = Queue.create () in
-  let consider_solution resolution_path =
-    let cost = Resolution_path.cost resolution_path in
+  let consider_solution ~cost ~resolution_path =
     match Resolution_path.Cost.compare cost !current_min_cost |> Ordering.of_int with
     | Greater -> ()
     | Equal -> Queue.enqueue current_solutions resolution_path
@@ -193,89 +165,46 @@ let solve ~decoder =
       Queue.enqueue current_solutions resolution_path;
       current_min_cost := cost
   in
-  let to_visit = Deque.create () in
-  let visit ~where resolution_path =
-    let cost = Resolution_path.cost resolution_path in
-    match Resolution_path.Cost.compare cost !current_min_cost |> Ordering.of_int with
-    | Greater -> ()
-    | Equal | Less -> Deque.enqueue to_visit where resolution_path
-  in
-  List.iter (Codes.all |> Codes.to_list) ~f:(fun code ->
-    Nonempty_list.iter verifiers ~f:(fun verifier ->
-      visit
-        ~where:`back
-        { Resolution_path.rounds =
-            [ { Resolution_path.Round.code
-              ; verifiers =
-                  Nonempty_list.filter_map verifiers ~f:(fun v ->
-                    let name = v.name in
-                    Option.some_if (not (Verifier.Name.equal name verifier.name)) name)
-                  |> Nonempty_list.of_list_exn
-              }
-            ]
-        }));
-  while not (Deque.is_empty to_visit) do
-    let resolution_path = Deque.dequeue_front_exn to_visit in
+  let rec visit_children ~(parent_path : Resolution_path.Round.t list) ~parent_evaluation =
+    let to_visit =
+      (let open List.Let_syntax in
+       let%bind code =
+         List.filter (Codes.all |> Codes.to_list) ~f:(fun code ->
+           List.exists parent_path ~f:(fun round -> Code.equal code round.code) |> not)
+       in
+       let%bind verifiers = Nonempty_list.to_list verifiers_groups in
+       return
+         { Resolution_path.rounds =
+             Nonempty_list.of_list_exn
+               (parent_path @ [ { Resolution_path.Round.code; verifiers } ])
+         })
+      |> List.filter_map ~f:(fun resolution_path ->
+        let evaluation = max_number_of_remaining_codes ~decoder ~resolution_path in
+        Option.some_if (evaluation < parent_evaluation) (evaluation, resolution_path))
+      |> List.sort ~compare:(fun (e1, _) (e2, _) -> Int.compare e1 e2)
+    in
     print_endline
       (Sexp.to_string_hum
          [%sexp
-           { visiting_path = (resolution_path : Resolution_path.t)
+           { parent_path : Resolution_path.Round.t list
            ; current_min_cost : Resolution_path.Cost.t ref
+           ; parent_evaluation : int
+           ; number_of_children = (List.length to_visit : int)
            }]);
-    if is_complete_resolution_path ~decoder ~resolution_path
-    then (
-      let shrunk = shrink_resolution_path ~decoder ~resolution_path in
-      List.iter shrunk ~f:consider_solution)
+    List.iter to_visit ~f:(fun (evaluation, resolution_path) ->
+      visit resolution_path ~evaluation)
+  and visit resolution_path ~evaluation =
+    let cost = Resolution_path.cost resolution_path in
+    if evaluation = 1
+    then consider_solution ~cost ~resolution_path
     else (
-      let cost = Resolution_path.cost resolution_path in
       match Resolution_path.Cost.compare cost !current_min_cost |> Ordering.of_int with
-      | Greater -> ()
-      | Equal | Less ->
-        (*
-           {v
-        Nonempty_list.iter verifiers ~f:(fun verifier ->
-          Option.iter
-            (add_verifier_to_resolution_path
-               ~decoder
-               ~resolution_path
-               ~verifier:verifier.name)
-            ~f:(fun resolution_path -> visit resolution_path ~where:`front));
-           v}
-        *)
-        List.iter (Codes.all |> Codes.to_list) ~f:(fun code ->
-          if Nonempty_list.exists resolution_path.rounds ~f:(fun round ->
-               Code.equal code round.code)
-             |> not
-          then
-            Nonempty_list.iter verifiers ~f:(fun verifier ->
-              visit
-                ~where:`front
-                { Resolution_path.rounds =
-                    Nonempty_list.append
-                      resolution_path.rounds
-                      [ { Resolution_path.Round.code
-                        ; verifiers =
-                            Nonempty_list.filter_map verifiers ~f:(fun v ->
-                              let name = v.name in
-                              Option.some_if
-                                (not (Verifier.Name.equal name verifier.name))
-                                name)
-                            |> Nonempty_list.of_list_exn
-                        }
-                      ]
-                })))
-    (*
-       {v
-          Nonempty_list.iter verifiers ~f:(fun verifier ->
-            Option.iter
-              (add_round_to_resolution_path
-                 ~decoder
-                 ~resolution_path
-                 ~code
-                 ~verifier:verifier.name)
-              ~f:(fun resolution_path -> visit resolution_path ~where:`front))
-       v}
-    *)
-  done;
+      | Greater | Equal -> ()
+      | Less ->
+        visit_children
+          ~parent_path:(resolution_path.rounds |> Nonempty_list.to_list)
+          ~parent_evaluation:evaluation)
+  in
+  visit_children ~parent_path:[] ~parent_evaluation:Int.max_value;
   Queue.to_list current_solutions
 ;;

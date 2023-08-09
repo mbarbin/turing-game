@@ -49,21 +49,21 @@ let%expect_test "incomplete resolution_path" =
         (hypotheses
          (((code 443)
            (verifiers
-            (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-             ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+            (((name 04) (condition (Equal_value (symbol Square) (value 4))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
              ((name 11) (condition (Equal (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle)))))))
           ((code 543)
            (verifiers
-            (((name 04) (condition (Equal_value (symbol Square) (value Four))))
-             ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+            (((name 04) (condition (Equal_value (symbol Square) (value 4))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
              ((name 11) (condition (Greater_than (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle)))))))
           ((code 553)
            (verifiers
             (((name 04)
-              (condition (Greater_than_value (symbol Square) (value Four))))
-             ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+              (condition (Greater_than_value (symbol Square) (value 4))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
              ((name 11) (condition (Equal (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle))))))))))))) |}];
   print_max_number_of_remaining_codes ~resolution_path;
@@ -96,16 +96,15 @@ let%expect_test "incomplete resolution_path" =
         (hypotheses
          (((code 231)
            (verifiers
-            (((name 04)
-              (condition (Less_than_value (symbol Square) (value Four))))
-             ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+            (((name 04) (condition (Less_than_value (symbol Square) (value 4))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
              ((name 11) (condition (Less_than (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle)))))))
           ((code 553)
            (verifiers
             (((name 04)
-              (condition (Greater_than_value (symbol Square) (value Four))))
-             ((name 09) (condition (Has_digit_count (digit Three) (count 1))))
+              (condition (Greater_than_value (symbol Square) (value 4))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
              ((name 11) (condition (Equal (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle))))))))))))) |}];
   print_max_number_of_remaining_codes ~resolution_path;
@@ -165,12 +164,5 @@ let%expect_test "shrink" =
      ((rounds
        (((code 143) (verifiers (04))) ((code 215) (verifiers (11 14)))
         ((code 231) (verifiers (04 11))))))) |}];
-  ()
-;;
-
-let%expect_test "solve" =
-  let solutions = Solver.solve ~decoder in
-  print_s [%sexp (solutions : Resolution_path.t list)];
-  [%expect {||}];
   ()
 ;;

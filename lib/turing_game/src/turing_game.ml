@@ -31,7 +31,11 @@ let solver_example_cmd =
              Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
        in
        let solutions = Solver.solve ~decoder in
-       print_s [%sexp (solutions : Resolution_path.t list)];
+       print_s
+         [%sexp
+           { solutions : Resolution_path.t list
+           ; number_of_solutions = (List.length solutions : int)
+           }];
        ())
 ;;
 

@@ -24,19 +24,6 @@ type t = { rounds : Round.t Nonempty_list.t } [@@deriving compare, equal, hash, 
 
 let number_of_rounds t = Nonempty_list.length t.rounds
 
-let add_round t ~code ~verifier =
-  if Nonempty_list.exists t.rounds ~f:(fun previous_round ->
-       Code.equal previous_round.code code
-       && (Nonempty_list.mem previous_round.verifiers verifier ~equal:Verifier.Name.equal
-           || Nonempty_list.length previous_round.verifiers < 3))
-  then None
-  else
-    Some
-      { rounds =
-          Nonempty_list.append t.rounds [ { Round.code; verifiers = [ verifier ] } ]
-      }
-;;
-
 module Cost = struct
   type t =
     { number_of_rounds : int
