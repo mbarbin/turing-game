@@ -15,35 +15,40 @@ module Test_results = struct
 
   include T
   include Comparator.Make (T)
+
+  let make_keys ~(resolution_path : Resolution_path.t) : Key.t array =
+    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
+      Nonempty_list.map verifiers ~f:(fun verifier -> { Key.code; verifier }))
+    |> Nonempty_list.to_array
+  ;;
+
+  let compute ~keys ~hypothesis =
+    Array.map keys ~f:(fun { Key.code; verifier } ->
+      let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+      Code.verifies code ~condition)
+  ;;
+
+  let by_keys ~keys ~decoder =
+    List.map (Decoder.hypotheses decoder) ~f:(fun hypothesis ->
+      let test_results = compute ~keys ~hypothesis in
+      test_results, hypothesis)
+  ;;
 end
 
-let test_results_by_hypothesis ~decoder ~(resolution_path : Resolution_path.t) =
-  let hypotheses = Decoder.hypotheses decoder in
-  let keys =
-    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
-      Nonempty_list.map verifiers ~f:(fun verifier -> { Test_results.Key.code; verifier }))
-    |> Nonempty_list.to_array
-  in
-  List.map hypotheses ~f:(fun hypothesis ->
-    let test_results =
-      Array.map keys ~f:(fun { code; verifier } ->
-        let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-        Code.verifies code ~condition)
-    in
-    hypothesis, test_results)
+let test_results_by_hypothesis ~decoder ~resolution_path =
+  let keys = Test_results.make_keys ~resolution_path in
+  Test_results.by_keys ~keys ~decoder
 ;;
 
 let max_number_of_remaining_codes ~decoder ~(resolution_path : Resolution_path.t) =
-  let test_results =
-    test_results_by_hypothesis
-      ~decoder
-      ~resolution_path:(resolution_path : Resolution_path.t)
-  in
-  List.map test_results ~f:(fun (_, test_results) -> test_results, 1)
-  |> Map.of_alist_reduce (module Test_results) ~f:( + )
-  |> Map.data
-  |> List.reduce ~f:Int.max
-  |> Option.value_exn ~here:[%here]
+  test_results_by_hypothesis
+    ~decoder
+    ~resolution_path:(resolution_path : Resolution_path.t)
+  |> Map.of_alist_fold
+       (module Test_results)
+       ~init:0
+       ~f:(fun acc (_ : Decoder.Hypothesis.t) -> acc + 1)
+  |> Map.fold ~init:0 ~f:(fun ~key:_ ~data acc -> Int.max data acc)
 ;;
 
 module Is_complete_result = struct
@@ -72,26 +77,16 @@ end
 
 let is_complete_resolution_path_with_trace ~decoder ~(resolution_path : Resolution_path.t)
   =
-  let hypotheses = Decoder.hypotheses decoder in
-  let keys =
-    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
-      Nonempty_list.map verifiers ~f:(fun verifier -> { Test_results.Key.code; verifier }))
-    |> Nonempty_list.to_array
-  in
-  let test_results =
-    List.map hypotheses ~f:(fun hypothesis ->
-      let test_results =
-        Array.map keys ~f:(fun { code; verifier } ->
-          let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-          Code.verifies code ~condition)
-      in
-      test_results, hypothesis)
-  in
+  let keys = Test_results.make_keys ~resolution_path in
+  let test_results = Test_results.by_keys ~keys ~decoder in
   match
     test_results
     |> Map.of_alist_multi (module Test_results)
-    |> Map.to_alist
-    |> List.find ~f:(fun (_, hs) -> List.length hs > 1)
+    |> Map.to_sequence
+    |> Sequence.find ~f:(fun (_, hs) ->
+      match hs with
+      | [] | [ _ ] -> false
+      | _ :: _ :: _ -> true)
   with
   | None -> Is_complete_result.Yes
   | Some (ts, hypotheses) ->
