@@ -108,7 +108,7 @@ let current_round_is_finished ~(current_round : Resolution_path.Round.t) =
 
 let pick_best_value alist =
   alist
-  |> List.sort ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+  |> List.sort ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e2 e1)
   |> List.drop_while ~f:(fun (e, _) -> Evaluation.is_zero e)
   |> List.hd
   |> Option.map ~f:snd
