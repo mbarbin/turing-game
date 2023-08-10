@@ -13,6 +13,7 @@ depends: [
   "core" {>= "v0.16" & < "v0.17"}
   "core_kernel" {>= "v0.16" & < "v0.17"}
   "core_unix" {>= "v0.16" & < "v0.17"}
+  "expect_test_helpers_base" {>= "v0.16" & < "v0.17"}
   "ppx_jane" {>= "v0.16" & < "v0.17"}
   "ppx_js_style" {>= "v0.16" & < "v0.17"}
   "sexp_diff" {>= "v0.16" & < "v0.17"}

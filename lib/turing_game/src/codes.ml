@@ -19,3 +19,4 @@ let init ~f = List.filter all ~f
 let verifies t ~condition = List.filter t ~f:(fun code -> Code.verifies code ~condition)
 let filter t ~f = List.filter t ~f
 let length t = List.length t
+let concat ts = List.concat ts

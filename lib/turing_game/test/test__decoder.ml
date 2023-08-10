@@ -1,46 +1,14 @@
 open! Core
 open! Turing_game
 
-let verifier_04 =
-  Verifier.create
-    ~name:"04"
-    ~conditions:
-      [ Less_than_value { symbol = Square; value = Four }
-      ; Equal_value { symbol = Square; value = Four }
-      ; Greater_than_value { symbol = Square; value = Four }
-      ]
-;;
+include struct
+  open Verifier.Examples
 
-let verifier_09 =
-  Verifier.create
-    ~name:"09"
-    ~conditions:
-      [ Has_digit_count { digit = Three; count = 0 }
-      ; Has_digit_count { digit = Three; count = 1 }
-      ; Has_digit_count { digit = Three; count = 2 }
-      ; Has_digit_count { digit = Three; count = 3 }
-      ]
-;;
-
-let verifier_11 =
-  Verifier.create
-    ~name:"11"
-    ~conditions:
-      [ Less_than { a = Triangle; b = Square }
-      ; Equal { a = Triangle; b = Square }
-      ; Greater_than { a = Triangle; b = Square }
-      ]
-;;
-
-let verifier_14 =
-  Verifier.create
-    ~name:"14"
-    ~conditions:
-      [ Is_smallest { symbol = Triangle }
-      ; Is_smallest { symbol = Square }
-      ; Is_smallest { symbol = Circle }
-      ]
-;;
+  let verifier_04 = verifier_04
+  let verifier_09 = verifier_09
+  let verifier_11 = verifier_11
+  let verifier_14 = verifier_14
+end
 
 let%expect_test "one verifier" =
   let decoder = Decoder.create ~verifiers:[ verifier_04 ] in

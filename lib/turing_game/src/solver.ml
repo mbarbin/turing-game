@@ -1,5 +1,7 @@
 open! Core
 
+let debug = ref false
+
 module Test_results = struct
   module Key = struct
     type t =
@@ -212,14 +214,16 @@ let solve ~decoder ~visit_all_children =
            List.take_while to_visit ~f:(fun (evaluation, _) ->
              evaluation = best_evaluation))
     in
-    print_endline
-      (Sexp.to_string_hum
-         [%sexp
-           { parent_path : Resolution_path.Round.t list
-           ; current_min_cost : Resolution_path.Cost.t option ref
-           ; parent_evaluation : int
-           ; number_of_children = (List.length to_visit : int)
-           }]);
+    if !debug
+    then
+      print_endline
+        (Sexp.to_string_hum
+           [%sexp
+             { parent_path : Resolution_path.Round.t list
+             ; current_min_cost : Resolution_path.Cost.t option ref
+             ; parent_evaluation : int
+             ; number_of_children = (List.length to_visit : int)
+             }]);
     List.iter to_visit ~f:(fun (evaluation, resolution_path) ->
       visit resolution_path ~evaluation)
   and visit resolution_path ~evaluation =
@@ -267,13 +271,15 @@ let quick_solve ~decoder =
           Option.some_if (evaluation < parent_evaluation) (evaluation, resolution_path))
         |> List.sort ~compare:(fun (e1, _) (e2, _) -> Int.compare e1 e2)
       in
-      print_endline
-        (Sexp.to_string_hum
-           [%sexp
-             { parent_path : Resolution_path.Round.t list
-             ; parent_evaluation : int
-             ; number_of_children = (List.length to_visit : int)
-             }]);
+      if !debug
+      then
+        print_endline
+          (Sexp.to_string_hum
+             [%sexp
+               { parent_path : Resolution_path.Round.t list
+               ; parent_evaluation : int
+               ; number_of_children = (List.length to_visit : int)
+               }]);
       List.iter to_visit ~f:(fun (evaluation, resolution_path) ->
         visit resolution_path ~evaluation)
     and visit resolution_path ~evaluation =
@@ -286,4 +292,34 @@ let quick_solve ~decoder =
     in
     let parent_evaluation = Decoder.hypotheses decoder |> List.length in
     visit_children ~parent_path:[] ~parent_evaluation)
+;;
+
+let simulate_resolution_path_for_hypothesis ~decoder ~hypothesis ~resolution_path =
+  let keys = Test_results.make_keys ~resolution_path in
+  let test_results = Test_results.compute ~keys ~hypothesis in
+  let decoder =
+    Array.fold2_exn
+      keys
+      test_results
+      ~init:decoder
+      ~f:(fun decoder { Test_results.Key.code; verifier } result ->
+        let verifier = Decoder.verifier_exn decoder ~name:verifier in
+        match Decoder.add_test_result decoder ~verifier ~code ~result with
+        | Ok decoder -> decoder
+        | Error e -> Error.raise e)
+  in
+  let codes = Decoder.remaining_codes decoder in
+  let expected_codes = Decoder.Hypothesis.remaining_codes hypothesis in
+  if Codes.equal codes expected_codes
+  then Ok codes
+  else
+    Or_error.error_s
+      [%sexp "Unexpected remaining codes", { expected_codes : Codes.t; codes : Codes.t }]
+;;
+
+let simulate_resolution_path_for_all_hypotheses ~decoder ~resolution_path =
+  List.map (Decoder.hypotheses decoder) ~f:(fun hypothesis ->
+    simulate_resolution_path_for_hypothesis ~decoder ~hypothesis ~resolution_path
+    |> (Or_error.ignore_m : Codes.t Or_error.t -> unit Or_error.t))
+  |> Or_error.combine_errors_unit
 ;;

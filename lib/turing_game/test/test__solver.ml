@@ -1,13 +1,18 @@
 open! Core
 open! Turing_game
 
-let verifier_04 = Test__decoder.verifier_04
-let verifier_09 = Test__decoder.verifier_09
-let verifier_11 = Test__decoder.verifier_11
-let verifier_14 = Test__decoder.verifier_14
+include struct
+  open Verifier.Examples
+
+  let verifier_04 = verifier_04
+  let verifier_09 = verifier_09
+  let verifier_11 = verifier_11
+  let verifier_14 = verifier_14
+end
 
 let decoder =
-  Decoder.create ~verifiers:[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+  Decoder.create
+    ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
 ;;
 
 let print_is_complete ~resolution_path =
@@ -157,5 +162,40 @@ let%expect_test "shrink" =
      ((rounds
        (((code 143) (verifiers (04))) ((code 215) (verifiers (11 14)))
         ((code 231) (verifiers (04 11))))))) |}];
+  ()
+;;
+
+let%expect_test "quick-solve" =
+  let test decoder =
+    let resolution_path = Solver.quick_solve ~decoder |> Option.value_exn ~here:[%here] in
+    Expect_test_helpers_base.require
+      [%here]
+      (Solver.is_complete_resolution_path ~decoder ~resolution_path);
+    [%expect {||}];
+    let max_number_of_remaining_codes =
+      Solver.max_number_of_remaining_codes ~decoder ~resolution_path
+    in
+    print_s [%sexp { max_number_of_remaining_codes : int }];
+    [%expect {| ((max_number_of_remaining_codes 1)) |}];
+    Expect_test_helpers_base.require_ok
+      [%here]
+      (Solver.simulate_resolution_path_for_all_hypotheses ~decoder ~resolution_path);
+    [%expect {||}];
+    ()
+  in
+  let decoder1 =
+    Decoder.create
+      ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+  in
+  test decoder1;
+  [%expect {||}];
+  let decoder20 =
+    Decoder.create
+      ~verifiers:
+        Verifier.Examples.
+          [ verifier_11; verifier_22; verifier_30; verifier_33; verifier_34; verifier_40 ]
+  in
+  test decoder20;
+  [%expect {||}];
   ()
 ;;

@@ -54,6 +54,16 @@ module Hypothesis = struct
     |> List.find_map_exn ~f:(fun verifier ->
       Option.some_if (Verifier.Name.equal name verifier.name) verifier.condition)
   ;;
+
+  let remaining_code_exn t =
+    match t.remaining_codes |> Codes.to_list with
+    | [ code ] -> code
+    | [] | _ :: _ :: _ ->
+      raise_s
+        [%sexp "Hypothesis is expected to have a unique remaining code", [%here], (t : t)]
+  ;;
+
+  let remaining_codes t = t.remaining_codes
 end
 
 type t =
@@ -178,6 +188,10 @@ let hypotheses ?(strict = true) t =
 ;;
 
 let number_of_remaining_codes t = hypotheses t ~strict:true |> List.length
+
+let remaining_codes t =
+  hypotheses t ~strict:true |> List.map ~f:Hypothesis.remaining_codes |> Codes.concat
+;;
 
 let is_determined t =
   match hypotheses t ~strict:true with
