@@ -303,8 +303,8 @@ let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
             [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }]
         ]
       in
-      List.iter info ~f:(fun info -> print_s [%sexp (info : Info.t)]);
       wait_for_newline ~prompt:"Ready to propose a solution.";
+      List.iter info ~f:(fun info -> print_s [%sexp (info : Info.t)]);
       print_s [%sexp (next_step : Step.t)];
       Stdio.Out_channel.(flush stdout)
     | Info _ -> assert false
