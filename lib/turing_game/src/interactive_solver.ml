@@ -22,10 +22,20 @@ module Expected_information_gained = struct
       let bits_gained = starting_bits -. remaining_bits in
       { bits_gained; probability })
   ;;
+end
 
-  let sum ts =
-    Nonempty_list.fold ts ~init:0. ~f:(fun acc t ->
-      acc +. (t.probability *. t.bits_gained))
+module Evaluation = struct
+  type t = { expected_information_gained : float } [@@deriving compare, sexp_of]
+
+  let zero = { expected_information_gained = 0. }
+  let is_zero t = Float.(t.expected_information_gained <= 0.)
+
+  let compute (ts : Expected_information_gained.t Nonempty_list.t) =
+    let expected_information_gained =
+      Nonempty_list.fold ts ~init:0. ~f:(fun acc t ->
+        acc +. (t.probability *. t.bits_gained))
+    in
+    { expected_information_gained }
   ;;
 end
 
@@ -33,7 +43,8 @@ let evaluate_test ~decoder ~code ~verifier =
   let starting_number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if starting_number_of_remaining_codes <= 0
   then
-    0., Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
+    ( Evaluation.zero
+    , Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }] )
   else (
     let compute_expected_information_gained ~result =
       match Decoder.add_test_result decoder ~verifier ~code ~result with
@@ -46,7 +57,7 @@ let evaluate_test ~decoder ~code ~verifier =
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
-    ( Expected_information_gained.sum [ score_if_true; score_if_false ]
+    ( Evaluation.compute [ score_if_true; score_if_false ]
     , Info.create_s
         [%sexp
           { code : Code.t
@@ -97,8 +108,8 @@ let current_round_is_finished ~(current_round : Resolution_path.Round.t) =
 
 let pick_best_value alist =
   alist
-  |> List.sort ~compare:(fun (e1, _) (e2, _) -> Float.compare e1 e2)
-  |> List.drop_while ~f:(fun (e, _) -> Float.(e <= 0.))
+  |> List.sort ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+  |> List.drop_while ~f:(fun (e, _) -> Evaluation.is_zero e)
   |> List.hd
   |> Option.map ~f:snd
 ;;
