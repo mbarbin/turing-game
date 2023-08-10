@@ -5,9 +5,7 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   > 
   > false
   > 
-  > false
-  > 
-  > false
+  > true
   > 
   > true
   > 
@@ -40,23 +38,25 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   
   Enter result for test. code="111" - verifier="11": 
   (Test_result
-   ((code 111) (verifier 11) (result false) (remaining_bits_before 2)
+   ((code 111) (verifier 11) (result true) (remaining_bits_before 2)
     (bits_gained 1) (remaining_bits 1) (number_of_remaining_codes 2)))
   
-  Ready to request a new test. Type ENTER to continue...
+  No more test to run with this code.
+  Ready for next round. Type ENTER to continue...
   (Request_test
-   ((new_round false) (code 111) (verifier 04)
+   ((new_round true) (code 141) (verifier 04)
     (info
-     ((code 111) (verifier 04)
+     ((code 141) (verifier 04)
       (score_if_true ((bits_gained 1) (probability 0.5)))
       (score_if_false ((bits_gained 1) (probability 0.5)))))))
   
-  Enter result for test. code="111" - verifier="04": 
+  Enter result for test. code="141" - verifier="04": 
   (Test_result
-   ((code 111) (verifier 04) (result false) (remaining_bits_before 1)
+   ((code 141) (verifier 04) (result true) (remaining_bits_before 1)
     (bits_gained 1) (remaining_bits 0) (number_of_remaining_codes 1)))
   
   Ready to propose a solution. Type ENTER to continue...
-  ((resolution_path ((rounds (((code 111) (verifiers (09 11 04)))))))
-   (cost ((number_of_rounds 1) (number_of_verifiers 3))))
-  (Propose_solution (code 543))
+  ((resolution_path
+    ((rounds (((code 111) (verifiers (09 11))) ((code 141) (verifiers (04)))))))
+   (cost ((number_of_rounds 2) (number_of_verifiers 3))))
+  (Propose_solution (code 443))
