@@ -1,13 +1,13 @@
 open! Core
 module Code = Code
 module Codes = Codes
+module Complete_solver = Complete_solver
 module Condition = Condition
 module Decoder = Decoder
 module Digit = Digit
 module Digits = Digits
 module Partition = Partition
 module Resolution_path = Resolution_path
-module Solver = Solver
 module Symbol = Symbol
 module Verifier = Verifier
 
@@ -20,7 +20,7 @@ let print_cmd =
      fun () -> print_s hello_world)
 ;;
 
-let solver_example_cmd =
+let complete_solver_example_cmd =
   Command.basic
     ~summary:"solve an example"
     (let%map_open.Command n =
@@ -55,10 +55,10 @@ let solver_example_cmd =
            raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in
        let solutions =
-         Ref.set_temporarily Solver.debug true ~f:(fun () ->
+         Ref.set_temporarily Complete_solver.debug true ~f:(fun () ->
            if quick_solve
-           then Solver.quick_solve ~decoder |> Option.to_list
-           else Solver.solve ~decoder ~visit_all_children)
+           then Complete_solver.quick_solve ~decoder |> Option.to_list
+           else Complete_solver.solve ~decoder ~visit_all_children)
        in
        print_s
          [%sexp
@@ -72,6 +72,7 @@ let main =
   Command.group
     ~summary:""
     [ "print", print_cmd
-    ; "solver", Command.group ~summary:"solver" [ "example", solver_example_cmd ]
+    ; ( "complete-solver"
+      , Command.group ~summary:"solver" [ "example", complete_solver_example_cmd ] )
     ]
 ;;

@@ -19,14 +19,16 @@ let print_is_complete ~resolution_path =
   print_s
     [%sexp
       { is_complete =
-          (Solver.is_complete_resolution_path_with_trace ~decoder ~resolution_path
-            : Solver.Is_complete_result.t)
+          (Complete_solver.is_complete_resolution_path_with_trace
+             ~decoder
+             ~resolution_path
+            : Complete_solver.Is_complete_result.t)
       }]
 ;;
 
 let print_max_number_of_remaining_codes ~resolution_path =
   let max_number_of_remaining_codes =
-    Solver.max_number_of_remaining_codes ~decoder ~resolution_path
+    Complete_solver.max_number_of_remaining_codes ~decoder ~resolution_path
   in
   print_s [%sexp { max_number_of_remaining_codes : int }]
 ;;
@@ -149,7 +151,7 @@ let%expect_test "shrink" =
   in
   print_is_complete ~resolution_path;
   [%expect {| ((is_complete Yes)) |}];
-  let shrunk = Solver.shrink_resolution_path ~decoder ~resolution_path in
+  let shrunk = Complete_solver.shrink_resolution_path ~decoder ~resolution_path in
   print_s [%sexp (shrunk : Resolution_path.t list)];
   [%expect
     {|
@@ -167,19 +169,23 @@ let%expect_test "shrink" =
 
 let%expect_test "quick-solve" =
   let test decoder =
-    let resolution_path = Solver.quick_solve ~decoder |> Option.value_exn ~here:[%here] in
+    let resolution_path =
+      Complete_solver.quick_solve ~decoder |> Option.value_exn ~here:[%here]
+    in
     Expect_test_helpers_base.require
       [%here]
-      (Solver.is_complete_resolution_path ~decoder ~resolution_path);
+      (Complete_solver.is_complete_resolution_path ~decoder ~resolution_path);
     [%expect {||}];
     let max_number_of_remaining_codes =
-      Solver.max_number_of_remaining_codes ~decoder ~resolution_path
+      Complete_solver.max_number_of_remaining_codes ~decoder ~resolution_path
     in
     print_s [%sexp { max_number_of_remaining_codes : int }];
     [%expect {| ((max_number_of_remaining_codes 1)) |}];
     Expect_test_helpers_base.require_ok
       [%here]
-      (Solver.simulate_resolution_path_for_all_hypotheses ~decoder ~resolution_path);
+      (Complete_solver.simulate_resolution_path_for_all_hypotheses
+         ~decoder
+         ~resolution_path);
     [%expect {||}];
     ()
   in
