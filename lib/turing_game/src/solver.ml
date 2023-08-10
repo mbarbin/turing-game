@@ -1,5 +1,51 @@
 open! Core
 
+module Test_results = struct
+  module Key = struct
+    type t =
+      { code : Code.t
+      ; verifier : Verifier.Name.t
+      }
+    [@@deriving compare, equal, hash, sexp_of]
+  end
+
+  module T = struct
+    type t = bool array [@@deriving compare, equal, sexp_of]
+  end
+
+  include T
+  include Comparator.Make (T)
+end
+
+let test_results_by_hypothesis ~decoder ~(resolution_path : Resolution_path.t) =
+  let hypotheses = Decoder.hypotheses decoder in
+  let keys =
+    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
+      Nonempty_list.map verifiers ~f:(fun verifier -> { Test_results.Key.code; verifier }))
+    |> Nonempty_list.to_array
+  in
+  List.map hypotheses ~f:(fun hypothesis ->
+    let test_results =
+      Array.map keys ~f:(fun { code; verifier } ->
+        let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+        Code.verifies code ~condition)
+    in
+    hypothesis, test_results)
+;;
+
+let max_number_of_remaining_codes ~decoder ~(resolution_path : Resolution_path.t) =
+  let test_results =
+    test_results_by_hypothesis
+      ~decoder
+      ~resolution_path:(resolution_path : Resolution_path.t)
+  in
+  List.map test_results ~f:(fun (_, test_results) -> test_results, 1)
+  |> Map.of_alist_reduce (module Test_results) ~f:( + )
+  |> Map.data
+  |> List.reduce ~f:Int.max
+  |> Option.value_exn ~here:[%here]
+;;
+
 module Is_complete_result = struct
   module Trace = struct
     module Result = struct
@@ -26,75 +72,41 @@ end
 
 let is_complete_resolution_path_with_trace ~decoder ~(resolution_path : Resolution_path.t)
   =
-  let rec aux_round ~decoder ~results ~rounds =
-    match (rounds : Resolution_path.Round.t list) with
-    | [] ->
-      if Option.is_some (Decoder.is_determined decoder)
-      then Is_complete_result.Yes
-      else
-        Is_complete_result.No_with_counter_example
-          { results = List.rev results; hypotheses = Decoder.hypotheses decoder }
-    | { code; verifiers } :: rounds ->
-      aux_verifier
-        ~decoder
-        ~results
-        ~rounds
-        ~code
-        ~verifiers:(verifiers |> Nonempty_list.to_list)
-  and aux_verifier ~decoder ~results ~rounds ~code ~verifiers =
-    match verifiers with
-    | [] -> aux_round ~decoder ~results ~rounds
-    | name :: verifiers ->
-      let verifier = Decoder.verifier_exn decoder ~name in
-      let rec aux_all = function
-        | [] -> Is_complete_result.Yes
-        | result :: tl ->
-          (match Decoder.add_test_result decoder ~verifier ~code ~result with
-           | Ok decoder ->
-             let results =
-               { Is_complete_result.Trace.Result.verifier = name; code; result }
-               :: results
-             in
-             (match aux_verifier ~decoder ~results ~rounds ~code ~verifiers with
-              | Yes -> aux_all tl
-              | No_with_counter_example _ as no -> no)
-           | Error _ ->
-             (* This result is impossible as per the information already available,
-                so we shouldn't worry about whether we'll be determined in this
-                case. *)
-             aux_all tl)
-      in
-      aux_all [ true; false ]
+  let hypotheses = Decoder.hypotheses decoder in
+  let keys =
+    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
+      Nonempty_list.map verifiers ~f:(fun verifier -> { Test_results.Key.code; verifier }))
+    |> Nonempty_list.to_array
   in
-  aux_round ~decoder ~results:[] ~rounds:(resolution_path.rounds |> Nonempty_list.to_list)
+  let test_results =
+    List.map hypotheses ~f:(fun hypothesis ->
+      let test_results =
+        Array.map keys ~f:(fun { code; verifier } ->
+          let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+          Code.verifies code ~condition)
+      in
+      test_results, hypothesis)
+  in
+  match
+    test_results
+    |> Map.of_alist_multi (module Test_results)
+    |> Map.to_alist
+    |> List.find ~f:(fun (_, hs) -> List.length hs > 1)
+  with
+  | None -> Is_complete_result.Yes
+  | Some (ts, hypotheses) ->
+    let results =
+      Array.map2_exn keys ts ~f:(fun { code; verifier } result ->
+        { Is_complete_result.Trace.Result.code; verifier; result })
+      |> Array.to_list
+    in
+    Is_complete_result.No_with_counter_example { results; hypotheses }
 ;;
 
 let is_complete_resolution_path ~decoder ~resolution_path =
   match is_complete_resolution_path_with_trace ~decoder ~resolution_path with
   | Yes -> true
   | No_with_counter_example _ -> false
-;;
-
-let max_number_of_remaining_codes ~decoder ~(resolution_path : Resolution_path.t) =
-  let rec aux_round ~decoder ~rounds =
-    match (rounds : Resolution_path.Round.t list) with
-    | [] -> Decoder.hypotheses decoder |> List.length
-    | { code; verifiers } :: rounds ->
-      aux_verifier ~decoder ~rounds ~code ~verifiers:(verifiers |> Nonempty_list.to_list)
-  and aux_verifier ~decoder ~rounds ~code ~verifiers =
-    match verifiers with
-    | [] -> aux_round ~decoder ~rounds
-    | name :: verifiers ->
-      let verifier = Decoder.verifier_exn decoder ~name in
-      List.fold [ true; false ] ~init:1 ~f:(fun acc result ->
-        match Decoder.add_test_result decoder ~verifier ~code ~result with
-        | Ok decoder -> max acc (aux_verifier ~decoder ~rounds ~code ~verifiers)
-        | Error _ ->
-          (* This result is impossible as per the information already available,
-             so this doesn't change the computed max. *)
-          acc)
-  in
-  aux_round ~decoder ~rounds:(resolution_path.rounds |> Nonempty_list.to_list)
 ;;
 
 let shrink_resolution_path ~decoder ~resolution_path =

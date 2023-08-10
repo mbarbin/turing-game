@@ -47,6 +47,13 @@ module Hypothesis = struct
         ; verifiers : (One_verifier.t, immutable) Array.Permissioned.t
         }]
   ;;
+
+  let verifier_exn t ~name =
+    t.verifiers
+    |> Array.Permissioned.to_list
+    |> List.find_map_exn ~f:(fun verifier ->
+      Option.some_if (Verifier.Name.equal name verifier.name) verifier.condition)
+  ;;
 end
 
 type t =

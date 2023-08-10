@@ -44,28 +44,21 @@ let%expect_test "incomplete resolution_path" =
     ((is_complete
       (No_with_counter_example
        ((results
-         (((code 143) (verifier 09) (result true))
+         (((code 143) (verifier 09) (result false))
           ((code 215) (verifier 04) (result false))))
         (hypotheses
-         (((code 443)
+         (((code 241)
            (verifiers
             (((name 04) (condition (Equal_value (symbol Square) (value 4))))
-             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
-             ((name 11) (condition (Equal (a Triangle) (b Square))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 0))))
+             ((name 11) (condition (Less_than (a Triangle) (b Square))))
              ((name 14) (condition (Is_smallest (symbol Circle)))))))
-          ((code 543)
+          ((code 545)
            (verifiers
             (((name 04) (condition (Equal_value (symbol Square) (value 4))))
-             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
+             ((name 09) (condition (Has_digit_count (digit 3) (count 0))))
              ((name 11) (condition (Greater_than (a Triangle) (b Square))))
-             ((name 14) (condition (Is_smallest (symbol Circle)))))))
-          ((code 553)
-           (verifiers
-            (((name 04)
-              (condition (Greater_than_value (symbol Square) (value 4))))
-             ((name 09) (condition (Has_digit_count (digit 3) (count 1))))
-             ((name 11) (condition (Equal (a Triangle) (b Square))))
-             ((name 14) (condition (Is_smallest (symbol Circle))))))))))))) |}];
+             ((name 14) (condition (Is_smallest (symbol Square))))))))))))) |}];
   print_max_number_of_remaining_codes ~resolution_path;
   [%expect {| ((max_number_of_remaining_codes 3)) |}];
   ()

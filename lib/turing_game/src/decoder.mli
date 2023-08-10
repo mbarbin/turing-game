@@ -15,6 +15,8 @@ val number_of_remaining_codes : t -> int
 
 module Hypothesis : sig
   type t [@@deriving sexp_of]
+
+  val verifier_exn : t -> name:Verifier.Name.t -> Condition.t
 end
 
 (** Returns all the hypothesis that can be made regarding the verifiers of [t],
