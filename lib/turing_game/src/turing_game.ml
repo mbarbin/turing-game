@@ -6,6 +6,7 @@ module Condition = Condition
 module Decoder = Decoder
 module Digit = Digit
 module Digits = Digits
+module Interactive_solver = Interactive_solver
 module Partition = Partition
 module Resolution_path = Resolution_path
 module Symbol = Symbol
