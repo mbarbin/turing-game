@@ -1,7 +1,7 @@
 open! Core
 open! Turing_game
 
-let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
+let decoder = Decoders.v_01
 
 let print_is_complete ~resolution_path =
   print_s
@@ -183,7 +183,7 @@ let%expect_test "quick-solve" =
     print_s [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }];
     ()
   in
-  let decoder1 = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
+  let decoder1 = Decoders.v_01 in
   test decoder1;
   [%expect
     {|
@@ -191,9 +191,7 @@ let%expect_test "quick-solve" =
       ((rounds
         (((code 111) (verifiers (04 09 11))) ((code 141) (verifiers (04 09 11)))))))
      (cost ((number_of_rounds 2) (number_of_verifiers 6)))) |}];
-  let decoder20 =
-    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
-  in
+  let decoder20 = Decoders.v_20 in
   test decoder20;
   [%expect
     {|

@@ -4,6 +4,7 @@ module Codes = Codes
 module Complete_solver = Complete_solver
 module Condition = Condition
 module Decoder = Decoder
+module Decoders = Decoders
 module Digit = Digit
 module Digits = Digits
 module Interactive_solver = Interactive_solver

@@ -20,7 +20,7 @@ let%expect_test "one verifier" =
 ;;
 
 let%expect_test "all verifiers" =
-  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
+  let decoder = Decoders.v_01 in
   let hypotheses = Decoder.hypotheses decoder in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -71,7 +71,7 @@ let%expect_test "all verifiers" =
 ;;
 
 let%expect_test "example of path" =
-  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
+  let decoder = Decoders.v_01 in
   let info ~decoder =
     let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
     let hypotheses = Decoder.hypotheses decoder in

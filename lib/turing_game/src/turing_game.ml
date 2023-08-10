@@ -4,6 +4,7 @@ module Codes = Codes
 module Complete_solver = Complete_solver
 module Condition = Condition
 module Decoder = Decoder
+module Decoders = Decoders
 module Digit = Digit
 module Digits = Digits
 module Interactive_solver = Interactive_solver
@@ -38,9 +39,8 @@ let complete_solver_example_cmd =
      fun () ->
        let decoder =
          match n with
-         | 1 -> Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
-         | 20 ->
-           Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
+         | 1 -> Decoders.v_01
+         | 20 -> Decoders.v_20
          | n ->
            raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in
