@@ -224,7 +224,7 @@ let simulate_resolution_for_hypothesis ~decoder ~hypothesis =
           |> Option.return)
       in
       let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-      let result = Code.verifies code ~condition in
+      let result = Condition.evaluate condition ~code in
       let remaining_bits_before = remaining_bits ~decoder in
       (match
          let verifier = Decoder.verifier_exn decoder ~name:verifier in

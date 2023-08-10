@@ -7,7 +7,7 @@ let verify_counts (t : t) =
     let counts = Array.init (Nonempty_list.length t) ~f:(fun _ -> ref 0) in
     List.iter (Codes.all |> Codes.to_list) ~f:(fun code ->
       let verifies =
-        Nonempty_list.map t ~f:(fun condition -> Code.verifies code ~condition)
+        Nonempty_list.map t ~f:(fun condition -> Condition.evaluate condition ~code)
       in
       if Nonempty_list.count verifies ~f:Fn.id <> 1
       then

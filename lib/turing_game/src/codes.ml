@@ -16,7 +16,11 @@ let all =
 
 let mem t (code : Code.t) = List.mem t code ~equal:Code.equal
 let init ~f = List.filter all ~f
-let verifies t ~condition = List.filter t ~f:(fun code -> Code.verifies code ~condition)
+
+let verifies t ~condition =
+  List.filter t ~f:(fun code -> Condition.evaluate condition ~code)
+;;
+
 let filter t ~f = List.filter t ~f
 let length t = List.length t
 let concat ts = List.concat ts

@@ -25,8 +25,7 @@ module Hypothesis = struct
     [@@deriving equal, sexp_of]
 
     let remaining_codes t ~remaining_codes =
-      Codes.filter remaining_codes ~f:(fun code ->
-        Code.verifies code ~condition:t.condition)
+      Codes.filter remaining_codes ~f:(fun code -> Condition.evaluate t.condition ~code)
     ;;
   end
 
@@ -215,7 +214,7 @@ let add_test_result t ~verifier ~code ~result =
   match slot.status with
   | Determined { condition } ->
     (* Nothing to learn. *)
-    let expected_result = Code.verifies code ~condition in
+    let expected_result = Condition.evaluate condition ~code in
     if Bool.equal expected_result result
     then return t
     else
@@ -231,7 +230,7 @@ let add_test_result t ~verifier ~code ~result =
     let%bind status =
       let remaining_conditions =
         Nonempty_list.filter remaining_conditions ~f:(fun condition ->
-          Bool.equal result (Code.verifies code ~condition))
+          Bool.equal result (Condition.evaluate condition ~code))
       in
       match remaining_conditions with
       | [ condition ] -> return (Slot.Status.Determined { condition })
