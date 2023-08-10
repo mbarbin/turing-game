@@ -54,5 +54,6 @@ let main =
     ~summary:""
     [ ( "complete-solver"
       , Command.group ~summary:"solver" [ "example", complete_solver_example_cmd ] )
+    ; "solver", Interactive_solver.cmd
     ]
 ;;

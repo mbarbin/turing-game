@@ -2,6 +2,6 @@
  (name turing_game)
  (public_name turing-game)
  (flags -w +a-4-40-41-42-44-66 -warn-error +a)
- (libraries core core_kernel.nonempty_list)
+ (libraries core core_kernel.nonempty_list stdio)
  (preprocess
   (pps ppx_jane ppx_js_style -check-doc-comments)))

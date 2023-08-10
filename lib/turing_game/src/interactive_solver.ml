@@ -250,3 +250,150 @@ let simulate_resolution_for_hypothesis ~decoder ~hypothesis =
   let acc = List.rev_map introduction ~f:(fun info -> Step.Info info) in
   aux acc ~decoder ~rounds:[] ~current_round:None
 ;;
+
+let input_line () = Stdio.In_channel.(input_line_exn stdin)
+
+let input_test_result ~code ~verifier =
+  let rec input_bool ~prompt =
+    print_string ("\n" ^ prompt);
+    Stdio.Out_channel.(flush stdout);
+    let bool = input_line () in
+    print_string "\n";
+    Stdio.Out_channel.(flush stdout);
+    match Bool.of_string bool with
+    | exception e ->
+      print_s [%sexp (e : Exn.t)];
+      input_bool ~prompt
+    | b -> b
+  in
+  input_bool
+    ~prompt:
+      (sprintf
+         "Enter result for test. code=%S - verifier=%S: "
+         (Code.sexp_of_t code |> Sexp.to_string)
+         ((verifier : Verifier.Name.t) :> string))
+;;
+
+let wait_for_newline ~prompt =
+  print_string ("\n" ^ prompt ^ " Type ENTER to continue...");
+  Stdio.Out_channel.(flush stdout);
+  let (_ : string) = input_line () in
+  print_string "\n";
+  Stdio.Out_channel.(flush stdout);
+  ()
+;;
+
+let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
+  let rec aux ~decoder ~rounds ~current_round =
+    let next_step = next_step ~decoder ~current_round in
+    match next_step with
+    | Error e -> return.return (Error e)
+    | Propose_solution { code = _ } ->
+      let resolution_path =
+        let rounds =
+          match current_round with
+          | None -> rounds
+          | Some round -> round :: rounds
+        in
+        { Resolution_path.rounds = List.rev rounds |> Nonempty_list.of_list_exn }
+      in
+      let cost = Resolution_path.cost resolution_path in
+      let info =
+        [ Info.create_s
+            [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }]
+        ]
+      in
+      List.iter info ~f:(fun info -> print_s [%sexp (info : Info.t)]);
+      wait_for_newline ~prompt:"Ready to propose a solution.";
+      print_s [%sexp (next_step : Step.t)];
+      Stdio.Out_channel.(flush stdout)
+    | Info _ -> assert false
+    | Request_test { new_round; code; verifier; info = _ } ->
+      let rounds =
+        if new_round
+        then (
+          match current_round with
+          | None -> rounds
+          | Some round -> round :: rounds)
+        else rounds
+      in
+      let () =
+        if new_round && Option.is_some current_round
+        then
+          wait_for_newline
+            ~prompt:"No more test to run with this code.\nReady for next round."
+        else wait_for_newline ~prompt:"Ready to request a new test."
+      in
+      print_s [%sexp (next_step : Step.t)];
+      let result = input_test_result ~code ~verifier in
+      let remaining_bits_before = remaining_bits ~decoder in
+      (match
+         let verifier = Decoder.verifier_exn decoder ~name:verifier in
+         Decoder.add_test_result decoder ~verifier ~code ~result
+       with
+       | Error e -> return.return (Error e)
+       | Ok decoder ->
+         let info =
+           let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
+           let remaining_bits = remaining_bits ~decoder in
+           let bits_gained = remaining_bits_before -. remaining_bits in
+           Info.create_s
+             [%sexp
+               Test_result
+                 { code : Code.t
+                 ; verifier : Verifier.Name.t
+                 ; result : bool
+                 ; remaining_bits_before : float
+                 ; bits_gained : float
+                 ; remaining_bits : float
+                 ; number_of_remaining_codes : int
+                 }]
+         in
+         print_s [%sexp (info : Info.t)];
+         Stdio.Out_channel.(flush stdout);
+         let current_round =
+           if new_round
+           then { Resolution_path.Round.code; verifiers = [ verifier ] } |> Option.return
+           else (
+             let { Resolution_path.Round.code; verifiers } =
+               current_round |> Option.value_exn ~here:[%here]
+             in
+             { Resolution_path.Round.code
+             ; verifiers = Nonempty_list.append verifiers [ verifier ]
+             }
+             |> Option.return)
+         in
+         aux ~decoder ~rounds ~current_round)
+  in
+  let introduction =
+    let remaining_bits = remaining_bits ~decoder in
+    let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
+    [ Info.create_s [%sexp { remaining_bits : float; number_of_remaining_codes : int }] ]
+  in
+  List.iter introduction ~f:(fun info -> print_s [%sexp (info : Info.t)]);
+  Stdio.Out_channel.(flush stdout);
+  aux ~decoder ~rounds:[] ~current_round:None
+;;
+
+let make_command ~index ~decoder =
+  Command.basic
+    ~summary:(sprintf "solve problem %d interactively" index)
+    (let%map_open.Command () = return () in
+     fun () ->
+       match
+         with_return (fun return ->
+           interactive_solve ~decoder ~return;
+           Ok ())
+       with
+       | Ok () -> ()
+       | Error e ->
+         prerr_endline (Error.to_string_hum e);
+         exit 1)
+;;
+
+let cmd =
+  Command.group
+    ~summary:"interactive solver"
+    (List.map Decoders.all ~f:(fun (index, decoder) ->
+       Int.to_string index, make_command ~index ~decoder))
+;;

@@ -36,3 +36,5 @@ val simulate_resolution_for_hypothesis
   :  decoder:Decoder.t
   -> hypothesis:Decoder.Hypothesis.t
   -> Step.t list
+
+val cmd : Command.t
