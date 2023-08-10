@@ -28,13 +28,7 @@ let complete_solver_example_cmd =
        flag "quick-solve" no_arg ~doc:" quickly find a solution maybe not optimal"
      in
      fun () ->
-       let decoder =
-         match n with
-         | 1 -> Decoders.v_01
-         | 20 -> Decoders.v_20
-         | n ->
-           raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
-       in
+       let decoder = Decoders.get_exn n in
        let solutions =
          Ref.set_temporarily Complete_solver.debug true ~f:(fun () ->
            if quick_solve
