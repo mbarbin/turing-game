@@ -185,113 +185,8 @@ let is_determined t =
   | [ hd ] ->
     (match Codes.to_list hd.remaining_codes with
      | [ code ] -> Some code
-     | _ -> None)
+     | _ -> assert false)
 ;;
-
-(* For all slots that are undetermined, remove the conditions that do not belong
-   to any valid strict hypothesis. This is a form of deduction. *)
-module Normalizer = struct
-  type decoder = t
-
-  module Reachable_condition = struct
-    type t =
-      { index : int
-      ; condition : Condition.t
-      ; mutable reachable : bool
-      }
-    [@@deriving sexp_of]
-  end
-
-  module Reachable_status = struct
-    type t =
-      | Determined
-      | Undetermined of { remaining_conditions : Reachable_condition.t Nonempty_list.t }
-    [@@deriving sexp_of]
-  end
-
-  module Tagged_slot = struct
-    type t =
-      { index : int
-      ; status : Reachable_status.t
-      }
-    [@@deriving sexp_of]
-  end
-
-  type t = { slots : (Tagged_slot.t, immutable) Array.Permissioned.t }
-
-  let of_decoder ~(decoder : decoder) =
-    let slots =
-      Array.Permissioned.map decoder.slots ~f:(fun { index; status; verifier = _ } ->
-        let status : Reachable_status.t =
-          match status with
-          | Determined _ -> Determined
-          | Undetermined { remaining_conditions } ->
-            Undetermined
-              { remaining_conditions =
-                  Nonempty_list.mapi remaining_conditions ~f:(fun index condition ->
-                    { Reachable_condition.index; condition; reachable = false })
-              }
-        in
-        { Tagged_slot.index; status })
-    in
-    { slots }
-  ;;
-
-  let tag (t : t) ~(decoder : decoder) =
-    let hypotheses = hypotheses decoder ~strict:true in
-    List.iter hypotheses ~f:(fun hypothesis ->
-      Array.Permissioned.iter2_exn
-        t.slots
-        hypothesis.verifiers
-        ~f:(fun { index = _; status } { name = _; condition } ->
-          match status with
-          | Determined -> ()
-          | Undetermined { remaining_conditions } ->
-            Nonempty_list.iter remaining_conditions ~f:(fun reachable_condition ->
-              if phys_equal reachable_condition.condition condition
-              then reachable_condition.reachable <- true)))
-  ;;
-
-  let normalize decoder =
-    let t = of_decoder ~decoder in
-    tag t ~decoder;
-    with_return (fun { return } ->
-      let slots =
-        Array.Permissioned.map2_exn decoder.slots t.slots ~f:(fun slot tagged_slot ->
-          let updated_status =
-            match slot.status, tagged_slot.status with
-            | Determined _, _ -> None
-            | Undetermined _, Determined -> assert false
-            | Undetermined _, Undetermined { remaining_conditions } ->
-              let remaining_conditions =
-                Nonempty_list.filter_map
-                  remaining_conditions
-                  ~f:(fun { index = _; condition; reachable } ->
-                    Option.some_if reachable condition)
-              in
-              (match remaining_conditions with
-               | [] ->
-                 let hypotheses = hypotheses decoder ~strict:true in
-                 return
-                   (Or_error.error_s
-                      [%sexp
-                        "No remaining condition"
-                        , { decoder : t
-                          ; slot : Slot.t
-                          ; tagged_slot : Tagged_slot.t
-                          ; hypotheses : Hypothesis.t list
-                          }])
-               | [ condition ] -> Some (Slot.Status.Determined { condition })
-               | hd :: (_ :: _ as tl) ->
-                 Some (Slot.Status.Undetermined { remaining_conditions = hd :: tl }))
-          in
-          match updated_status with
-          | None -> slot
-          | Some status -> { slot with status })
-      in
-      Or_error.return { slots; strict_hypotheses = None })
-  ;;
-end
 
 let add_test_result t ~verifier ~code ~result =
   let open Or_error.Let_syntax in
@@ -342,9 +237,7 @@ let add_test_result t ~verifier ~code ~result =
       ; strict_hypotheses = None
       }
     in
-    (* CR mbarbin: Try and remove the normalization. I suspect it may be not
-       required and not changing the overall complexity. *)
-    if false then Or_error.return t else Normalizer.normalize t
+    Or_error.return t
 ;;
 
 let add_test_result_exn t ~verifier ~code ~result =
