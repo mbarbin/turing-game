@@ -40,8 +40,8 @@ val is_complete_resolution_path
 (** More precisely than the binary criteria [complete/incomplete] one can
     compute the distribution of maximum remaining codes for a given resolution
     path, when going through all possible combination of verifiers conditions.
-    This is useful to sort resolution path and choose thus that offer the best
-    chance of getting more information in return. *)
+    This is useful to sort resolution path and choose the ones that offer the
+    best chance of getting more information in return. *)
 val max_number_of_remaining_codes
   :  decoder:Decoder.t
   -> resolution_path:Resolution_path.t
@@ -57,4 +57,9 @@ val shrink_resolution_path
 
 (** Proposes a few resolution path to solve the given decoder, among which that
     have the lowest cost. *)
-val solve : decoder:Decoder.t -> Resolution_path.t list
+val solve : decoder:Decoder.t -> visit_all_children:bool -> Resolution_path.t list
+
+(** Return a single resolution path to solve the problem. The solution is not
+    guaranteed to be optimal, but the hope is that it should be close to an
+    optimal solution. *)
+val quick_solve : decoder:Decoder.t -> Resolution_path.t option

@@ -164,7 +164,7 @@ let rec choose_n n list =
        List.map (choose_n (n - 1) tl) ~f:(fun list -> hd :: list) @ choose_n n tl)
 ;;
 
-let solve ~decoder =
+let solve ~decoder ~visit_all_children =
   let verifiers = Decoder.verifiers decoder in
   let verifiers_groups =
     choose_n
@@ -205,6 +205,18 @@ let solve ~decoder =
         Option.some_if (evaluation < parent_evaluation) (evaluation, resolution_path))
       |> List.sort ~compare:(fun (e1, _) (e2, _) -> Int.compare e1 e2)
     in
+    (* We try with a tweak to the previous: only visiting the children that have
+       the best evaluation. *)
+    let to_visit =
+      match visit_all_children with
+      | true -> to_visit
+      | false ->
+        (match to_visit with
+         | [] -> []
+         | (best_evaluation, _) :: _ ->
+           List.take_while to_visit ~f:(fun (evaluation, _) ->
+             evaluation = best_evaluation))
+    in
     print_endline
       (Sexp.to_string_hum
          [%sexp
@@ -230,4 +242,53 @@ let solve ~decoder =
   let parent_evaluation = Decoder.hypotheses decoder |> List.length in
   visit_children ~parent_path:[] ~parent_evaluation;
   Queue.to_list current_solutions
+;;
+
+let quick_solve ~decoder =
+  with_return_option (fun { return } ->
+    let verifiers = Decoder.verifiers decoder in
+    let verifiers_groups =
+      choose_n
+        3
+        (Nonempty_list.map verifiers ~f:(fun verifier -> verifier.name)
+         |> Nonempty_list.to_list)
+      |> List.map ~f:Nonempty_list.of_list_exn
+    in
+    let rec visit_children
+      ~(parent_path : Resolution_path.Round.t list)
+      ~parent_evaluation
+      =
+      let to_visit =
+        (let open List.Let_syntax in
+         let%bind code = Codes.all |> Codes.to_list in
+         let%bind verifiers = verifiers_groups in
+         return
+           { Resolution_path.rounds =
+               Nonempty_list.of_list_exn
+                 (parent_path @ [ { Resolution_path.Round.code; verifiers } ])
+           })
+        |> List.filter_map ~f:(fun resolution_path ->
+          let evaluation = max_number_of_remaining_codes ~decoder ~resolution_path in
+          Option.some_if (evaluation < parent_evaluation) (evaluation, resolution_path))
+        |> List.sort ~compare:(fun (e1, _) (e2, _) -> Int.compare e1 e2)
+      in
+      print_endline
+        (Sexp.to_string_hum
+           [%sexp
+             { parent_path : Resolution_path.Round.t list
+             ; parent_evaluation : int
+             ; number_of_children = (List.length to_visit : int)
+             }]);
+      List.iter to_visit ~f:(fun (evaluation, resolution_path) ->
+        visit resolution_path ~evaluation)
+    and visit resolution_path ~evaluation =
+      if evaluation = 1
+      then return resolution_path
+      else
+        visit_children
+          ~parent_path:(resolution_path.rounds |> Nonempty_list.to_list)
+          ~parent_evaluation:evaluation
+    in
+    let parent_evaluation = Decoder.hypotheses decoder |> List.length in
+    visit_children ~parent_path:[] ~parent_evaluation)
 ;;

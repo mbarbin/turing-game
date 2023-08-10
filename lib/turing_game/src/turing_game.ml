@@ -25,6 +25,13 @@ let solver_example_cmd =
     ~summary:"solve an example"
     (let%map_open.Command n =
        flag "n" (optional_with_default 1 int) ~doc:"N example number (1-20)"
+     and visit_all_children =
+       flag
+         "visit-all-children"
+         (optional_with_default true bool)
+         ~doc:"bool when false only consider best children at each depth"
+     and quick_solve =
+       flag "quick-solve" no_arg ~doc:" quickly find a solution maybe not optimal"
      in
      fun () ->
        let decoder =
@@ -47,7 +54,11 @@ let solver_example_cmd =
          | n ->
            raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in
-       let solutions = Solver.solve ~decoder in
+       let solutions =
+         if quick_solve
+         then Solver.quick_solve ~decoder |> Option.to_list
+         else Solver.solve ~decoder ~visit_all_children
+       in
        print_s
          [%sexp
            { solutions : Resolution_path.t list
