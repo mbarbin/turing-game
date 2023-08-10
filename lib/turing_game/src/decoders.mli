@@ -3,6 +3,7 @@ open! Core
 type t = Decoder.t
 
 val v_01 : t
+val v_02 : t
 val v_20 : t
 
 (** All available problems as an alist. *)
