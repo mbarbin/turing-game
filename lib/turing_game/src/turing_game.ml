@@ -14,15 +14,6 @@ module Symbol = Symbol
 module Verifier = Verifier
 module Verifiers = Verifiers
 
-let hello_world = [%sexp "Hello, World!"]
-
-let print_cmd =
-  Command.basic
-    ~summary:"print hello world"
-    (let%map_open.Command () = return () in
-     fun () -> print_s hello_world)
-;;
-
 let complete_solver_example_cmd =
   Command.basic
     ~summary:"solve an example"
@@ -61,8 +52,7 @@ let complete_solver_example_cmd =
 let main =
   Command.group
     ~summary:""
-    [ "print", print_cmd
-    ; ( "complete-solver"
+    [ ( "complete-solver"
       , Command.group ~summary:"solver" [ "example", complete_solver_example_cmd ] )
     ]
 ;;
