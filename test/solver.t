@@ -1,4 +1,4 @@
-Simulating a interactive resolution, as if the solution to the 1st problem was
+Simulating an interactive resolution, as if the solution to the 1st problem was
 443 (it doesn't matter what the actual solution is in the game).
 
   $ turing-game solver 1 <<EOF
