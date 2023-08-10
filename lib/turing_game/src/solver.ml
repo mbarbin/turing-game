@@ -164,11 +164,6 @@ let rec choose_n n list =
        List.map (choose_n (n - 1) tl) ~f:(fun list -> hd :: list) @ choose_n n tl)
 ;;
 
-(* A note on the algorithm in use below.
-
-   We go over trees of resolution paths that are expanded systematically, until
-   we reach a path that is complete. When we do, we shrink it, and add the
-   resulting shrunk paths into consideration. *)
 let solve ~decoder =
   let verifiers = Decoder.verifiers decoder in
   let verifiers_groups =
@@ -178,24 +173,27 @@ let solve ~decoder =
        |> Nonempty_list.to_list)
     |> List.map ~f:Nonempty_list.of_list_exn
   in
-  let current_min_cost = ref Resolution_path.Cost.max_value in
+  let current_min_cost = ref None in
+  let compare_with_current_min_cost ~cost =
+    match !current_min_cost with
+    | None -> Ordering.Less
+    | Some current_min_cost ->
+      Resolution_path.Cost.compare cost current_min_cost |> Ordering.of_int
+  in
   let current_solutions = Queue.create () in
   let consider_solution ~cost ~resolution_path =
-    match Resolution_path.Cost.compare cost !current_min_cost |> Ordering.of_int with
+    match compare_with_current_min_cost ~cost with
     | Greater -> ()
     | Equal -> Queue.enqueue current_solutions resolution_path
     | Less ->
       Queue.clear current_solutions;
       Queue.enqueue current_solutions resolution_path;
-      current_min_cost := cost
+      current_min_cost := Some cost
   in
   let rec visit_children ~(parent_path : Resolution_path.Round.t list) ~parent_evaluation =
     let to_visit =
       (let open List.Let_syntax in
-       let%bind code =
-         List.filter (Codes.all |> Codes.to_list) ~f:(fun code ->
-           List.exists parent_path ~f:(fun round -> Code.equal code round.code) |> not)
-       in
+       let%bind code = Codes.all |> Codes.to_list in
        let%bind verifiers = verifiers_groups in
        return
          { Resolution_path.rounds =
@@ -211,7 +209,7 @@ let solve ~decoder =
       (Sexp.to_string_hum
          [%sexp
            { parent_path : Resolution_path.Round.t list
-           ; current_min_cost : Resolution_path.Cost.t ref
+           ; current_min_cost : Resolution_path.Cost.t option ref
            ; parent_evaluation : int
            ; number_of_children = (List.length to_visit : int)
            }]);
@@ -222,13 +220,14 @@ let solve ~decoder =
     if evaluation = 1
     then consider_solution ~cost ~resolution_path
     else (
-      match Resolution_path.Cost.compare cost !current_min_cost |> Ordering.of_int with
+      match compare_with_current_min_cost ~cost with
       | Greater | Equal -> ()
       | Less ->
         visit_children
           ~parent_path:(resolution_path.rounds |> Nonempty_list.to_list)
           ~parent_evaluation:evaluation)
   in
-  visit_children ~parent_path:[] ~parent_evaluation:Int.max_value;
+  let parent_evaluation = Decoder.hypotheses decoder |> List.length in
+  visit_children ~parent_path:[] ~parent_evaluation;
   Queue.to_list current_solutions
 ;;
