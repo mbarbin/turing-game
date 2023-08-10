@@ -187,6 +187,8 @@ let%expect_test "quick-solve" =
          ~decoder
          ~resolution_path);
     [%expect {||}];
+    let cost = Resolution_path.cost resolution_path in
+    print_s [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }];
     ()
   in
   let decoder1 =
@@ -194,7 +196,12 @@ let%expect_test "quick-solve" =
       ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
   in
   test decoder1;
-  [%expect {||}];
+  [%expect
+    {|
+    ((resolution_path
+      ((rounds
+        (((code 111) (verifiers (04 09 11))) ((code 141) (verifiers (04 09 11)))))))
+     (cost ((number_of_rounds 2) (number_of_verifiers 6)))) |}];
   let decoder20 =
     Decoder.create
       ~verifiers:
@@ -202,6 +209,13 @@ let%expect_test "quick-solve" =
           [ verifier_11; verifier_22; verifier_30; verifier_33; verifier_34; verifier_40 ]
   in
   test decoder20;
-  [%expect {||}];
+  [%expect
+    {|
+    ((resolution_path
+      ((rounds
+        (((code 514) (verifiers (30 33 40))) ((code 441) (verifiers (11 22 40)))
+         ((code 141) (verifiers (30 33 34))) ((code 113) (verifiers (11 34 40)))
+         ((code 131) (verifiers (11 22 40)))))))
+     (cost ((number_of_rounds 5) (number_of_verifiers 15)))) |}];
   ()
 ;;
