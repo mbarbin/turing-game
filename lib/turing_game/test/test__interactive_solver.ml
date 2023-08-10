@@ -18,10 +18,7 @@ let simulate_all_hypotheses ~decoder ?only_first_n () =
 ;;
 
 let%expect_test "interactive solver simulation decoder 1" =
-  let decoder =
-    Decoder.create
-      ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
-  in
+  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
   simulate_all_hypotheses ~decoder ();
   [%expect
     {|
@@ -439,13 +436,11 @@ let%expect_test "interactive solver simulation decoder 1" =
 
 let%expect_test "interactive solver simulation decoder 20" =
   let decoder =
-    Decoder.create
-      ~verifiers:
-        Verifier.Examples.
-          [ verifier_11; verifier_22; verifier_30; verifier_33; verifier_34; verifier_40 ]
+    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
   in
   simulate_all_hypotheses ~decoder ~only_first_n:5 ();
-  [%expect {|
+  [%expect
+    {|
     ============= NEW HYPOTHESIS =============
     ((code 245)
      (verifiers

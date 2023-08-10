@@ -1,19 +1,7 @@
 open! Core
 open! Turing_game
 
-include struct
-  open Verifier.Examples
-
-  let verifier_04 = verifier_04
-  let verifier_09 = verifier_09
-  let verifier_11 = verifier_11
-  let verifier_14 = verifier_14
-end
-
-let decoder =
-  Decoder.create
-    ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
-;;
+let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
 
 let print_is_complete ~resolution_path =
   print_s
@@ -35,12 +23,13 @@ let print_max_number_of_remaining_codes ~resolution_path =
 
 let%expect_test "incomplete resolution_path" =
   let resolution_path =
+    let open Verifiers in
     { Resolution_path.rounds =
         [ { code = { triangle = One; square = Four; circle = Three }
-          ; verifiers = [ verifier_09.name ]
+          ; verifiers = [ v_09.name ]
           }
         ; { code = { triangle = Two; square = One; circle = Five }
-          ; verifiers = [ verifier_04.name ]
+          ; verifiers = [ v_04.name ]
           }
         ]
     }
@@ -73,12 +62,13 @@ let%expect_test "incomplete resolution_path" =
 
 let%expect_test "incomplete resolution_path" =
   let resolution_path =
+    let open Verifiers in
     { Resolution_path.rounds =
         [ { code = { triangle = One; square = Four; circle = Three }
-          ; verifiers = [ verifier_04.name ]
+          ; verifiers = [ v_04.name ]
           }
         ; { code = { triangle = Two; square = One; circle = Five }
-          ; verifiers = [ verifier_09.name; verifier_11.name; verifier_14.name ]
+          ; verifiers = [ v_09.name; v_11.name; v_14.name ]
           }
         ]
     }
@@ -114,15 +104,16 @@ let%expect_test "incomplete resolution_path" =
 
 let%expect_test "complete resolution_path" =
   let resolution_path =
+    let open Verifiers in
     { Resolution_path.rounds =
         [ { code = { triangle = One; square = Four; circle = Three }
-          ; verifiers = [ verifier_04.name ]
+          ; verifiers = [ v_04.name ]
           }
         ; { code = { triangle = Two; square = One; circle = Five }
-          ; verifiers = [ verifier_09.name; verifier_11.name; verifier_14.name ]
+          ; verifiers = [ v_09.name; v_11.name; v_14.name ]
           }
         ; { code = { triangle = Two; square = Three; circle = One }
-          ; verifiers = [ verifier_04.name ]
+          ; verifiers = [ v_04.name ]
           }
         ]
     }
@@ -136,15 +127,16 @@ let%expect_test "complete resolution_path" =
 
 let%expect_test "shrink" =
   let resolution_path =
+    let open Verifiers in
     { Resolution_path.rounds =
         [ { code = { triangle = One; square = Four; circle = Three }
-          ; verifiers = [ verifier_04.name; verifier_14.name ]
+          ; verifiers = [ v_04.name; v_14.name ]
           }
         ; { code = { triangle = Two; square = One; circle = Five }
-          ; verifiers = [ verifier_09.name; verifier_11.name; verifier_14.name ]
+          ; verifiers = [ v_09.name; v_11.name; v_14.name ]
           }
         ; { code = { triangle = Two; square = Three; circle = One }
-          ; verifiers = [ verifier_04.name; verifier_11.name ]
+          ; verifiers = [ v_04.name; v_11.name ]
           }
         ]
     }
@@ -191,10 +183,7 @@ let%expect_test "quick-solve" =
     print_s [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }];
     ()
   in
-  let decoder1 =
-    Decoder.create
-      ~verifiers:Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
-  in
+  let decoder1 = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
   test decoder1;
   [%expect
     {|
@@ -203,10 +192,7 @@ let%expect_test "quick-solve" =
         (((code 111) (verifiers (04 09 11))) ((code 141) (verifiers (04 09 11)))))))
      (cost ((number_of_rounds 2) (number_of_verifiers 6)))) |}];
   let decoder20 =
-    Decoder.create
-      ~verifiers:
-        Verifier.Examples.
-          [ verifier_11; verifier_22; verifier_30; verifier_33; verifier_34; verifier_40 ]
+    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
   in
   test decoder20;
   [%expect

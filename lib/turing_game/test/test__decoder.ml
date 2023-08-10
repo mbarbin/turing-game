@@ -1,17 +1,8 @@
 open! Core
 open! Turing_game
 
-include struct
-  open Verifier.Examples
-
-  let verifier_04 = verifier_04
-  let verifier_09 = verifier_09
-  let verifier_11 = verifier_11
-  let verifier_14 = verifier_14
-end
-
 let%expect_test "one verifier" =
-  let decoder = Decoder.create ~verifiers:[ verifier_04 ] in
+  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04 ] in
   let hypotheses = Decoder.hypotheses decoder ~strict:false in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -29,9 +20,7 @@ let%expect_test "one verifier" =
 ;;
 
 let%expect_test "all verifiers" =
-  let decoder =
-    Decoder.create ~verifiers:[ verifier_04; verifier_09; verifier_11; verifier_14 ]
-  in
+  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
   let hypotheses = Decoder.hypotheses decoder in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -82,9 +71,7 @@ let%expect_test "all verifiers" =
 ;;
 
 let%expect_test "example of path" =
-  let decoder =
-    Decoder.create ~verifiers:[ verifier_04; verifier_09; verifier_11; verifier_14 ]
-  in
+  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
   let info ~decoder =
     let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
     let hypotheses = Decoder.hypotheses decoder in
@@ -102,7 +89,7 @@ let%expect_test "example of path" =
   in
   let code : Code.t = { triangle = One; square = Two; circle = Three } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:verifier_04 ~code ~result:false
+    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_04 ~code ~result:false
   in
   print_progress ~decoder;
   [%expect
@@ -132,7 +119,7 @@ let%expect_test "example of path" =
            ((name 14) (condition (Is_smallest (symbol Circle)))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:verifier_09 ~code ~result:true
+    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_09 ~code ~result:true
   in
   print_progress ~decoder;
   [%expect
@@ -166,7 +153,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:verifier_11 ~code ~result:true
+    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_11 ~code ~result:true
   in
   print_progress ~decoder;
   [%expect
@@ -191,7 +178,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:verifier_14 ~code ~result:false
+    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_14 ~code ~result:false
   in
   print_progress ~decoder;
   [%expect {| (no changes) |}];

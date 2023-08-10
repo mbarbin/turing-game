@@ -11,6 +11,7 @@ module Partition = Partition
 module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
+module Verifiers = Verifiers
 
 let hello_world = [%sexp "Hello, World!"]
 
@@ -37,21 +38,9 @@ let complete_solver_example_cmd =
      fun () ->
        let decoder =
          match n with
-         | 1 ->
-           Decoder.create
-             ~verifiers:
-               Verifier.Examples.[ verifier_04; verifier_09; verifier_11; verifier_14 ]
+         | 1 -> Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
          | 20 ->
-           Decoder.create
-             ~verifiers:
-               Verifier.Examples.
-                 [ verifier_11
-                 ; verifier_22
-                 ; verifier_30
-                 ; verifier_33
-                 ; verifier_34
-                 ; verifier_40
-                 ]
+           Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
          | n ->
            raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in

@@ -11,6 +11,7 @@ module Partition = Partition
 module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
+module Verifiers = Verifiers
 
 val hello_world : Sexp.t
 val main : Command.t
