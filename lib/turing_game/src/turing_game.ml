@@ -55,9 +55,10 @@ let solver_example_cmd =
            raise_s [%sexp "Example not available", { n : int; available = [ 1; 20 ] }]
        in
        let solutions =
-         if quick_solve
-         then Solver.quick_solve ~decoder |> Option.to_list
-         else Solver.solve ~decoder ~visit_all_children
+         Ref.set_temporarily Solver.debug true ~f:(fun () ->
+           if quick_solve
+           then Solver.quick_solve ~decoder |> Option.to_list
+           else Solver.solve ~decoder ~visit_all_children)
        in
        print_s
          [%sexp
