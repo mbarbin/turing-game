@@ -33,14 +33,16 @@ module Hypothesis : sig
   type t [@@deriving sexp_of]
 
   val verifier_exn : t -> name:Verifier.Name.t -> Condition.t
-  val verifies_exn : t -> code:Code.t -> verifier:Verifier.Name.t -> bool
+
+  (** Assuming the hypothesis [t], returns the expected result of the given
+      test. Raises if [verifier] is unknown. *)
+  val evaluate_exn : t -> code:Code.t -> verifier:Verifier.Name.t -> bool
 
   (** When the hypothesis is strict, it is guaranteed by construction to have a
       single remaining code. *)
   val remaining_code_exn : t -> Code.t
 
   val remaining_codes : t -> Codes.t
-  val compute_test_results : t -> keys:Test_results.Key.t array -> Test_results.t
 end
 
 (** Returns all the hypothesis that can be made regarding the verifiers of [t],

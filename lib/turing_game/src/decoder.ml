@@ -71,11 +71,6 @@ module Hypothesis = struct
       Option.some_if (Verifier.Name.equal name verifier.name) verifier.condition)
   ;;
 
-  let verifies_exn t ~code ~verifier =
-    let condition = verifier_exn t ~name:verifier in
-    Condition.evaluate condition ~code
-  ;;
-
   let remaining_code_exn t =
     match t.remaining_codes |> Codes.to_list with
     | [ code ] -> code
@@ -86,9 +81,9 @@ module Hypothesis = struct
 
   let remaining_codes t = t.remaining_codes
 
-  let compute_test_results t ~keys =
-    Array.map keys ~f:(fun { Test_results.Key.code; verifier } ->
-      verifies_exn t ~code ~verifier)
+  let evaluate_exn t ~code ~verifier =
+    let condition = verifier_exn t ~name:verifier in
+    Condition.evaluate condition ~code
   ;;
 end
 
@@ -273,6 +268,9 @@ let add_test_result t ~code ~verifier ~result =
 
 let compute_test_results t ~keys =
   List.map (hypotheses t ~strict:true) ~f:(fun hypothesis ->
-    let test_results = Hypothesis.compute_test_results hypothesis ~keys in
+    let test_results =
+      Array.map keys ~f:(fun { Test_results.Key.code; verifier } ->
+        Hypothesis.evaluate_exn hypothesis ~code ~verifier)
+    in
     test_results, hypothesis)
 ;;
