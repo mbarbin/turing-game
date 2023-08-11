@@ -10,6 +10,5 @@ val mem : t -> Code.t -> bool
 val init : f:(Code.t -> bool) -> t
 val to_list : t -> Code.t list
 val concat : t list -> t
-val verifies : t -> condition:Condition.t -> t
 val filter : t -> f:(Code.t -> bool) -> t
 val length : t -> int

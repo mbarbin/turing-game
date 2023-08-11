@@ -49,8 +49,6 @@ end
     solution. *)
 val hypotheses : ?strict:bool -> t -> Hypothesis.t list
 
-val is_determined : t -> Code.t option
-
 (** During the course of the decoding, the decoder will request some tests to be
     run. Use this function to inform back [t] of the test result. *)
 val add_test_result

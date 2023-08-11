@@ -219,15 +219,6 @@ let remaining_codes t =
   hypotheses t ~strict:true |> List.map ~f:Hypothesis.remaining_codes |> Codes.concat
 ;;
 
-let is_determined t =
-  match hypotheses t ~strict:true with
-  | [] | _ :: _ :: _ -> None
-  | [ hd ] ->
-    (match Codes.to_list hd.remaining_codes with
-     | [ code ] -> Some code
-     | _ -> assert false)
-;;
-
 let add_test_result t ~code ~verifier ~result =
   let open Or_error.Let_syntax in
   let slot =
