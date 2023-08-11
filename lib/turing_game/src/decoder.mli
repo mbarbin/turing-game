@@ -19,6 +19,7 @@ module Hypothesis : sig
   type t [@@deriving sexp_of]
 
   val verifier_exn : t -> name:Verifier.Name.t -> Condition.t
+  val verifies_exn : t -> code:Code.t -> verifier:Verifier.Name.t -> bool
 
   (** When the hypothesis is strict, it is guaranteed by construction to have a
       single remaining code. *)

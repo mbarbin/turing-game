@@ -112,17 +112,19 @@ let pick_best_positive_evaluation alist =
   |> Option.bind ~f:(fun (e, r) -> Option.some_if (not (Evaluation.is_zero e)) r)
 ;;
 
+let pick_best_verifier ~decoder ~code =
+  Nonempty_list.filter_map (Decoder.verifiers decoder) ~f:(fun verifier ->
+    let evaluation, info = evaluate_test ~decoder ~code ~verifier in
+    if Evaluation.is_zero evaluation
+    then None
+    else Some (evaluation, (verifier.name, info)))
+  |> pick_best_positive_evaluation
+;;
+
 let add_to_current_round ~decoder ~current_round =
   if current_round_is_finished ~current_round
   then None
-  else (
-    let code = current_round.code in
-    let verifiers = Decoder.verifiers decoder in
-    Nonempty_list.map verifiers ~f:(fun verifier ->
-      let evaluation, info = evaluate_test ~decoder ~code ~verifier in
-      evaluation, (verifier.name, info))
-    |> Nonempty_list.to_list
-    |> pick_best_positive_evaluation)
+  else pick_best_verifier ~decoder ~code:current_round.code
 ;;
 
 let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
@@ -149,9 +151,10 @@ let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
         (let open List.Let_syntax in
          let%bind code = Codes.all |> Codes.to_list in
          let%bind verifier = Decoder.verifiers decoder |> Nonempty_list.to_list in
-         return
-           (let evaluation, info = evaluate_test ~decoder ~code ~verifier in
-            evaluation, (code, verifier.name, info)))
+         let evaluation, info = evaluate_test ~decoder ~code ~verifier in
+         if Evaluation.is_zero evaluation
+         then []
+         else return (evaluation, (code, verifier.name, info)))
         |> pick_best_positive_evaluation
       in
       (match candidate with

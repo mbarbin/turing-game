@@ -54,6 +54,11 @@ module Hypothesis = struct
       Option.some_if (Verifier.Name.equal name verifier.name) verifier.condition)
   ;;
 
+  let verifies_exn t ~code ~verifier =
+    let condition = verifier_exn t ~name:verifier in
+    Condition.evaluate condition ~code
+  ;;
+
   let remaining_code_exn t =
     match t.remaining_codes |> Codes.to_list with
     | [ code ] -> code

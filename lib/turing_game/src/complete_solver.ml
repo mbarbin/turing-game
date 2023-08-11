@@ -26,8 +26,7 @@ module Test_results = struct
 
   let compute ~keys ~hypothesis =
     Array.map keys ~f:(fun { Key.code; verifier } ->
-      let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-      Condition.evaluate condition ~code)
+      Decoder.Hypothesis.verifies_exn hypothesis ~code ~verifier)
   ;;
 
   let by_keys ~keys ~decoder =
