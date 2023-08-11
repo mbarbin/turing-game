@@ -315,7 +315,7 @@ let input_test_result ~code ~verifier =
     ~prompt:
       (sprintf
          "Enter result for test. code=%S - verifier=%S: "
-         (Code.sexp_of_t code |> Sexp.to_string)
+         (Code.to_string code)
          ((verifier : Verifier.Name.t) :> string))
 ;;
 

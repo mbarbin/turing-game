@@ -1,8 +1,9 @@
 open! Core
 
-type t = Digit.t Symbol.Tuple.t [@@deriving compare, equal, hash, sexp_of]
+type t = Digit.t Symbol.Tuple.t [@@deriving compare, equal, hash]
 
-let sexp_of_t { Symbol.Tuple.triangle; square; circle } =
-  Sexp.Atom
-    (sprintf "%d%d%d" (Digit.to_int triangle) (Digit.to_int square) (Digit.to_int circle))
+let to_string { Symbol.Tuple.triangle; square; circle } =
+  sprintf "%d%d%d" (Digit.to_int triangle) (Digit.to_int square) (Digit.to_int circle)
 ;;
+
+let sexp_of_t t = Sexp.Atom (to_string t)
