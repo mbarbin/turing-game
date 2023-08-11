@@ -1,15 +1,5 @@
 Simulating an interactive resolution to problem 2.
 
-  $ turing-game complete-solver example -n 2 -quick
-  ((parent_path ()) (parent_evaluation 13) (number_of_children 500))
-  ((parent_path (((code 131) (verifiers (03 07 10))))) (parent_evaluation 3)
-   (number_of_children 296))
-  ((solutions
-    (((rounds
-       (((code 131) (verifiers (03 07 10)))
-        ((code 214) (verifiers (03 10 14))))))))
-   (number_of_solutions 1))
-
   $ turing-game solver 2 <<EOF
   > 
   > true

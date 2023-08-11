@@ -1,7 +1,6 @@
 open! Core
 module Code = Code
 module Codes = Codes
-module Complete_solver = Complete_solver
 module Condition = Condition
 module Decoder = Decoder
 module Decoders = Decoders
