@@ -106,12 +106,10 @@ let current_round_is_finished ~(current_round : Resolution_path.Round.t) =
   Nonempty_list.length current_round.verifiers >= 3
 ;;
 
-let pick_best_value alist =
+let pick_best_positive_evaluation alist =
   alist
-  |> List.sort ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e2 e1)
-  |> List.drop_while ~f:(fun (e, _) -> Evaluation.is_zero e)
-  |> List.hd
-  |> Option.map ~f:snd
+  |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+  |> Option.bind ~f:(fun (e, r) -> Option.some_if (not (Evaluation.is_zero e)) r)
 ;;
 
 let add_to_current_round ~decoder ~current_round =
@@ -124,7 +122,7 @@ let add_to_current_round ~decoder ~current_round =
       let evaluation, info = evaluate_test ~decoder ~code ~verifier in
       evaluation, (verifier.name, info))
     |> Nonempty_list.to_list
-    |> pick_best_value)
+    |> pick_best_positive_evaluation)
 ;;
 
 let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
@@ -154,7 +152,7 @@ let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
          return
            (let evaluation, info = evaluate_test ~decoder ~code ~verifier in
             evaluation, (code, verifier.name, info)))
-        |> pick_best_value
+        |> pick_best_positive_evaluation
       in
       (match candidate with
        | Some (code, verifier, info) ->
