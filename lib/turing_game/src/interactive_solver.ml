@@ -420,20 +420,33 @@ let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
   aux ~decoder ~rounds:[] ~current_round:None
 ;;
 
+let simulate_all_hypotheses ~decoder =
+  List.iter (Decoder.hypotheses decoder) ~f:(fun hypothesis ->
+    print_endline "============= NEW HYPOTHESIS =============";
+    print_s [%sexp (hypothesis : Decoder.Hypothesis.t)];
+    let steps = simulate_resolution_for_hypothesis ~decoder ~hypothesis in
+    print_s [%sexp (steps : Step.t list)])
+;;
+
 let make_command ~index ~decoder =
   Command.basic
     ~summary:(sprintf "solve problem %d interactively" index)
-    (let%map_open.Command () = return () in
+    (let%map_open.Command stress_test =
+       flag "stress-test" no_arg ~doc:" run for all hypotheses"
+     in
      fun () ->
-       match
-         with_return (fun return ->
-           interactive_solve ~decoder ~return;
-           Ok ())
-       with
-       | Ok () -> ()
-       | Error e ->
-         prerr_endline (Error.to_string_hum e);
-         exit 1)
+       if stress_test
+       then simulate_all_hypotheses ~decoder
+       else (
+         match
+           with_return (fun return ->
+             interactive_solve ~decoder ~return;
+             Ok ())
+         with
+         | Ok () -> ()
+         | Error e ->
+           prerr_endline (Error.to_string_hum e);
+           exit 1))
 ;;
 
 let cmd =
