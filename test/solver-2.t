@@ -1,8 +1,4 @@
-Simulating an interactive resolution to problem 2. As of now, this yields a
-solution that uses 3 rounds vs only 2 when using the complete solver.
-
-To be investigated whether it's possible to improve the choices made by the
-interactive solver, or if this is an indication of a bug somewhere.
+Simulating an interactive resolution to problem 2.
 
   $ turing-game complete-solver example -n 2 -quick
   ((parent_path ()) (parent_evaluation 13) (number_of_children 500))
@@ -18,11 +14,9 @@ interactive solver, or if this is an indication of a bug somewhere.
   > 
   > true
   > 
-  > false
-  > 
-  > false
-  > 
   > true
+  > 
+  > false
   > 
   > true
   > 
@@ -56,59 +50,44 @@ interactive solver, or if this is an indication of a bug somewhere.
   
   Enter result for test. code="231" - verifier="07": 
   (Test_result
-   ((code 231) (verifier 07) (result false)
-    (remaining_bits_before 2.8073549220576042)
-    (bits_gained 0.80735492205760417) (remaining_bits 2)
-    (number_of_remaining_codes 4)))
+   ((code 231) (verifier 07) (result true)
+    (remaining_bits_before 2.8073549220576042) (bits_gained 1.2223924213364481)
+    (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
   
   Ready to request a new test. Type ENTER to continue...
   (Request_test
    ((new_round false) (code 231) (verifier 10)
     (info
      ((code 231) (verifier 10)
-      (score_if_true ((bits_gained 2) (probability 0.25)))
-      (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
+      (score_if_true
+       ((bits_gained 1.5849625007211561) (probability 0.33333333333333331)))
+      (score_if_false
+       ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
   
   Enter result for test. code="231" - verifier="10": 
   (Test_result
-   ((code 231) (verifier 10) (result false) (remaining_bits_before 2)
-    (bits_gained 0.41503749927884392) (remaining_bits 1.5849625007211561)
-    (number_of_remaining_codes 3)))
-  
-  No more test to run with this code.
-  Ready for next round. Type ENTER to continue...
-  (Request_test
-   ((new_round true) (code 214) (verifier 10)
-    (info
-     ((code 214) (verifier 10)
-      (score_if_true
-       ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))
-      (score_if_false
-       ((bits_gained 1.5849625007211561) (probability 0.33333333333333331)))))))
-  
-  Enter result for test. code="214" - verifier="10": 
-  (Test_result
-   ((code 214) (verifier 10) (result true)
+   ((code 231) (verifier 10) (result false)
     (remaining_bits_before 1.5849625007211561)
     (bits_gained 0.58496250072115608) (remaining_bits 1)
     (number_of_remaining_codes 2)))
   
-  Ready to request a new test. Type ENTER to continue...
+  No more test to run with this code.
+  Ready for next round. Type ENTER to continue...
   (Request_test
-   ((new_round false) (code 214) (verifier 14)
+   ((new_round true) (code 212) (verifier 14)
     (info
-     ((code 214) (verifier 14)
+     ((code 212) (verifier 14)
       (score_if_true ((bits_gained 1) (probability 0.5)))
       (score_if_false ((bits_gained 1) (probability 0.5)))))))
   
-  Enter result for test. code="214" - verifier="14": 
+  Enter result for test. code="212" - verifier="14": 
   (Test_result
-   ((code 214) (verifier 14) (result true) (remaining_bits_before 1)
+   ((code 212) (verifier 14) (result true) (remaining_bits_before 1)
     (bits_gained 1) (remaining_bits 0) (number_of_remaining_codes 1)))
   
   Ready to propose a solution. Type ENTER to continue...
   ((resolution_path
     ((rounds
-      (((code 231) (verifiers (03 07 10))) ((code 214) (verifiers (10 14)))))))
-   (cost ((number_of_rounds 2) (number_of_verifiers 5))))
-  (Propose_solution (code 534))
+      (((code 231) (verifiers (03 07 10))) ((code 212) (verifiers (14)))))))
+   (cost ((number_of_rounds 2) (number_of_verifiers 4))))
+  (Propose_solution (code 435))
