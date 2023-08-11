@@ -38,11 +38,9 @@ val is_determined : t -> Code.t option
 
 (** During the course of the decoding, the decoder will request some tests to be
     run. Use this function to inform back [t] of the test result. *)
-val add_test_result_exn : t -> verifier:Verifier.t -> code:Code.t -> result:bool -> t
-
 val add_test_result
   :  t
-  -> verifier:Verifier.t
   -> code:Code.t
+  -> verifier:Verifier.t
   -> result:bool
   -> t Or_error.t

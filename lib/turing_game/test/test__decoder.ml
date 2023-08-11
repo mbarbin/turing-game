@@ -89,7 +89,7 @@ let%expect_test "example of path" =
   in
   let code : Code.t = { triangle = One; square = Two; circle = Three } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_04 ~code ~result:false
+    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_04 ~result:false |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -119,7 +119,7 @@ let%expect_test "example of path" =
            ((name 14) (condition (Is_smallest (symbol Circle)))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_09 ~code ~result:true
+    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_09 ~result:true |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -153,7 +153,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_11 ~code ~result:true
+    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_11 ~result:true |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -178,7 +178,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result_exn decoder ~verifier:Verifiers.v_14 ~code ~result:false
+    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_14 ~result:false |> ok_exn
   in
   print_progress ~decoder;
   [%expect {| (no changes) |}];

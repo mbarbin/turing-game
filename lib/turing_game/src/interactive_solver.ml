@@ -47,7 +47,7 @@ let evaluate_test ~decoder ~code ~verifier =
     , Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }] )
   else (
     let compute_expected_information_gained ~result =
-      match Decoder.add_test_result decoder ~verifier ~code ~result with
+      match Decoder.add_test_result decoder ~code ~verifier ~result with
       | Error _ -> Expected_information_gained.unreachable
       | Ok decoder ->
         let remaining_if_true = Decoder.number_of_remaining_codes decoder in
@@ -229,8 +229,11 @@ let simulate_resolution_for_hypothesis ~decoder ~hypothesis =
       let remaining_bits_before = remaining_bits ~decoder in
       (match
          let verifier = Decoder.verifier_exn decoder ~name:verifier in
-         Decoder.add_test_result decoder ~verifier ~code ~result
+         Decoder.add_test_result decoder ~code ~verifier ~result
        with
+       | Error error ->
+         let acc = Step.Error error :: acc in
+         List.rev acc
        | Ok decoder ->
          let info =
            let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
@@ -249,10 +252,7 @@ let simulate_resolution_for_hypothesis ~decoder ~hypothesis =
                  ; number_of_remaining_codes : int
                  }]
          in
-         aux (Step.Info info :: acc) ~decoder ~rounds ~current_round
-       | Error error ->
-         let acc = Step.Error error :: acc in
-         List.rev acc)
+         aux (Step.Info info :: acc) ~decoder ~rounds ~current_round)
   in
   let introduction =
     let remaining_bits = remaining_bits ~decoder in
@@ -341,9 +341,9 @@ let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
       let remaining_bits_before = remaining_bits ~decoder in
       (match
          let verifier = Decoder.verifier_exn decoder ~name:verifier in
-         Decoder.add_test_result decoder ~verifier ~code ~result
+         Decoder.add_test_result decoder ~code ~verifier ~result
        with
-       | Error e -> return.return (Error e)
+       | Error _ as error -> return.return error
        | Ok decoder ->
          let info =
            let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in

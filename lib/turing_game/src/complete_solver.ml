@@ -303,9 +303,7 @@ let simulate_resolution_path_for_hypothesis ~decoder ~hypothesis ~resolution_pat
       ~init:decoder
       ~f:(fun decoder { Test_results.Key.code; verifier } result ->
         let verifier = Decoder.verifier_exn decoder ~name:verifier in
-        match Decoder.add_test_result decoder ~verifier ~code ~result with
-        | Ok decoder -> decoder
-        | Error e -> Error.raise e)
+        Decoder.add_test_result decoder ~code ~verifier ~result |> ok_exn)
   in
   let codes = Decoder.remaining_codes decoder in
   let expected_codes = Decoder.Hypothesis.remaining_codes hypothesis in

@@ -206,7 +206,7 @@ let is_determined t =
      | _ -> assert false)
 ;;
 
-let add_test_result t ~verifier ~code ~result =
+let add_test_result t ~code ~verifier ~result =
   let open Or_error.Let_syntax in
   let slot =
     match
@@ -256,8 +256,4 @@ let add_test_result t ~verifier ~code ~result =
       }
     in
     Or_error.return t
-;;
-
-let add_test_result_exn t ~verifier ~code ~result =
-  add_test_result t ~verifier ~code ~result |> Or_error.ok_exn
 ;;
