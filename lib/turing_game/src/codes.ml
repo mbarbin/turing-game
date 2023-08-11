@@ -3,7 +3,6 @@ open! Core
 type t = Code.t list [@@deriving equal, compare, sexp_of]
 
 let empty = []
-let to_list t = t
 
 let all =
   (let open List.Let_syntax in
@@ -14,8 +13,31 @@ let all =
   |> List.sort ~compare:Code.compare
 ;;
 
-let mem t (code : Code.t) = List.mem t code ~equal:Code.equal
-let init ~f = List.filter all ~f
-let filter t ~f = List.filter t ~f
-let length t = List.length t
-let concat ts = List.concat ts
+let is_singleton = function
+  | [ hd ] -> Some hd
+  | [] | _ :: _ :: _ -> None
+;;
+
+let rec rev_add seen acc = function
+  | [] -> acc
+  | hd :: tl ->
+    let acc =
+      if Hash_set.mem seen hd
+      then acc
+      else (
+        Hash_set.add seen hd;
+        hd :: acc)
+    in
+    rev_add seen acc tl
+;;
+
+let concat ts =
+  let seen = Hash_set.create (module Code) in
+  List.fold ts ~init:[] ~f:(fun acc t -> rev_add seen acc t) |> List.rev
+;;
+
+let append t1 t2 = concat [ t1; t2 ]
+let filter = List.filter
+let length = List.length
+let iter = List.iter
+let map = List.map

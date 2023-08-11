@@ -6,18 +6,6 @@ module Round = struct
     ; verifiers : Verifier.Name.t Nonempty_list.t
     }
   [@@deriving compare, equal, hash, sexp_of]
-
-  let add_verifier t ~name =
-    let verifiers =
-      name :: Nonempty_list.to_list t.verifiers
-      |> List.dedup_and_sort ~compare:Verifier.Name.compare
-      |> Nonempty_list.of_list_exn
-    in
-    let number_of_verifiers = Nonempty_list.length verifiers in
-    if number_of_verifiers <= 3 && number_of_verifiers > Nonempty_list.length t.verifiers
-    then Some { code = t.code; verifiers }
-    else None
-  ;;
 end
 
 type t = { rounds : Round.t Nonempty_list.t } [@@deriving compare, equal, hash, sexp_of]

@@ -12,8 +12,6 @@ module Round : sig
     ; verifiers : Verifier.Name.t Nonempty_list.t
     }
   [@@deriving compare, equal, hash, sexp_of]
-
-  val add_verifier : t -> name:Verifier.Name.t -> t option
 end
 
 type t = { rounds : Round.t Nonempty_list.t } [@@deriving compare, equal, hash, sexp_of]

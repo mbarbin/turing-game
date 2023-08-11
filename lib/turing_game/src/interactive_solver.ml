@@ -66,41 +66,69 @@ let evaluate_test ~decoder ~code ~verifier =
           }] ))
 ;;
 
+module Test_key = struct
+  type t =
+    { code : Code.t
+    ; verifier : Verifier.Name.t
+    }
+  [@@deriving compare, equal, hash, sexp_of]
+end
+
+module Test_results = struct
+  module T = struct
+    type t = bool array [@@deriving compare, equal, sexp_of]
+  end
+
+  include T
+  include Comparator.Make (T)
+end
+
+(* For each hypothesis, run the tests present in the test keys and return their
+   results. When then aggregate the remaining codes per test result, so as to
+   compute the expected information gained for each of the test keys. *)
+
+let compute_test_results t ~test_keys =
+  List.map (Decoder.hypotheses t) ~f:(fun hypothesis ->
+    let test_results =
+      Array.map test_keys ~f:(fun { Test_key.code; verifier } ->
+        Decoder.Hypothesis.evaluate_exn hypothesis ~code ~verifier)
+    in
+    test_results, Decoder.Hypothesis.remaining_codes hypothesis)
+;;
+
 let evaluate_code ~decoder ~code =
   let verifiers = Decoder.verifiers decoder in
-  let initial_number_of_hypotheses = List.length (Decoder.hypotheses decoder) in
-  let evaluate_keys ~keys =
+  let initial_number_of_codes = Decoder.number_of_remaining_codes decoder in
+  let evaluate_test_keys ~test_keys =
     match
-      Decoder.compute_test_results decoder ~keys
-      |> Map.of_alist_multi (module Decoder.Test_results)
+      compute_test_results decoder ~test_keys
+      |> Map.of_alist_fold (module Test_results) ~init:Codes.empty ~f:Codes.append
       |> Map.to_alist
-      |> List.map ~f:(fun (_, hypotheses) ->
+      |> List.map ~f:(fun (_, remaining_codes) ->
         Expected_information_gained.compute
-          ~starting_number:initial_number_of_hypotheses
-          ~remaining_number:(List.length hypotheses))
+          ~starting_number:initial_number_of_codes
+          ~remaining_number:(Codes.length remaining_codes))
     with
     | [] -> Evaluation.zero
     | hd :: tl -> Evaluation.compute (hd :: tl)
   in
-  let rec aux ~evaluation ~keys =
-    if Array.length keys = 3
+  let rec aux ~evaluation ~test_keys =
+    if Array.length test_keys = 3
     then evaluation
     else (
-      let evaluation, keys =
+      let evaluation, test_keys =
         Nonempty_list.map verifiers ~f:(fun verifier ->
-          let keys =
-            Array.append
-              keys
-              [| { Decoder.Test_results.Key.code; verifier = verifier.name } |]
+          let test_keys =
+            Array.append test_keys [| { Test_key.code; verifier = verifier.name } |]
           in
-          evaluate_keys ~keys, keys)
+          evaluate_test_keys ~test_keys, test_keys)
         |> Nonempty_list.to_list
         |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
         |> Option.value_exn ~here:[%here]
       in
-      aux ~evaluation ~keys)
+      aux ~evaluation ~test_keys)
   in
-  aux ~keys:[||] ~evaluation:Evaluation.zero
+  aux ~test_keys:[||] ~evaluation:Evaluation.zero
 ;;
 
 module Request_test = struct
@@ -164,36 +192,32 @@ let add_to_current_round ~decoder ~current_round =
 ;;
 
 let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
-  let evaluation = Decoder.number_of_remaining_codes decoder in
-  if evaluation = 1
-  then
-    Step.Propose_solution
-      { code = Decoder.remaining_codes decoder |> Codes.to_list |> List.hd_exn }
-  else (
-    match
-      match current_round with
-      | None -> None
-      | Some current_round ->
-        (match add_to_current_round ~decoder ~current_round with
-         | None -> None
-         | Some (verifier, info) ->
-           Some
-             (Step.Request_test
-                { new_round = false; code = current_round.code; verifier; info }))
-    with
-    | Some next_step -> next_step
-    | None ->
-      let code =
-        List.map (Codes.all |> Codes.to_list) ~f:(fun code ->
-          evaluate_code ~decoder ~code, code)
-        |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
-        |> Option.value_exn ~here:[%here]
-        |> snd
-      in
-      (match pick_best_verifier ~decoder ~code with
-       | Some (verifier, info) ->
-         Step.Request_test { new_round = true; code; verifier; info }
-       | None -> Error (Error.create_s [%sexp "Cannot make progress"])))
+  match Codes.is_singleton (Decoder.remaining_codes decoder) with
+  | Some code -> Step.Propose_solution { code }
+  | None ->
+    (match
+       match current_round with
+       | None -> None
+       | Some current_round ->
+         (match add_to_current_round ~decoder ~current_round with
+          | None -> None
+          | Some (verifier, info) ->
+            Some
+              (Step.Request_test
+                 { new_round = false; code = current_round.code; verifier; info }))
+     with
+     | Some next_step -> next_step
+     | None ->
+       let code =
+         Codes.map Codes.all ~f:(fun code -> evaluate_code ~decoder ~code, code)
+         |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+         |> Option.value_exn ~here:[%here]
+         |> snd
+       in
+       (match pick_best_verifier ~decoder ~code with
+        | Some (verifier, info) ->
+          Step.Request_test { new_round = true; code; verifier; info }
+        | None -> Error (Error.create_s [%sexp "Cannot make progress"])))
 ;;
 
 let remaining_bits ~decoder =

@@ -16,23 +16,6 @@ module Slot = struct
   [@@deriving equal, sexp_of]
 end
 
-module Test_results = struct
-  module Key = struct
-    type t =
-      { code : Code.t
-      ; verifier : Verifier.Name.t
-      }
-    [@@deriving compare, equal, hash, sexp_of]
-  end
-
-  module T = struct
-    type t = bool array [@@deriving compare, equal, sexp_of]
-  end
-
-  include T
-  include Comparator.Make (T)
-end
-
 module Hypothesis = struct
   module One_verifier = struct
     type t =
@@ -53,11 +36,11 @@ module Hypothesis = struct
     }
 
   let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes } =
-    match remaining_codes |> Codes.to_list with
-    | [ code ] ->
+    match Codes.is_singleton remaining_codes with
+    | Some code ->
       [%sexp
         { code : Code.t; verifiers : (One_verifier.t, immutable) Array.Permissioned.t }]
-    | _ ->
+    | None ->
       [%sexp
         { number_of_remaining_codes : int
         ; verifiers : (One_verifier.t, immutable) Array.Permissioned.t
@@ -72,9 +55,9 @@ module Hypothesis = struct
   ;;
 
   let remaining_code_exn t =
-    match t.remaining_codes |> Codes.to_list with
-    | [ code ] -> code
-    | [] | _ :: _ :: _ ->
+    match Codes.is_singleton t.remaining_codes with
+    | Some code -> code
+    | None ->
       raise_s
         [%sexp "Hypothesis is expected to have a unique remaining code", [%here], (t : t)]
   ;;
@@ -208,11 +191,11 @@ let hypotheses ?(strict = true) t =
   else compute_hypotheses t ~strict:false
 ;;
 
-let number_of_remaining_codes t = hypotheses t ~strict:true |> List.length
-
 let remaining_codes t =
   hypotheses t ~strict:true |> List.map ~f:Hypothesis.remaining_codes |> Codes.concat
 ;;
+
+let number_of_remaining_codes t = Codes.length (remaining_codes t)
 
 let add_test_result t ~code ~verifier ~result =
   let open Or_error.Let_syntax in
@@ -264,13 +247,4 @@ let add_test_result t ~code ~verifier ~result =
       }
     in
     Or_error.return t
-;;
-
-let compute_test_results t ~keys =
-  List.map (hypotheses t ~strict:true) ~f:(fun hypothesis ->
-    let test_results =
-      Array.map keys ~f:(fun { Test_results.Key.code; verifier } ->
-        Hypothesis.evaluate_exn hypothesis ~code ~verifier)
-    in
-    test_results, hypothesis)
 ;;

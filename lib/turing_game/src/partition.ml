@@ -5,7 +5,7 @@ type t = Condition.t Nonempty_list.t [@@deriving equal, sexp_of]
 let verify_counts (t : t) =
   with_return (fun { return } ->
     let counts = Array.init (Nonempty_list.length t) ~f:(fun _ -> ref 0) in
-    List.iter (Codes.all |> Codes.to_list) ~f:(fun code ->
+    Codes.iter Codes.all ~f:(fun code ->
       let verifies =
         Nonempty_list.map t ~f:(fun condition -> Condition.evaluate condition ~code)
       in
