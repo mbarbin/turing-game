@@ -11,14 +11,14 @@ module Expected_information_gained = struct
 
   let unreachable = { bits_gained = 0.; probability = 0. }
 
-  let compute ~starting_number_of_remaining_codes ~number_of_remaining_codes =
-    if starting_number_of_remaining_codes = 0 || number_of_remaining_codes = 0
+  let compute ~starting_number ~remaining_number =
+    if starting_number = 0 || remaining_number = 0
     then unreachable
     else (
-      let starting_number = Float.of_int starting_number_of_remaining_codes in
+      let starting_number = Float.of_int starting_number in
       let starting_bits = Float.log2 starting_number in
-      let remaining_bits = Float.log2 (Float.of_int number_of_remaining_codes) in
-      let probability = Float.of_int number_of_remaining_codes /. starting_number in
+      let remaining_bits = Float.log2 (Float.of_int remaining_number) in
+      let probability = Float.of_int remaining_number /. starting_number in
       let bits_gained = starting_bits -. remaining_bits in
       { bits_gained; probability })
   ;;
@@ -50,10 +50,9 @@ let evaluate_test ~decoder ~code ~verifier =
       match Decoder.add_test_result decoder ~code ~verifier ~result with
       | Error _ -> Expected_information_gained.unreachable
       | Ok decoder ->
-        let remaining_if_true = Decoder.number_of_remaining_codes decoder in
         Expected_information_gained.compute
-          ~starting_number_of_remaining_codes
-          ~number_of_remaining_codes:remaining_if_true
+          ~starting_number:starting_number_of_remaining_codes
+          ~remaining_number:(Decoder.number_of_remaining_codes decoder)
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
@@ -65,6 +64,43 @@ let evaluate_test ~decoder ~code ~verifier =
           ; score_if_true : Expected_information_gained.t
           ; score_if_false : Expected_information_gained.t
           }] ))
+;;
+
+let evaluate_code ~decoder ~code =
+  let verifiers = Decoder.verifiers decoder in
+  let initial_number_of_hypotheses = List.length (Decoder.hypotheses decoder) in
+  let evaluate_keys ~keys =
+    match
+      Decoder.compute_test_results decoder ~keys
+      |> Map.of_alist_multi (module Decoder.Test_results)
+      |> Map.to_alist
+      |> List.map ~f:(fun (_, hypotheses) ->
+        Expected_information_gained.compute
+          ~starting_number:initial_number_of_hypotheses
+          ~remaining_number:(List.length hypotheses))
+    with
+    | [] -> Evaluation.zero
+    | hd :: tl -> Evaluation.compute (hd :: tl)
+  in
+  let rec aux ~evaluation ~keys =
+    if Array.length keys = 3
+    then evaluation
+    else (
+      let evaluation, keys =
+        Nonempty_list.map verifiers ~f:(fun verifier ->
+          let keys =
+            Array.append
+              keys
+              [| { Decoder.Test_results.Key.code; verifier = verifier.name } |]
+          in
+          evaluate_keys ~keys, keys)
+        |> Nonempty_list.to_list
+        |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+        |> Option.value_exn ~here:[%here]
+      in
+      aux ~evaluation ~keys)
+  in
+  aux ~keys:[||] ~evaluation:Evaluation.zero
 ;;
 
 module Request_test = struct
@@ -147,18 +183,15 @@ let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
     with
     | Some next_step -> next_step
     | None ->
-      let candidate =
-        (let open List.Let_syntax in
-         let%bind code = Codes.all |> Codes.to_list in
-         let%bind verifier = Decoder.verifiers decoder |> Nonempty_list.to_list in
-         let evaluation, info = evaluate_test ~decoder ~code ~verifier in
-         if Evaluation.is_zero evaluation
-         then []
-         else return (evaluation, (code, verifier.name, info)))
-        |> pick_best_positive_evaluation
+      let code =
+        List.map (Codes.all |> Codes.to_list) ~f:(fun code ->
+          evaluate_code ~decoder ~code, code)
+        |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
+        |> Option.value_exn ~here:[%here]
+        |> snd
       in
-      (match candidate with
-       | Some (code, verifier, info) ->
+      (match pick_best_verifier ~decoder ~code with
+       | Some (verifier, info) ->
          Step.Request_test { new_round = true; code; verifier; info }
        | None -> Error (Error.create_s [%sexp "Cannot make progress"])))
 ;;
