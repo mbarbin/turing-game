@@ -16,6 +16,23 @@ module Slot = struct
   [@@deriving equal, sexp_of]
 end
 
+module Test_results = struct
+  module Key = struct
+    type t =
+      { code : Code.t
+      ; verifier : Verifier.Name.t
+      }
+    [@@deriving compare, equal, hash, sexp_of]
+  end
+
+  module T = struct
+    type t = bool array [@@deriving compare, equal, sexp_of]
+  end
+
+  include T
+  include Comparator.Make (T)
+end
+
 module Hypothesis = struct
   module One_verifier = struct
     type t =
@@ -68,6 +85,11 @@ module Hypothesis = struct
   ;;
 
   let remaining_codes t = t.remaining_codes
+
+  let compute_test_results t ~keys =
+    Array.map keys ~f:(fun { Test_results.Key.code; verifier } ->
+      verifies_exn t ~code ~verifier)
+  ;;
 end
 
 type t =
@@ -256,4 +278,10 @@ let add_test_result t ~code ~verifier ~result =
       }
     in
     Or_error.return t
+;;
+
+let compute_test_results t ~keys =
+  List.map (hypotheses t ~strict:true) ~f:(fun hypothesis ->
+    let test_results = Hypothesis.compute_test_results hypothesis ~keys in
+    test_results, hypothesis)
 ;;

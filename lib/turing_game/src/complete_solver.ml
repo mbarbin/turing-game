@@ -2,51 +2,18 @@ open! Core
 
 let debug = ref false
 
-module Test_results = struct
-  module Key = struct
-    type t =
-      { code : Code.t
-      ; verifier : Verifier.Name.t
-      }
-    [@@deriving compare, equal, hash, sexp_of]
-  end
-
-  module T = struct
-    type t = bool array [@@deriving compare, equal, sexp_of]
-  end
-
-  include T
-  include Comparator.Make (T)
-
-  let make_keys ~(resolution_path : Resolution_path.t) : Key.t array =
-    Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
-      Nonempty_list.map verifiers ~f:(fun verifier -> { Key.code; verifier }))
-    |> Nonempty_list.to_array
-  ;;
-
-  let compute ~keys ~hypothesis =
-    Array.map keys ~f:(fun { Key.code; verifier } ->
-      Decoder.Hypothesis.verifies_exn hypothesis ~code ~verifier)
-  ;;
-
-  let by_keys ~keys ~decoder =
-    List.map (Decoder.hypotheses decoder) ~f:(fun hypothesis ->
-      let test_results = compute ~keys ~hypothesis in
-      test_results, hypothesis)
-  ;;
-end
-
-let test_results_by_hypothesis ~decoder ~resolution_path =
-  let keys = Test_results.make_keys ~resolution_path in
-  Test_results.by_keys ~keys ~decoder
+let make_keys ~(resolution_path : Resolution_path.t) : Decoder.Test_results.Key.t array =
+  Nonempty_list.concat_map resolution_path.rounds ~f:(fun { code; verifiers } ->
+    Nonempty_list.map verifiers ~f:(fun verifier ->
+      { Decoder.Test_results.Key.code; verifier }))
+  |> Nonempty_list.to_array
 ;;
 
 let max_number_of_remaining_codes ~decoder ~(resolution_path : Resolution_path.t) =
-  test_results_by_hypothesis
-    ~decoder
-    ~resolution_path:(resolution_path : Resolution_path.t)
+  let keys = make_keys ~resolution_path in
+  Decoder.compute_test_results decoder ~keys
   |> Map.of_alist_fold
-       (module Test_results)
+       (module Decoder.Test_results)
        ~init:0
        ~f:(fun acc (_ : Decoder.Hypothesis.t) -> acc + 1)
   |> Map.fold ~init:0 ~f:(fun ~key:_ ~data acc -> Int.max data acc)
@@ -78,16 +45,16 @@ end
 
 let is_complete_resolution_path_with_trace ~decoder ~(resolution_path : Resolution_path.t)
   =
-  let keys = Test_results.make_keys ~resolution_path in
-  let test_results = Test_results.by_keys ~keys ~decoder in
+  let keys = make_keys ~resolution_path in
+  let test_results = Decoder.compute_test_results decoder ~keys in
   match
-    test_results
-    |> Map.of_alist_multi (module Test_results)
-    |> Map.to_sequence
-    |> Sequence.find ~f:(fun (_, hs) ->
-      match hs with
-      | [] | [ _ ] -> false
-      | _ :: _ :: _ -> true)
+    with_return_option (fun { return } ->
+      test_results
+      |> Map.of_alist_multi (module Decoder.Test_results)
+      |> Map.iteri ~f:(fun ~key ~data ->
+        match data with
+        | [] | [ _ ] -> ()
+        | _ :: _ :: _ -> return (key, data)))
   with
   | None -> Is_complete_result.Yes
   | Some (ts, hypotheses) ->
@@ -294,14 +261,14 @@ let quick_solve ~decoder =
 ;;
 
 let simulate_resolution_path_for_hypothesis ~decoder ~hypothesis ~resolution_path =
-  let keys = Test_results.make_keys ~resolution_path in
-  let test_results = Test_results.compute ~keys ~hypothesis in
+  let keys = make_keys ~resolution_path in
+  let test_results = Decoder.Hypothesis.compute_test_results hypothesis ~keys in
   let decoder =
     Array.fold2_exn
       keys
       test_results
       ~init:decoder
-      ~f:(fun decoder { Test_results.Key.code; verifier } result ->
+      ~f:(fun decoder { Decoder.Test_results.Key.code; verifier } result ->
         let verifier = Decoder.verifier_exn decoder ~name:verifier in
         Decoder.add_test_result decoder ~code ~verifier ~result |> ok_exn)
   in
