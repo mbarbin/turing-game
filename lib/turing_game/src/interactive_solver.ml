@@ -227,99 +227,6 @@ let remaining_bits ~decoder =
   else Float.log2 (Float.of_int number_of_remaining_codes)
 ;;
 
-let simulate_resolution_for_hypothesis ~decoder ~hypothesis =
-  let rec aux acc ~decoder ~rounds ~current_round =
-    let next_step = next_step ~decoder ~current_round in
-    let acc = next_step :: acc in
-    match next_step with
-    | Error _ -> List.rev acc
-    | Propose_solution { code } ->
-      let verification =
-        let expected_code = Decoder.Hypothesis.remaining_code_exn hypothesis in
-        if Code.equal expected_code code
-        then Info.create_s [%sexp Ok "Code match hypothesis expected code"]
-        else
-          Info.create_s
-            [%sexp Error "Code mismatch", { expected_code : Code.t; code : Code.t }]
-      in
-      let resolution_path =
-        let rounds =
-          match current_round with
-          | None -> rounds
-          | Some round -> round :: rounds
-        in
-        { Resolution_path.rounds = List.rev rounds |> Nonempty_list.of_list_exn }
-      in
-      let cost = Resolution_path.cost resolution_path in
-      let additional_info =
-        [ verification
-        ; Info.create_s
-            [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }]
-        ]
-        |> List.map ~f:(fun info -> Step.Info info)
-      in
-      List.rev (List.rev_append additional_info acc)
-    | Info _ -> assert false
-    | Request_test { new_round; code; verifier; info = _ } ->
-      let rounds =
-        if new_round
-        then (
-          match current_round with
-          | None -> rounds
-          | Some round -> round :: rounds)
-        else rounds
-      in
-      let current_round =
-        if new_round
-        then { Resolution_path.Round.code; verifiers = [ verifier ] } |> Option.return
-        else (
-          let { Resolution_path.Round.code; verifiers } =
-            current_round |> Option.value_exn ~here:[%here]
-          in
-          { Resolution_path.Round.code
-          ; verifiers = Nonempty_list.append verifiers [ verifier ]
-          }
-          |> Option.return)
-      in
-      let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-      let result = Condition.evaluate condition ~code in
-      let remaining_bits_before = remaining_bits ~decoder in
-      (match
-         let verifier = Decoder.verifier_exn decoder ~name:verifier in
-         Decoder.add_test_result decoder ~code ~verifier ~result
-       with
-       | Error error ->
-         let acc = Step.Error error :: acc in
-         List.rev acc
-       | Ok decoder ->
-         let info =
-           let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
-           let remaining_bits = remaining_bits ~decoder in
-           let bits_gained = remaining_bits_before -. remaining_bits in
-           Info.create_s
-             [%sexp
-               Test_result
-                 { code : Code.t
-                 ; verifier : Verifier.Name.t
-                 ; condition : Condition.t
-                 ; result : bool
-                 ; remaining_bits_before : float
-                 ; bits_gained : float
-                 ; remaining_bits : float
-                 ; number_of_remaining_codes : int
-                 }]
-         in
-         aux (Step.Info info :: acc) ~decoder ~rounds ~current_round)
-  in
-  let introduction =
-    let remaining_bits = remaining_bits ~decoder in
-    let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
-    [ Info.create_s [%sexp { remaining_bits : float; number_of_remaining_codes : int }] ]
-  in
-  let acc = List.rev_map introduction ~f:(fun info -> Step.Info info) in
-  aux acc ~decoder ~rounds:[] ~current_round:None
-;;
-
 let input_line () = Stdio.In_channel.(input_line_exn stdin)
 
 let input_test_result ~code ~verifier =
@@ -352,19 +259,32 @@ let wait_for_newline ~prompt =
   ()
 ;;
 
-let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
-  let rec aux ~decoder ~rounds ~current_round =
+module Running_mode = struct
+  type t =
+    | Interactive
+    | Simulated_hypothesis of Decoder.Hypothesis.t
+
+  let is_interactive = function
+    | Interactive -> true
+    | Simulated_hypothesis _ -> false
+  ;;
+end
+
+let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
+  let open Or_error.Let_syntax in
+  let rec aux ~decoder ~(rounds : Resolution_path.Round.t Reversed_list.t) ~current_round =
+    (if Running_mode.is_interactive running_mode then Stdio.Out_channel.(flush stdout));
     let next_step = next_step ~decoder ~current_round in
     match next_step with
-    | Error e -> return.return (Error e)
-    | Propose_solution { code = _ } ->
+    | Error e -> Error e
+    | Propose_solution { code } ->
       let resolution_path =
         let rounds =
           match current_round with
           | None -> rounds
           | Some round -> round :: rounds
         in
-        { Resolution_path.rounds = List.rev rounds |> Nonempty_list.of_list_exn }
+        { Resolution_path.rounds = Reversed_list.rev rounds |> Nonempty_list.of_list_exn }
       in
       let cost = Resolution_path.cost resolution_path in
       let info =
@@ -372,12 +292,60 @@ let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
             [%sexp { resolution_path : Resolution_path.t; cost : Resolution_path.Cost.t }]
         ]
       in
-      wait_for_newline ~prompt:"Ready to propose a solution.";
-      List.iter info ~f:(fun info -> print_s [%sexp (info : Info.t)]);
+      if Running_mode.is_interactive running_mode
+      then wait_for_newline ~prompt:"Ready to propose a solution.";
+      List.iter info ~f:(fun info -> print_s [%sexp Info, (info : Info.t)]);
       print_s [%sexp (next_step : Step.t)];
-      Stdio.Out_channel.(flush stdout)
+      return code
     | Info _ -> assert false
     | Request_test { new_round; code; verifier; info = _ } ->
+      if Running_mode.is_interactive running_mode
+      then
+        if new_round && Option.is_some current_round
+        then
+          wait_for_newline
+            ~prompt:"No more test to run with this code.\nReady for next round."
+        else wait_for_newline ~prompt:"Ready to request a new test.";
+      print_s [%sexp (next_step : Step.t)];
+      let result =
+        match running_mode with
+        | Interactive -> input_test_result ~code ~verifier
+        | Simulated_hypothesis hypothesis ->
+          let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+          Condition.evaluate condition ~code
+      in
+      let remaining_bits_before = remaining_bits ~decoder in
+      let%bind decoder =
+        let verifier = Decoder.verifier_exn decoder ~name:verifier in
+        Decoder.add_test_result decoder ~code ~verifier ~result
+      in
+      let () =
+        let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
+        let remaining_bits = remaining_bits ~decoder in
+        let bits_gained = remaining_bits_before -. remaining_bits in
+        let condition =
+          match running_mode with
+          | Simulated_hypothesis hypothesis ->
+            let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+            Info.create_s [%sexp (condition : Condition.t)]
+          | Interactive ->
+            (match Decoder.verifier_status_exn decoder ~name:verifier with
+             | Undetermined _ -> Info.create_s [%sexp Undetermined]
+             | Determined { condition } -> Info.create_s [%sexp (condition : Condition.t)])
+        in
+        print_s
+          [%sexp
+            Test_result
+              { code : Code.t
+              ; verifier : Verifier.Name.t
+              ; condition : Info.t
+              ; result : bool
+              ; remaining_bits_before : float
+              ; bits_gained : float
+              ; remaining_bits : float
+              ; number_of_remaining_codes : int
+              }]
+      in
       let rounds =
         if new_round
         then (
@@ -386,70 +354,54 @@ let interactive_solve ~decoder ~(return : unit Or_error.t With_return.return) =
           | Some round -> round :: rounds)
         else rounds
       in
-      let () =
-        if new_round && Option.is_some current_round
-        then
-          wait_for_newline
-            ~prompt:"No more test to run with this code.\nReady for next round."
-        else wait_for_newline ~prompt:"Ready to request a new test."
+      let current_round =
+        if new_round
+        then { Resolution_path.Round.code; verifiers = [ verifier ] }
+        else (
+          let { Resolution_path.Round.code; verifiers } =
+            current_round |> Option.value_exn ~here:[%here]
+          in
+          { Resolution_path.Round.code
+          ; verifiers = Nonempty_list.append verifiers [ verifier ]
+          })
       in
-      print_s [%sexp (next_step : Step.t)];
-      let result = input_test_result ~code ~verifier in
-      let remaining_bits_before = remaining_bits ~decoder in
-      (match
-         let verifier = Decoder.verifier_exn decoder ~name:verifier in
-         Decoder.add_test_result decoder ~code ~verifier ~result
-       with
-       | Error _ as error -> return.return error
-       | Ok decoder ->
-         let info =
-           let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
-           let remaining_bits = remaining_bits ~decoder in
-           let bits_gained = remaining_bits_before -. remaining_bits in
-           Info.create_s
-             [%sexp
-               Test_result
-                 { code : Code.t
-                 ; verifier : Verifier.Name.t
-                 ; result : bool
-                 ; remaining_bits_before : float
-                 ; bits_gained : float
-                 ; remaining_bits : float
-                 ; number_of_remaining_codes : int
-                 }]
-         in
-         print_s [%sexp (info : Info.t)];
-         Stdio.Out_channel.(flush stdout);
-         let current_round =
-           if new_round
-           then { Resolution_path.Round.code; verifiers = [ verifier ] } |> Option.return
-           else (
-             let { Resolution_path.Round.code; verifiers } =
-               current_round |> Option.value_exn ~here:[%here]
-             in
-             { Resolution_path.Round.code
-             ; verifiers = Nonempty_list.append verifiers [ verifier ]
-             }
-             |> Option.return)
-         in
-         aux ~decoder ~rounds ~current_round)
+      aux ~decoder ~rounds ~current_round:(Some current_round)
   in
-  let introduction =
+  let () =
     let remaining_bits = remaining_bits ~decoder in
     let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
-    [ Info.create_s [%sexp { remaining_bits : float; number_of_remaining_codes : int }] ]
+    List.iter
+      ~f:(fun sexp -> print_s sexp)
+      [ [%sexp Info { remaining_bits : float; number_of_remaining_codes : int }] ]
   in
-  List.iter introduction ~f:(fun info -> print_s [%sexp (info : Info.t)]);
-  Stdio.Out_channel.(flush stdout);
   aux ~decoder ~rounds:[] ~current_round:None
 ;;
 
-let simulate_all_hypotheses ~decoder =
-  List.iter (Decoder.hypotheses decoder) ~f:(fun hypothesis ->
+module Which_hypotheses = struct
+  type t =
+    | All
+    | This of Decoder.Hypothesis.t
+    | Only_the_first_n of { n : int }
+end
+
+let simulate_hypotheses ~decoder ~which_hypotheses =
+  let hypotheses =
+    let all = Decoder.hypotheses decoder in
+    match (which_hypotheses : Which_hypotheses.t) with
+    | All -> all
+    | This h -> [ h ]
+    | Only_the_first_n { n } -> List.take all n
+  in
+  List.iter hypotheses ~f:(fun hypothesis ->
     print_endline "============= NEW HYPOTHESIS =============";
     print_s [%sexp (hypothesis : Decoder.Hypothesis.t)];
-    let steps = simulate_resolution_for_hypothesis ~decoder ~hypothesis in
-    print_s [%sexp (steps : Step.t list)])
+    let code =
+      interactive_solve ~decoder ~running_mode:(Simulated_hypothesis hypothesis) |> ok_exn
+    in
+    let expected_code = Decoder.Hypothesis.remaining_code_exn hypothesis in
+    if Code.equal expected_code code
+    then print_s [%sexp Ok "Code match hypothesis expected code"]
+    else raise_s [%sexp Error "Code mismatch", { expected_code : Code.t; code : Code.t }])
 ;;
 
 let make_command ~index ~decoder =
@@ -460,14 +412,10 @@ let make_command ~index ~decoder =
      in
      fun () ->
        if stress_test
-       then simulate_all_hypotheses ~decoder
+       then simulate_hypotheses ~decoder ~which_hypotheses:All
        else (
-         match
-           with_return (fun return ->
-             interactive_solve ~decoder ~return;
-             Ok ())
-         with
-         | Ok () -> ()
+         match interactive_solve ~decoder ~running_mode:Interactive with
+         | Ok (_ : Code.t) -> ()
          | Error e ->
            prerr_endline (Error.to_string_hum e);
            exit 1))

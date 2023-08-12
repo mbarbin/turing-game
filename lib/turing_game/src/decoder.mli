@@ -45,3 +45,12 @@ val add_test_result
   -> verifier:Verifier.t
   -> result:bool
   -> t Or_error.t
+
+module Verifier_status : sig
+  type t =
+    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
+    | Determined of { condition : Condition.t }
+  [@@deriving equal, sexp_of]
+end
+
+val verifier_status_exn : t -> name:Verifier.Name.t -> Verifier_status.t

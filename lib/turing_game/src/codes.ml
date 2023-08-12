@@ -18,7 +18,7 @@ let is_singleton = function
   | [] | _ :: _ :: _ -> None
 ;;
 
-let rec rev_add seen acc = function
+let rec rev_add seen (acc : _ Reversed_list.t) = function
   | [] -> acc
   | hd :: tl ->
     let acc =
@@ -33,7 +33,8 @@ let rec rev_add seen acc = function
 
 let concat ts =
   let seen = Hash_set.create (module Code) in
-  List.fold ts ~init:[] ~f:(fun acc t -> rev_add seen acc t) |> List.rev
+  List.fold ts ~init:([] : _ Reversed_list.t) ~f:(fun acc t -> rev_add seen acc t)
+  |> Reversed_list.rev
 ;;
 
 let append t1 t2 = concat [ t1; t2 ]

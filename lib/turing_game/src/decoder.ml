@@ -1,17 +1,17 @@
 open! Core
 
-module Slot = struct
-  module Status = struct
-    type t =
-      | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
-      | Determined of { condition : Condition.t }
-    [@@deriving equal, sexp_of]
-  end
+module Verifier_status = struct
+  type t =
+    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
+    | Determined of { condition : Condition.t }
+  [@@deriving equal, sexp_of]
+end
 
+module Slot = struct
   type t =
     { index : int
     ; verifier : Verifier.t
-    ; status : Status.t
+    ; verifier_status : Verifier_status.t
     }
   [@@deriving equal, sexp_of]
 end
@@ -76,18 +76,20 @@ type t =
   }
 [@@deriving sexp_of]
 
+let create_internal ~slots = { slots; strict_hypotheses = None }
+
 let create ~verifiers =
-  { slots =
-      verifiers
-      |> Nonempty_list.to_array
-      |> Array.Permissioned.of_array_id
-      |> Array.Permissioned.mapi ~f:(fun index verifier ->
-        { Slot.index
-        ; verifier
-        ; status = Undetermined { remaining_conditions = verifier.conditions }
-        })
-  ; strict_hypotheses = None
-  }
+  let slots =
+    verifiers
+    |> Nonempty_list.to_array
+    |> Array.Permissioned.of_array_id
+    |> Array.Permissioned.mapi ~f:(fun index verifier ->
+      { Slot.index
+      ; verifier
+      ; verifier_status = Undetermined { remaining_conditions = verifier.conditions }
+      })
+  in
+  create_internal ~slots
 ;;
 
 let verifiers t =
@@ -98,10 +100,13 @@ let verifiers t =
 ;;
 
 let verifier_exn t ~name =
-  t.slots
-  |> Array.Permissioned.to_list
-  |> List.find_map_exn ~f:(fun slot ->
+  Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
     Option.some_if (Verifier.Name.equal name slot.verifier.name) slot.verifier)
+;;
+
+let verifier_status_exn t ~name =
+  Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
+    Option.some_if (Verifier.Name.equal name slot.verifier.name) slot.verifier_status)
 ;;
 
 module Cycle_counter = struct
@@ -135,7 +140,7 @@ let compute_hypotheses (t : t) ~strict =
   in
   Array.Permissioned.iteri t.slots ~f:(fun i slot ->
     let name = slot.verifier.name in
-    match slot.status with
+    match slot.verifier_status with
     | Undetermined { remaining_conditions } ->
       Nonempty_list.iter remaining_conditions ~f:(fun condition ->
         Queue.enqueue verifiers.(i) { name; condition })
@@ -207,7 +212,7 @@ let add_test_result t ~code ~verifier ~result =
     | None -> raise_s [%sexp "Verifier not found in t", { verifier : Verifier.t }]
   in
   let index = slot.index in
-  match slot.status with
+  match slot.verifier_status with
   | Determined { condition } ->
     (* Nothing to learn. *)
     let expected_result = Condition.evaluate condition ~code in
@@ -223,15 +228,15 @@ let add_test_result t ~code ~verifier ~result =
                   { condition : Condition.t; expected_result : bool; result : bool }
             }]
   | Undetermined { remaining_conditions } ->
-    let%bind status =
+    let%bind verifier_status =
       let remaining_conditions =
         Nonempty_list.filter remaining_conditions ~f:(fun condition ->
           Bool.equal result (Condition.evaluate condition ~code))
       in
       match remaining_conditions with
-      | [ condition ] -> return (Slot.Status.Determined { condition })
+      | [ condition ] -> return (Verifier_status.Determined { condition })
       | hd :: (_ :: _ as tl) ->
-        return (Slot.Status.Undetermined { remaining_conditions = hd :: tl })
+        return (Verifier_status.Undetermined { remaining_conditions = hd :: tl })
       | [] ->
         Or_error.error_s
           [%sexp
@@ -239,12 +244,9 @@ let add_test_result t ~code ~verifier ~result =
             , "Verifier has no remaining possible condition"
             , { index : int }]
     in
-    let t =
-      { slots =
-          Array.Permissioned.mapi t.slots ~f:(fun i slot ->
-            if i = index then { slot with Slot.status } else slot)
-      ; strict_hypotheses = None
-      }
+    let slots =
+      Array.Permissioned.mapi t.slots ~f:(fun i slot ->
+        if i = index then { slot with Slot.verifier_status } else slot)
     in
-    Or_error.return t
+    return (create_internal ~slots)
 ;;

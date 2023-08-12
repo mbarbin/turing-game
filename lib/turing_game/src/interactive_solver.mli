@@ -30,11 +30,15 @@ val next_step
   -> current_round:Resolution_path.Round.t option
   -> Step.t
 
+module Which_hypotheses : sig
+  type t =
+    | All
+    | This of Decoder.Hypothesis.t
+    | Only_the_first_n of { n : int }
+end
+
 (** This is used by tests to print the entire execution trace of what would
-    happen if the given hypothesis was true. *)
-val simulate_resolution_for_hypothesis
-  :  decoder:Decoder.t
-  -> hypothesis:Decoder.Hypothesis.t
-  -> Step.t list
+    happen if the given hypotheses were true. *)
+val simulate_hypotheses : decoder:Decoder.t -> which_hypotheses:Which_hypotheses.t -> unit
 
 val cmd : Command.t
