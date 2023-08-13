@@ -1,5 +1,25 @@
 open! Core
 
+module Expected_information_gained : sig
+  (** Evaluate a test in term of expected information bits gained. *)
+  type t = private
+    { bits_gained : float
+    ; probability : float
+    }
+  [@@deriving sexp_of]
+
+  val unreachable : t
+  val compute : starting_number:int -> remaining_number:int -> t
+end
+
+module Evaluation : sig
+  type t [@@deriving compare, sexp_of]
+
+  val zero : t
+  val is_zero : t -> bool
+  val compute : Expected_information_gained.t Nonempty_list.t -> t
+end
+
 module Request_test : sig
   type t =
     { new_round : bool
