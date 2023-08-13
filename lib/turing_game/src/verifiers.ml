@@ -24,21 +24,32 @@ let v_04 =
       ]
 ;;
 
+let v_05 =
+  create
+    ~name:"05"
+    ~conditions:[ Is_even { symbol = Triangle }; Is_odd { symbol = Triangle } ]
+;;
+
 let v_07 =
   create
     ~name:"07"
     ~conditions:[ Is_even { symbol = Circle }; Is_odd { symbol = Circle } ]
 ;;
 
+let v_08 =
+  create
+    ~name:"08"
+    ~conditions:
+      (List.init 4 ~f:(fun count -> Condition.Has_digit_count { digit = One; count })
+       |> Nonempty_list.of_list_exn)
+;;
+
 let v_09 =
   create
     ~name:"09"
     ~conditions:
-      [ Has_digit_count { digit = Three; count = 0 }
-      ; Has_digit_count { digit = Three; count = 1 }
-      ; Has_digit_count { digit = Three; count = 2 }
-      ; Has_digit_count { digit = Three; count = 3 }
-      ]
+      (List.init 4 ~f:(fun count -> Condition.Has_digit_count { digit = Three; count })
+       |> Nonempty_list.of_list_exn)
 ;;
 
 let v_10 =
@@ -62,6 +73,16 @@ let v_11 =
       ]
 ;;
 
+let v_12 =
+  create
+    ~name:"12"
+    ~conditions:
+      [ Less_than { a = Triangle; b = Circle }
+      ; Equal { a = Triangle; b = Circle }
+      ; Greater_than { a = Triangle; b = Circle }
+      ]
+;;
+
 let v_14 =
   create
     ~name:"14"
@@ -71,6 +92,14 @@ let v_14 =
       ; Is_smallest { symbol = Circle }
       ]
 ;;
+
+let v_20 =
+  create
+    ~name:"20"
+    ~conditions:[ Has_triplets true; Has_twins true; Has_no_triplets_no_twins ]
+;;
+
+let v_21 = create ~name:"21" ~conditions:[ Has_twins false; Has_twins true ]
 
 let v_22 =
   create
