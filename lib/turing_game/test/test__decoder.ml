@@ -64,10 +64,11 @@ let%expect_test "remaining codes" =
         ; starting_number : int
         ; remaining_number : int
         ; expected_information_gained : Interactive_solver.Expected_information_gained.t
-        }]
+        }];
+    expected_information_gained
   in
   let code = { Symbol.Tuple.triangle = Digit.Three; square = Three; circle = Four } in
-  test ~code ~verifier:Verifiers.v_34.name ~result:true;
+  let t_true = test ~code ~verifier:Verifiers.v_34.name ~result:true in
   [%expect
     {|
     ((code 334) (verifier 34) (result true)
@@ -76,7 +77,7 @@ let%expect_test "remaining codes" =
      (starting_number 29) (remaining_number 18)
      (expected_information_gained
       ((bits_gained 0.68805599368525971) (probability 0.62068965517241381)))) |}];
-  test ~code ~verifier:Verifiers.v_34.name ~result:false;
+  let t_false = test ~code ~verifier:Verifiers.v_34.name ~result:false in
   [%expect
     {|
     ((code 334) (verifier 34) (result false)
@@ -85,6 +86,32 @@ let%expect_test "remaining codes" =
      (starting_number 29) (remaining_number 16)
      (expected_information_gained
       ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))) |}];
+  Expect_test_helpers_base.require_ok
+    ~cr:CR_soon
+    [%here]
+    (if Float.equal (t_true.probability +. t_false.probability) 0.
+     then Ok ()
+     else
+       Or_error.error_s
+         [%sexp
+           "Probability do not sum to 1"
+           , { t_true : Interactive_solver.Expected_information_gained.t
+             ; t_false : Interactive_solver.Expected_information_gained.t
+             }]);
+  [%expect
+    {|
+    (* CR-soon require-failed: lib/turing_game/test/test__decoder.ml:LINE:COL.
+       Do not 'X' this CR; instead make the required property true,
+       which will make the CR disappear.  For more information, see
+       [Expect_test_helpers_base.require]. *)
+    ("unexpected [Error]" (
+      "Probability do not sum to 1" (
+        (t_true (
+          (bits_gained 0.68805599368525971)
+          (probability 0.62068965517241381)))
+        (t_false (
+          (bits_gained 0.85798099512757187)
+          (probability 0.55172413793103448)))))) |}];
   ()
 ;;
 
