@@ -9,7 +9,7 @@ module Expected_information_gained : sig
   [@@deriving sexp_of]
 
   val unreachable : t
-  val compute : starting_number:int -> remaining_number:int -> t
+  val compute : starting_number:int -> remaining_number:int -> probability:float -> t
 end
 
 module Evaluation : sig

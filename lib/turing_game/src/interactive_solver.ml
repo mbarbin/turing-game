@@ -11,14 +11,13 @@ module Expected_information_gained = struct
 
   let unreachable = { bits_gained = 0.; probability = 0. }
 
-  let compute ~starting_number ~remaining_number =
+  let compute ~starting_number ~remaining_number ~probability =
     if starting_number = 0 || remaining_number = 0
     then unreachable
     else (
       let starting_number = Float.of_int starting_number in
       let starting_bits = Float.log2 starting_number in
       let remaining_bits = Float.log2 (Float.of_int remaining_number) in
-      let probability = Float.of_int remaining_number /. starting_number in
       let bits_gained = starting_bits -. remaining_bits in
       { bits_gained; probability })
   ;;
@@ -76,12 +75,10 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
             ~f:(fun ({ criteria = _; probability }, criteria_result) ->
               if Bool.equal result criteria_result then probability else 0.)
         in
-        let evaluation =
-          Expected_information_gained.compute
-            ~starting_number:starting_number_of_remaining_codes
-            ~remaining_number:(Decoder.number_of_remaining_codes decoder)
-        in
-        { evaluation with probability }
+        Expected_information_gained.compute
+          ~starting_number:starting_number_of_remaining_codes
+          ~remaining_number:(Decoder.number_of_remaining_codes decoder)
+          ~probability
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
@@ -120,8 +117,8 @@ end
    results. When then aggregate the remaining codes per test result, so as to
    compute the expected information gained for each of the test keys. *)
 
-let compute_test_results t ~test_keys =
-  List.map (Decoder.hypotheses t) ~f:(fun hypothesis ->
+let compute_test_results ~hypotheses ~test_keys =
+  List.map hypotheses ~f:(fun hypothesis ->
     let test_results =
       Array.map test_keys ~f:(fun { Test_key.code; verifier_name } ->
         Decoder.Hypothesis.evaluate_exn hypothesis ~code ~verifier_name)
@@ -130,17 +127,20 @@ let compute_test_results t ~test_keys =
 ;;
 
 let evaluate_code ~decoder ~code =
+  let hypotheses = Decoder.hypotheses decoder in
   let verifiers = Decoder.verifiers decoder in
   let initial_number_of_codes = Decoder.number_of_remaining_codes decoder in
   let evaluate_test_keys ~test_keys =
     match
-      compute_test_results decoder ~test_keys
+      compute_test_results ~hypotheses ~test_keys
       |> Map.of_alist_fold (module Test_results) ~init:Codes.empty ~f:Codes.append
       |> Map.to_alist
       |> List.map ~f:(fun (_, remaining_codes) ->
+        let remaining_number = Codes.length remaining_codes in
         Expected_information_gained.compute
           ~starting_number:initial_number_of_codes
-          ~remaining_number:(Codes.length remaining_codes))
+          ~remaining_number
+          ~probability:Float.(of_int remaining_number /. of_int initial_number_of_codes))
     with
     | [] -> Evaluation.zero
     | hd :: tl -> Evaluation.compute (hd :: tl)
