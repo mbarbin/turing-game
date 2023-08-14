@@ -7,7 +7,7 @@ val create : verifiers:Verifier.t Nonempty_list.t -> t
 (** Returns the verifiers used to create [t]. *)
 val verifiers : t -> Verifier.t Nonempty_list.t
 
-val verifier_exn : t -> verifier_name:Verifier_name.t -> Verifier.t
+val verifier_exn : t -> verifier_name:Verifier_name.t -> Verifier_info.t
 
 (** Return the number of codes that are still possible given the information
     known by [t]. The expensive part of this computation is cached inside [t]. *)

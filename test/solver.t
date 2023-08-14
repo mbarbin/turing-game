@@ -21,10 +21,10 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
       (score_if_false
        ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
   
-  Enter result for test. code="211" - verifier="09": 
+  Enter result for test. code=211 - verifier=B(09): 
   (Test_result
-   ((code 211) (verifier_name 09) (condition Undetermined) (result false)
-    (remaining_bits_before 2.8073549220576042)
+   ((code 211) (verifier_letter B) (verifier_name 09) (condition Undetermined)
+    (result false) (remaining_bits_before 2.8073549220576042)
     (bits_gained 0.80735492205760417) (remaining_bits 2)
     (number_of_remaining_codes 4)))
   
@@ -36,10 +36,10 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
       (score_if_true ((bits_gained 2) (probability 0.25)))
       (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
   
-  Enter result for test. code="211" - verifier="04": 
+  Enter result for test. code=211 - verifier=A(04): 
   (Test_result
-   ((code 211) (verifier_name 04) (condition Undetermined) (result false)
-    (remaining_bits_before 2) (bits_gained 0.41503749927884392)
+   ((code 211) (verifier_letter A) (verifier_name 04) (condition Undetermined)
+    (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
     (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
   
   Ready to request a new test. Type ENTER to continue...
@@ -52,9 +52,9 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
       (score_if_false
        ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
   
-  Enter result for test. code="211" - verifier="11": 
+  Enter result for test. code=211 - verifier=C(11): 
   (Test_result
-   ((code 211) (verifier_name 11)
+   ((code 211) (verifier_letter C) (verifier_name 11)
     (condition ((index 2) (condition (Greater_than (a Triangle) (b Square)))))
     (result true) (remaining_bits_before 1.5849625007211561)
     (bits_gained 1.5849625007211561) (remaining_bits 0)

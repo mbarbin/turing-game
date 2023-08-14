@@ -22,9 +22,9 @@ Simulating an interactive resolution to problem 2.
       (score_if_false
        ((bits_gained 1.1154772174199361) (probability 0.46153846153846156)))))))
   
-  Enter result for test. code="231" - verifier="03": 
+  Enter result for test. code=231 - verifier=A(03): 
   (Test_result
-   ((code 231) (verifier_name 03)
+   ((code 231) (verifier_letter A) (verifier_name 03)
     (condition ((index 1) (condition (Equal_value (symbol Square) (value 3)))))
     (result true) (remaining_bits_before 3.7004397181410922)
     (bits_gained 0.893084796083488) (remaining_bits 2.8073549220576042)
@@ -40,9 +40,9 @@ Simulating an interactive resolution to problem 2.
       (score_if_false
        ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
   
-  Enter result for test. code="231" - verifier="07": 
+  Enter result for test. code=231 - verifier=B(07): 
   (Test_result
-   ((code 231) (verifier_name 07)
+   ((code 231) (verifier_letter B) (verifier_name 07)
     (condition ((index 1) (condition (Is_odd (symbol Circle))))) (result true)
     (remaining_bits_before 2.8073549220576042) (bits_gained 1.2223924213364481)
     (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -57,10 +57,10 @@ Simulating an interactive resolution to problem 2.
       (score_if_false
        ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
   
-  Enter result for test. code="231" - verifier="10": 
+  Enter result for test. code=231 - verifier=C(10): 
   (Test_result
-   ((code 231) (verifier_name 10) (condition Undetermined) (result false)
-    (remaining_bits_before 1.5849625007211561)
+   ((code 231) (verifier_letter C) (verifier_name 10) (condition Undetermined)
+    (result false) (remaining_bits_before 1.5849625007211561)
     (bits_gained 0.58496250072115608) (remaining_bits 1)
     (number_of_remaining_codes 2)))
   
@@ -73,9 +73,9 @@ Simulating an interactive resolution to problem 2.
       (score_if_true ((bits_gained 1) (probability 0.5)))
       (score_if_false ((bits_gained 1) (probability 0.5)))))))
   
-  Enter result for test. code="212" - verifier="14": 
+  Enter result for test. code=212 - verifier=D(14): 
   (Test_result
-   ((code 212) (verifier_name 14)
+   ((code 212) (verifier_letter D) (verifier_name 14)
     (condition ((index 1) (condition (Is_smallest (symbol Square)))))
     (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
     (number_of_remaining_codes 1)))

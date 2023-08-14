@@ -231,7 +231,7 @@ let remaining_bits ~decoder =
 
 let input_line () = Stdio.In_channel.(input_line_exn stdin)
 
-let input_test_result ~code ~verifier_name =
+let input_test_result ~code ~verifier_name ~verifier_letter =
   let rec input_bool ~prompt =
     print_string ("\n" ^ prompt);
     Stdio.Out_channel.(flush stdout);
@@ -247,8 +247,9 @@ let input_test_result ~code ~verifier_name =
   input_bool
     ~prompt:
       (sprintf
-         "Enter result for test. code=%S - verifier=%S: "
+         "Enter result for test. code=%s - verifier=%s(%s): "
          (Code.to_string code)
+         (Verifier_letter.to_string verifier_letter)
          ((verifier_name : Verifier_name.t) :> string))
 ;;
 
@@ -309,18 +310,18 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
             ~prompt:"No more test to run with this code.\nReady for next round."
         else wait_for_newline ~prompt:"Ready to request a new test.";
       print_s [%sexp (next_step : Step.t)];
+      let { Verifier_info.verifier; verifier_letter } =
+        Decoder.verifier_exn decoder ~verifier_name
+      in
       let result =
         match running_mode with
-        | Interactive -> input_test_result ~code ~verifier_name
+        | Interactive -> input_test_result ~code ~verifier_name ~verifier_letter
         | Simulated_hypothesis hypothesis ->
           let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_name in
           Condition.evaluate criteria.condition ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
-      let%bind decoder =
-        let verifier = Decoder.verifier_exn decoder ~verifier_name in
-        Decoder.add_test_result decoder ~code ~verifier ~result
-      in
+      let%bind decoder = Decoder.add_test_result decoder ~code ~verifier ~result in
       let () =
         let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
         let remaining_bits = remaining_bits ~decoder in
@@ -339,6 +340,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
           [%sexp
             Test_result
               { code : Code.t
+              ; verifier_letter : Verifier_letter.t
               ; verifier_name : Verifier_name.t
               ; condition : Info.t
               ; result : bool

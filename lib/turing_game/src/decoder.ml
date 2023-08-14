@@ -103,10 +103,14 @@ let verifiers t =
 ;;
 
 let verifier_exn t ~verifier_name =
-  Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
-    Option.some_if
-      (Verifier_name.equal verifier_name slot.verifier.verifier_name)
-      slot.verifier)
+  Array.Permissioned.find_mapi_exn t.slots ~f:(fun i slot ->
+    if Verifier_name.equal verifier_name slot.verifier.verifier_name
+    then
+      Some
+        { Verifier_info.verifier = slot.verifier
+        ; verifier_letter = Verifier_letter.of_index i
+        }
+    else None)
 ;;
 
 let verifier_status_exn t ~verifier_name =

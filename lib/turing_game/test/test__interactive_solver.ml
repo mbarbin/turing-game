@@ -27,7 +27,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
@@ -41,7 +41,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition
        ((index 0) (condition (Less_than_value (symbol Square) (value 4)))))
       (result true) (remaining_bits_before 1.5849625007211561)
@@ -74,7 +74,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -86,7 +86,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 2) (probability 0.25)))
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition
        ((index 0) (condition (Less_than_value (symbol Square) (value 4)))))
       (result true) (remaining_bits_before 2) (bits_gained 2) (remaining_bits 0)
@@ -118,7 +118,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
@@ -132,7 +132,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -144,7 +144,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 211) (verifier_name 11)
+     ((code 211) (verifier_letter C) (verifier_name 11)
       (condition ((index 0) (condition (Less_than (a Triangle) (b Square)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -175,7 +175,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
@@ -189,7 +189,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -201,7 +201,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 211) (verifier_name 11)
+     ((code 211) (verifier_letter C) (verifier_name 11)
       (condition ((index 2) (condition (Greater_than (a Triangle) (b Square)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -232,7 +232,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -244,7 +244,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 2) (probability 0.25)))
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -257,7 +257,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 11)
+     ((code 211) (verifier_letter C) (verifier_name 11)
       (condition ((index 1) (condition (Equal (a Triangle) (b Square)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -269,7 +269,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 141) (verifier_name 04)
+     ((code 141) (verifier_letter A) (verifier_name 04)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -302,7 +302,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -314,7 +314,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 2) (probability 0.25)))
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -327,7 +327,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 11)
+     ((code 211) (verifier_letter C) (verifier_name 11)
       (condition ((index 2) (condition (Greater_than (a Triangle) (b Square)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 0)
@@ -359,7 +359,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 211) (verifier_name 09)
+     ((code 211) (verifier_letter B) (verifier_name 09)
       (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -371,7 +371,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 2) (probability 0.25)))
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
-     ((code 211) (verifier_name 04)
+     ((code 211) (verifier_letter A) (verifier_name 04)
       (condition
        ((index 2) (condition (Greater_than_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
@@ -385,7 +385,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 211) (verifier_name 11)
+     ((code 211) (verifier_letter C) (verifier_name 11)
       (condition ((index 1) (condition (Equal (a Triangle) (b Square)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -397,7 +397,7 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 141) (verifier_name 04)
+     ((code 141) (verifier_letter A) (verifier_name 04)
       (condition
        ((index 2) (condition (Greater_than_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
@@ -446,7 +446,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))))))
     (Test_result
-     ((code 334) (verifier_name 34)
+     ((code 334) (verifier_letter E) (verifier_name 34)
       (condition
        ((index 0)
         (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))
@@ -462,7 +462,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 334) (verifier_name 30)
+     ((code 334) (verifier_letter C) (verifier_name 30)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 4.1699250014423122)
       (bits_gained 0.58496250072115608) (remaining_bits 3.5849625007211561)
@@ -476,7 +476,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.7776075786635519) (probability 0.58333333333333337)))))))
     (Test_result
-     ((code 334) (verifier_name 33)
+     ((code 334) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 3.5849625007211561)
       (bits_gained 0.7776075786635519) (remaining_bits 2.8073549220576042)
@@ -490,7 +490,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 121) (verifier_name 33)
+     ((code 121) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -502,7 +502,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_true ((bits_gained 0.41503749927884392) (probability 0.75)))
         (score_if_false ((bits_gained 2) (probability 0.25)))))))
     (Test_result
-     ((code 121) (verifier_name 22)
+     ((code 121) (verifier_letter B) (verifier_name 22)
       (condition ((index 0) (condition Are_increasing))) (result false)
       (remaining_bits_before 2) (bits_gained 2) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -541,7 +541,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))))))
     (Test_result
-     ((code 334) (verifier_name 34)
+     ((code 334) (verifier_letter E) (verifier_name 34)
       (condition
        ((index 0)
         (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))
@@ -557,7 +557,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 334) (verifier_name 30)
+     ((code 334) (verifier_letter C) (verifier_name 30)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 4.1699250014423122)
       (bits_gained 0.58496250072115608) (remaining_bits 3.5849625007211561)
@@ -571,7 +571,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.7776075786635519) (probability 0.58333333333333337)))))))
     (Test_result
-     ((code 334) (verifier_name 33)
+     ((code 334) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 3.5849625007211561)
       (bits_gained 0.7776075786635519) (remaining_bits 2.8073549220576042)
@@ -585,7 +585,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 121) (verifier_name 33)
+     ((code 121) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -597,7 +597,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_true ((bits_gained 0.41503749927884392) (probability 0.75)))
         (score_if_false ((bits_gained 2) (probability 0.25)))))))
     (Test_result
-     ((code 121) (verifier_name 22)
+     ((code 121) (verifier_letter B) (verifier_name 22)
       (condition ((index 0) (condition Are_increasing))) (result false)
       (remaining_bits_before 2) (bits_gained 2) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -636,7 +636,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))))))
     (Test_result
-     ((code 334) (verifier_name 34)
+     ((code 334) (verifier_letter E) (verifier_name 34)
       (condition
        ((index 0)
         (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))
@@ -652,7 +652,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 334) (verifier_name 30)
+     ((code 334) (verifier_letter C) (verifier_name 30)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 4.1699250014423122)
       (bits_gained 0.58496250072115608) (remaining_bits 3.5849625007211561)
@@ -666,7 +666,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.7776075786635519) (probability 0.58333333333333337)))))))
     (Test_result
-     ((code 334) (verifier_name 33)
+     ((code 334) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 3.5849625007211561)
       (bits_gained 0.7776075786635519) (remaining_bits 2.8073549220576042)
@@ -680,7 +680,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 121) (verifier_name 33)
+     ((code 121) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
@@ -692,7 +692,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_true ((bits_gained 0.41503749927884392) (probability 0.75)))
         (score_if_false ((bits_gained 2) (probability 0.25)))))))
     (Test_result
-     ((code 121) (verifier_name 22)
+     ((code 121) (verifier_letter B) (verifier_name 22)
       (condition ((index 0) (condition Are_increasing))) (result false)
       (remaining_bits_before 2) (bits_gained 2) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -731,7 +731,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))))))
     (Test_result
-     ((code 334) (verifier_name 34)
+     ((code 334) (verifier_letter E) (verifier_name 34)
       (condition
        ((index 0)
         (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))
@@ -747,7 +747,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 334) (verifier_name 30)
+     ((code 334) (verifier_letter C) (verifier_name 30)
       (condition ((index 1) (condition (Equal_value (symbol Square) (value 4)))))
       (result false) (remaining_bits_before 4.1699250014423122)
       (bits_gained 0.58496250072115608) (remaining_bits 3.5849625007211561)
@@ -761,7 +761,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.7776075786635519) (probability 0.58333333333333337)))))))
     (Test_result
-     ((code 334) (verifier_name 33)
+     ((code 334) (verifier_letter D) (verifier_name 33)
       (condition ((index 1) (condition (Is_even (symbol Square)))))
       (result false) (remaining_bits_before 3.5849625007211561)
       (bits_gained 0.7776075786635519) (remaining_bits 2.8073549220576042)
@@ -775,7 +775,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
-     ((code 121) (verifier_name 33)
+     ((code 121) (verifier_letter D) (verifier_name 33)
       (condition ((index 1) (condition (Is_even (symbol Square))))) (result true)
       (remaining_bits_before 2.8073549220576042) (bits_gained 1.2223924213364481)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -788,7 +788,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 121) (verifier_name 11)
+     ((code 121) (verifier_letter A) (verifier_name 11)
       (condition ((index 0) (condition (Less_than (a Triangle) (b Square)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 0)
@@ -828,7 +828,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))))))
     (Test_result
-     ((code 334) (verifier_name 34)
+     ((code 334) (verifier_letter E) (verifier_name 34)
       (condition
        ((index 0)
         (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))
@@ -844,7 +844,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
-     ((code 334) (verifier_name 30)
+     ((code 334) (verifier_letter C) (verifier_name 30)
       (condition ((index 2) (condition (Equal_value (symbol Circle) (value 4)))))
       (result true) (remaining_bits_before 4.1699250014423122)
       (bits_gained 0.71049338280501484) (remaining_bits 3.4594316186372973)
@@ -858,7 +858,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 0.65207669657969314) (probability 0.63636363636363635)))))))
     (Test_result
-     ((code 334) (verifier_name 40)
+     ((code 334) (verifier_letter F) (verifier_name 40)
       (condition
        ((index 0) (condition (Less_than_value (symbol Triangle) (value 3)))))
       (result false) (remaining_bits_before 3.4594316186372973)
@@ -873,7 +873,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false
          ((bits_gained 1.2223924213364481) (probability 0.42857142857142855)))))))
     (Test_result
-     ((code 211) (verifier_name 40)
+     ((code 211) (verifier_letter F) (verifier_name 40)
       (condition
        ((index 0) (condition (Less_than_value (symbol Triangle) (value 3)))))
       (result true) (remaining_bits_before 2.8073549220576042)
@@ -886,7 +886,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 211) (verifier_name 22)
+     ((code 211) (verifier_letter B) (verifier_name 22)
       (condition ((index 0) (condition Are_increasing))) (result false)
       (remaining_bits_before 2) (bits_gained 1) (remaining_bits 1)
       (number_of_remaining_codes 2)))
@@ -897,7 +897,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 211) (verifier_name 33)
+     ((code 211) (verifier_letter D) (verifier_name 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
