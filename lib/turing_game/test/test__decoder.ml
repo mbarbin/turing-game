@@ -114,9 +114,8 @@ let%expect_test "remaining codes" =
      (expected_information_gained
       ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))) |}];
   Expect_test_helpers_base.require_ok
-    ~cr:CR_soon
     [%here]
-    (if Float.equal (t_true.probability +. t_false.probability) 0.
+    (if Float.( > ) 1e-7 (Float.abs (t_true.probability +. t_false.probability -. 1.))
      then Ok ()
      else
        Or_error.error_s
@@ -125,20 +124,7 @@ let%expect_test "remaining codes" =
            , { t_true : Interactive_solver.Expected_information_gained.t
              ; t_false : Interactive_solver.Expected_information_gained.t
              }]);
-  [%expect
-    {|
-    (* CR-soon require-failed: lib/turing_game/test/test__decoder.ml:LINE:COL.
-       Do not 'X' this CR; instead make the required property true,
-       which will make the CR disappear.  For more information, see
-       [Expect_test_helpers_base.require]. *)
-    ("unexpected [Error]" (
-      "Probability do not sum to 1" (
-        (t_true (
-          (bits_gained 0.68805599368525971)
-          (probability 0.52671755725190839)))
-        (t_false (
-          (bits_gained 0.85798099512757187)
-          (probability 0.47328244274809161)))))) |}];
+  [%expect {| |}];
   ()
 ;;
 
