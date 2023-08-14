@@ -9,7 +9,7 @@ module Round : sig
       be interrogated per round. *)
   type t =
     { code : Code.t
-    ; verifiers : Verifier.Name.t Nonempty_list.t
+    ; verifiers : Verifier_name.t Nonempty_list.t
     }
   [@@deriving compare, equal, hash, sexp_of]
 end

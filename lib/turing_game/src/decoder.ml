@@ -19,7 +19,7 @@ end
 module Hypothesis = struct
   module One_verifier = struct
     type t =
-      { name : Verifier.Name.t
+      { verifier_name : Verifier_name.t
       ; criteria : Criteria.t
       }
     [@@deriving equal, sexp_of]
@@ -48,11 +48,13 @@ module Hypothesis = struct
         }]
   ;;
 
-  let verifier_exn t ~name =
+  let verifier_exn t ~verifier_name =
     t.verifiers
     |> Array.Permissioned.to_list
     |> List.find_map_exn ~f:(fun verifier ->
-      Option.some_if (Verifier.Name.equal name verifier.name) verifier.criteria)
+      Option.some_if
+        (Verifier_name.equal verifier_name verifier.verifier_name)
+        verifier.criteria)
   ;;
 
   let remaining_code_exn t =
@@ -65,8 +67,8 @@ module Hypothesis = struct
 
   let remaining_codes t = t.remaining_codes
 
-  let evaluate_exn t ~code ~verifier =
-    let criteria = verifier_exn t ~name:verifier in
+  let evaluate_exn t ~code ~verifier_name =
+    let criteria = verifier_exn t ~verifier_name in
     Condition.evaluate criteria.condition ~code
   ;;
 end
@@ -100,14 +102,18 @@ let verifiers t =
   |> Nonempty_list.of_list_exn
 ;;
 
-let verifier_exn t ~name =
+let verifier_exn t ~verifier_name =
   Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
-    Option.some_if (Verifier.Name.equal name slot.verifier.name) slot.verifier)
+    Option.some_if
+      (Verifier_name.equal verifier_name slot.verifier.verifier_name)
+      slot.verifier)
 ;;
 
-let verifier_status_exn t ~name =
+let verifier_status_exn t ~verifier_name =
   Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
-    Option.some_if (Verifier.Name.equal name slot.verifier.name) slot.verifier_status)
+    Option.some_if
+      (Verifier_name.equal verifier_name slot.verifier.verifier_name)
+      slot.verifier_status)
 ;;
 
 module Cycle_counter = struct
@@ -140,12 +146,12 @@ let compute_hypotheses (t : t) ~strict =
     Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
   Array.Permissioned.iteri t.slots ~f:(fun i slot ->
-    let name = slot.verifier.name in
+    let verifier_name = slot.verifier.verifier_name in
     match slot.verifier_status with
     | Undetermined { remaining_criteria } ->
       Nonempty_list.iter remaining_criteria ~f:(fun criteria ->
-        Queue.enqueue verifiers.(i) { name; criteria })
-    | Determined criteria -> Queue.enqueue verifiers.(i) { name; criteria });
+        Queue.enqueue verifiers.(i) { verifier_name; criteria })
+    | Determined criteria -> Queue.enqueue verifiers.(i) { verifier_name; criteria });
   let verifiers =
     Array.map verifiers ~f:(fun queue ->
       { Cycle_counter.values = Queue.to_array queue; current_value = 0 })

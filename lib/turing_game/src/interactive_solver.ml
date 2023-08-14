@@ -60,7 +60,7 @@ let evaluate_test ~decoder ~code ~verifier =
     , Info.create_s
         [%sexp
           { code : Code.t
-          ; verifier = (verifier.name : Verifier.Name.t)
+          ; verifier_name = (verifier.verifier_name : Verifier_name.t)
           ; score_if_true : Expected_information_gained.t
           ; score_if_false : Expected_information_gained.t
           }] ))
@@ -69,7 +69,7 @@ let evaluate_test ~decoder ~code ~verifier =
 module Test_key = struct
   type t =
     { code : Code.t
-    ; verifier : Verifier.Name.t
+    ; verifier_name : Verifier_name.t
     }
   [@@deriving compare, equal, hash, sexp_of]
 end
@@ -90,8 +90,8 @@ end
 let compute_test_results t ~test_keys =
   List.map (Decoder.hypotheses t) ~f:(fun hypothesis ->
     let test_results =
-      Array.map test_keys ~f:(fun { Test_key.code; verifier } ->
-        Decoder.Hypothesis.evaluate_exn hypothesis ~code ~verifier)
+      Array.map test_keys ~f:(fun { Test_key.code; verifier_name } ->
+        Decoder.Hypothesis.evaluate_exn hypothesis ~code ~verifier_name)
     in
     test_results, Decoder.Hypothesis.remaining_codes hypothesis)
 ;;
@@ -119,7 +119,9 @@ let evaluate_code ~decoder ~code =
       let evaluation, test_keys =
         Nonempty_list.map verifiers ~f:(fun verifier ->
           let test_keys =
-            Array.append test_keys [| { Test_key.code; verifier = verifier.name } |]
+            Array.append
+              test_keys
+              [| { Test_key.code; verifier_name = verifier.verifier_name } |]
           in
           evaluate_test_keys ~test_keys, test_keys)
         |> Nonempty_list.to_list
@@ -135,7 +137,7 @@ module Request_test = struct
   type t =
     { new_round : bool
     ; code : Code.t
-    ; verifier : Verifier.Name.t
+    ; verifier_name : Verifier_name.t
     ; info : Info.t
     }
   [@@deriving sexp_of]
@@ -181,7 +183,7 @@ let pick_best_verifier ~decoder ~code =
     let evaluation, info = evaluate_test ~decoder ~code ~verifier in
     if Evaluation.is_zero evaluation
     then None
-    else Some (evaluation, (verifier.name, info)))
+    else Some (evaluation, (verifier.verifier_name, info)))
   |> pick_best_positive_evaluation
 ;;
 
@@ -201,10 +203,10 @@ let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
        | Some current_round ->
          (match add_to_current_round ~decoder ~current_round with
           | None -> None
-          | Some (verifier, info) ->
+          | Some (verifier_name, info) ->
             Some
               (Step.Request_test
-                 { new_round = false; code = current_round.code; verifier; info }))
+                 { new_round = false; code = current_round.code; verifier_name; info }))
      with
      | Some next_step -> next_step
      | None ->
@@ -215,8 +217,8 @@ let next_step ~decoder ~(current_round : Resolution_path.Round.t option) =
          |> snd
        in
        (match pick_best_verifier ~decoder ~code with
-        | Some (verifier, info) ->
-          Step.Request_test { new_round = true; code; verifier; info }
+        | Some (verifier_name, info) ->
+          Step.Request_test { new_round = true; code; verifier_name; info }
         | None -> Error (Error.create_s [%sexp "Cannot make progress"])))
 ;;
 
@@ -229,7 +231,7 @@ let remaining_bits ~decoder =
 
 let input_line () = Stdio.In_channel.(input_line_exn stdin)
 
-let input_test_result ~code ~verifier =
+let input_test_result ~code ~verifier_name =
   let rec input_bool ~prompt =
     print_string ("\n" ^ prompt);
     Stdio.Out_channel.(flush stdout);
@@ -247,7 +249,7 @@ let input_test_result ~code ~verifier =
       (sprintf
          "Enter result for test. code=%S - verifier=%S: "
          (Code.to_string code)
-         ((verifier : Verifier.Name.t) :> string))
+         ((verifier_name : Verifier_name.t) :> string))
 ;;
 
 let wait_for_newline ~prompt =
@@ -298,7 +300,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
       print_s [%sexp (next_step : Step.t)];
       return code
     | Info _ -> assert false
-    | Request_test { new_round; code; verifier; info = _ } ->
+    | Request_test { new_round; code; verifier_name; info = _ } ->
       if Running_mode.is_interactive running_mode
       then
         if new_round && Option.is_some current_round
@@ -309,14 +311,14 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
       print_s [%sexp (next_step : Step.t)];
       let result =
         match running_mode with
-        | Interactive -> input_test_result ~code ~verifier
+        | Interactive -> input_test_result ~code ~verifier_name
         | Simulated_hypothesis hypothesis ->
-          let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+          let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_name in
           Condition.evaluate criteria.condition ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
       let%bind decoder =
-        let verifier = Decoder.verifier_exn decoder ~name:verifier in
+        let verifier = Decoder.verifier_exn decoder ~verifier_name in
         Decoder.add_test_result decoder ~code ~verifier ~result
       in
       let () =
@@ -326,10 +328,10 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         let condition =
           match running_mode with
           | Simulated_hypothesis hypothesis ->
-            let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+            let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_name in
             Info.create_s [%sexp (criteria : Criteria.t)]
           | Interactive ->
-            (match Decoder.verifier_status_exn decoder ~name:verifier with
+            (match Decoder.verifier_status_exn decoder ~verifier_name with
              | Undetermined _ -> Info.create_s [%sexp Undetermined]
              | Determined criteria -> Info.create_s [%sexp (criteria : Criteria.t)])
         in
@@ -337,7 +339,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
           [%sexp
             Test_result
               { code : Code.t
-              ; verifier : Verifier.Name.t
+              ; verifier_name : Verifier_name.t
               ; condition : Info.t
               ; result : bool
               ; remaining_bits_before : float
@@ -356,13 +358,13 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
       in
       let current_round =
         if new_round
-        then { Resolution_path.Round.code; verifiers = [ verifier ] }
+        then { Resolution_path.Round.code; verifiers = [ verifier_name ] }
         else (
           let { Resolution_path.Round.code; verifiers } =
             current_round |> Option.value_exn ~here:[%here]
           in
           { Resolution_path.Round.code
-          ; verifiers = Nonempty_list.append verifiers [ verifier ]
+          ; verifiers = Nonempty_list.append verifiers [ verifier_name ]
           })
       in
       aux ~decoder ~rounds ~current_round:(Some current_round)

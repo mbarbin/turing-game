@@ -12,6 +12,7 @@ module Partition = Partition
 module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
+module Verifier_name = Verifier_name
 module Verifiers = Verifiers
 
 let main = Command.group ~summary:"" [ "solver", Interactive_solver.cmd ]

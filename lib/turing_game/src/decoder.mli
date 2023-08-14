@@ -7,7 +7,7 @@ val create : verifiers:Verifier.t Nonempty_list.t -> t
 (** Returns the verifiers used to create [t]. *)
 val verifiers : t -> Verifier.t Nonempty_list.t
 
-val verifier_exn : t -> name:Verifier.Name.t -> Verifier.t
+val verifier_exn : t -> verifier_name:Verifier_name.t -> Verifier.t
 
 (** Return the number of codes that are still possible given the information
     known by [t]. The expensive part of this computation is cached inside [t]. *)
@@ -18,11 +18,11 @@ val remaining_codes : t -> Codes.t
 module Hypothesis : sig
   type t [@@deriving sexp_of]
 
-  val verifier_exn : t -> name:Verifier.Name.t -> Criteria.t
+  val verifier_exn : t -> verifier_name:Verifier_name.t -> Criteria.t
 
   (** Assuming the hypothesis [t], returns the expected result of the given
       test. Raises if [verifier] is unknown. *)
-  val evaluate_exn : t -> code:Code.t -> verifier:Verifier.Name.t -> bool
+  val evaluate_exn : t -> code:Code.t -> verifier_name:Verifier_name.t -> bool
 
   (** When the hypothesis is strict, it is guaranteed by construction to have a
       single remaining code. *)
@@ -53,4 +53,4 @@ module Verifier_status : sig
   [@@deriving equal, sexp_of]
 end
 
-val verifier_status_exn : t -> name:Verifier.Name.t -> Verifier_status.t
+val verifier_status_exn : t -> verifier_name:Verifier_name.t -> Verifier_status.t
