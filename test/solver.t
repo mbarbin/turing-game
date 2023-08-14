@@ -54,7 +54,8 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   
   Enter result for test. code="211" - verifier="11": 
   (Test_result
-   ((code 211) (verifier 11) (condition (Greater_than (a Triangle) (b Square)))
+   ((code 211) (verifier 11)
+    (condition ((index 2) (condition (Greater_than (a Triangle) (b Square)))))
     (result true) (remaining_bits_before 1.5849625007211561)
     (bits_gained 1.5849625007211561) (remaining_bits 0)
     (number_of_remaining_codes 1)))

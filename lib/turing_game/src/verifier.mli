@@ -6,7 +6,7 @@ end
 
 type t = private
   { name : Name.t
-  ; conditions : Condition.t Nonempty_list.t
+  ; criteria : Criteria.t Nonempty_list.t
   }
 [@@deriving compare, equal, sexp_of]
 

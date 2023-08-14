@@ -2,8 +2,8 @@ open! Core
 
 module Verifier_status = struct
   type t =
-    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
-    | Determined of { condition : Condition.t }
+    | Undetermined of { remaining_criteria : Criteria.t Nonempty_list.t }
+    | Determined of Criteria.t
   [@@deriving equal, sexp_of]
 end
 
@@ -20,12 +20,13 @@ module Hypothesis = struct
   module One_verifier = struct
     type t =
       { name : Verifier.Name.t
-      ; condition : Condition.t
+      ; criteria : Criteria.t
       }
     [@@deriving equal, sexp_of]
 
     let remaining_codes t ~remaining_codes =
-      Codes.filter remaining_codes ~f:(fun code -> Condition.evaluate t.condition ~code)
+      Codes.filter remaining_codes ~f:(fun code ->
+        Condition.evaluate t.criteria.condition ~code)
     ;;
   end
 
@@ -51,7 +52,7 @@ module Hypothesis = struct
     t.verifiers
     |> Array.Permissioned.to_list
     |> List.find_map_exn ~f:(fun verifier ->
-      Option.some_if (Verifier.Name.equal name verifier.name) verifier.condition)
+      Option.some_if (Verifier.Name.equal name verifier.name) verifier.criteria)
   ;;
 
   let remaining_code_exn t =
@@ -65,8 +66,8 @@ module Hypothesis = struct
   let remaining_codes t = t.remaining_codes
 
   let evaluate_exn t ~code ~verifier =
-    let condition = verifier_exn t ~name:verifier in
-    Condition.evaluate condition ~code
+    let criteria = verifier_exn t ~name:verifier in
+    Condition.evaluate criteria.condition ~code
   ;;
 end
 
@@ -86,7 +87,7 @@ let create ~verifiers =
     |> Array.Permissioned.mapi ~f:(fun index verifier ->
       { Slot.index
       ; verifier
-      ; verifier_status = Undetermined { remaining_conditions = verifier.conditions }
+      ; verifier_status = Undetermined { remaining_criteria = verifier.criteria }
       })
   in
   create_internal ~slots
@@ -141,10 +142,10 @@ let compute_hypotheses (t : t) ~strict =
   Array.Permissioned.iteri t.slots ~f:(fun i slot ->
     let name = slot.verifier.name in
     match slot.verifier_status with
-    | Undetermined { remaining_conditions } ->
-      Nonempty_list.iter remaining_conditions ~f:(fun condition ->
-        Queue.enqueue verifiers.(i) { name; condition })
-    | Determined { condition } -> Queue.enqueue verifiers.(i) { name; condition });
+    | Undetermined { remaining_criteria } ->
+      Nonempty_list.iter remaining_criteria ~f:(fun criteria ->
+        Queue.enqueue verifiers.(i) { name; criteria })
+    | Determined criteria -> Queue.enqueue verifiers.(i) { name; criteria });
   let verifiers =
     Array.map verifiers ~f:(fun queue ->
       { Cycle_counter.values = Queue.to_array queue; current_value = 0 })
@@ -213,7 +214,7 @@ let add_test_result t ~code ~verifier ~result =
   in
   let index = slot.index in
   match slot.verifier_status with
-  | Determined { condition } ->
+  | Determined { index; condition } ->
     (* Nothing to learn. *)
     let expected_result = Condition.evaluate condition ~code in
     if Bool.equal expected_result result
@@ -227,16 +228,16 @@ let add_test_result t ~code ~verifier ~result =
                 Determined
                   { condition : Condition.t; expected_result : bool; result : bool }
             }]
-  | Undetermined { remaining_conditions } ->
+  | Undetermined { remaining_criteria } ->
     let%bind verifier_status =
       let remaining_conditions =
-        Nonempty_list.filter remaining_conditions ~f:(fun condition ->
+        Nonempty_list.filter remaining_criteria ~f:(fun { index = _; condition } ->
           Bool.equal result (Condition.evaluate condition ~code))
       in
       match remaining_conditions with
-      | [ condition ] -> return (Verifier_status.Determined { condition })
+      | [ condition ] -> return (Verifier_status.Determined condition)
       | hd :: (_ :: _ as tl) ->
-        return (Verifier_status.Undetermined { remaining_conditions = hd :: tl })
+        return (Verifier_status.Undetermined { remaining_criteria = hd :: tl })
       | [] ->
         Or_error.error_s
           [%sexp

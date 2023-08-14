@@ -311,8 +311,8 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         match running_mode with
         | Interactive -> input_test_result ~code ~verifier
         | Simulated_hypothesis hypothesis ->
-          let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-          Condition.evaluate condition ~code
+          let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+          Condition.evaluate criteria.condition ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
       let%bind decoder =
@@ -326,12 +326,12 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         let condition =
           match running_mode with
           | Simulated_hypothesis hypothesis ->
-            let condition = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
-            Info.create_s [%sexp (condition : Condition.t)]
+            let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~name:verifier in
+            Info.create_s [%sexp (criteria : Criteria.t)]
           | Interactive ->
             (match Decoder.verifier_status_exn decoder ~name:verifier with
              | Undetermined _ -> Info.create_s [%sexp Undetermined]
-             | Determined { condition } -> Info.create_s [%sexp (condition : Condition.t)])
+             | Determined criteria -> Info.create_s [%sexp (criteria : Criteria.t)])
         in
         print_s
           [%sexp

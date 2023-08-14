@@ -25,9 +25,10 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code="231" - verifier="03": 
   (Test_result
    ((code 231) (verifier 03)
-    (condition (Equal_value (symbol Square) (value 3))) (result true)
-    (remaining_bits_before 3.7004397181410922) (bits_gained 0.893084796083488)
-    (remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
+    (condition ((index 1) (condition (Equal_value (symbol Square) (value 3)))))
+    (result true) (remaining_bits_before 3.7004397181410922)
+    (bits_gained 0.893084796083488) (remaining_bits 2.8073549220576042)
+    (number_of_remaining_codes 7)))
   
   Ready to request a new test. Type ENTER to continue...
   (Request_test
@@ -41,7 +42,8 @@ Simulating an interactive resolution to problem 2.
   
   Enter result for test. code="231" - verifier="07": 
   (Test_result
-   ((code 231) (verifier 07) (condition (Is_odd (symbol Circle))) (result true)
+   ((code 231) (verifier 07)
+    (condition ((index 1) (condition (Is_odd (symbol Circle))))) (result true)
     (remaining_bits_before 2.8073549220576042) (bits_gained 1.2223924213364481)
     (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
   
@@ -73,7 +75,8 @@ Simulating an interactive resolution to problem 2.
   
   Enter result for test. code="212" - verifier="14": 
   (Test_result
-   ((code 212) (verifier 14) (condition (Is_smallest (symbol Square)))
+   ((code 212) (verifier 14)
+    (condition ((index 1) (condition (Is_smallest (symbol Square)))))
     (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
     (number_of_remaining_codes 1)))
   

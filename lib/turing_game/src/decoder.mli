@@ -18,7 +18,7 @@ val remaining_codes : t -> Codes.t
 module Hypothesis : sig
   type t [@@deriving sexp_of]
 
-  val verifier_exn : t -> name:Verifier.Name.t -> Condition.t
+  val verifier_exn : t -> name:Verifier.Name.t -> Criteria.t
 
   (** Assuming the hypothesis [t], returns the expected result of the given
       test. Raises if [verifier] is unknown. *)
@@ -48,8 +48,8 @@ val add_test_result
 
 module Verifier_status : sig
   type t =
-    | Undetermined of { remaining_conditions : Condition.t Nonempty_list.t }
-    | Determined of { condition : Condition.t }
+    | Undetermined of { remaining_criteria : Criteria.t Nonempty_list.t }
+    | Determined of Criteria.t
   [@@deriving equal, sexp_of]
 end
 

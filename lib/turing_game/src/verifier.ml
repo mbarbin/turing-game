@@ -6,8 +6,14 @@ end
 
 type t =
   { name : Name.t
-  ; conditions : Condition.t Nonempty_list.t
+  ; criteria : Criteria.t Nonempty_list.t
   }
 [@@deriving compare, equal, sexp_of]
 
-let create ~name ~conditions = { name; conditions }
+let create ~name ~conditions =
+  let criteria =
+    Nonempty_list.mapi conditions ~f:(fun index condition ->
+      { Criteria.index; condition })
+  in
+  { name; criteria }
+;;
