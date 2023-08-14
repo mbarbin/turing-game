@@ -49,6 +49,14 @@ let%expect_test "one verifier" =
 ;;
 
 let evaluate_test ~decoder ~code ~verifier ~result =
+  let { Interactive_solver.Test_evaluation.evaluation = _
+      ; score_if_true
+      ; score_if_false
+      ; info
+      }
+    =
+    Interactive_solver.evaluate_test ~decoder ~code ~verifier
+  in
   let starting_number = Decoder.number_of_remaining_codes decoder in
   let remaining_codes =
     match Decoder.add_test_result decoder ~code ~verifier ~result with
@@ -56,11 +64,7 @@ let evaluate_test ~decoder ~code ~verifier ~result =
     | Error _ -> Codes.empty
   in
   let remaining_number = Codes.length remaining_codes in
-  let expected_information_gained =
-    Interactive_solver.Expected_information_gained.compute
-      ~starting_number
-      ~remaining_number
-  in
+  let expected_information_gained = if result then score_if_true else score_if_false in
   let verifier_name = verifier.verifier_name in
   print_s
     [%sexp
@@ -70,6 +74,7 @@ let evaluate_test ~decoder ~code ~verifier ~result =
       ; remaining_codes : Codes.t
       ; starting_number : int
       ; remaining_number : int
+      ; info : Info.t
       ; expected_information_gained : Interactive_solver.Expected_information_gained.t
       }];
   expected_information_gained
@@ -85,8 +90,14 @@ let%expect_test "remaining codes" =
      (remaining_codes
       (245 345 234 124 454 242 243 244 344 444 224 334 422 423 434 544 214 324))
      (starting_number 29) (remaining_number 18)
+     (info
+      ((code 334) (verifier_name 34)
+       (score_if_true
+        ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))
+       (score_if_false
+        ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
      (expected_information_gained
-      ((bits_gained 0.68805599368525971) (probability 0.62068965517241381)))) |}];
+      ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))) |}];
   let t_false = evaluate_test ~decoder ~code ~verifier:Verifiers.v_34 ~result:false in
   [%expect
     {|
@@ -94,8 +105,14 @@ let%expect_test "remaining codes" =
      (remaining_codes
       (453 454 452 343 242 342 443 444 442 421 432 543 542 433 422 544))
      (starting_number 29) (remaining_number 16)
+     (info
+      ((code 334) (verifier_name 34)
+       (score_if_true
+        ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))
+       (score_if_false
+        ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
      (expected_information_gained
-      ((bits_gained 0.85798099512757187) (probability 0.55172413793103448)))) |}];
+      ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))) |}];
   Expect_test_helpers_base.require_ok
     ~cr:CR_soon
     [%here]
@@ -118,10 +135,10 @@ let%expect_test "remaining codes" =
       "Probability do not sum to 1" (
         (t_true (
           (bits_gained 0.68805599368525971)
-          (probability 0.62068965517241381)))
+          (probability 0.52671755725190839)))
         (t_false (
           (bits_gained 0.85798099512757187)
-          (probability 0.55172413793103448)))))) |}];
+          (probability 0.47328244274809161)))))) |}];
   ()
 ;;
 

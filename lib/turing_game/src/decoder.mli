@@ -54,3 +54,16 @@ module Verifier_status : sig
 end
 
 val verifier_status_exn : t -> verifier_name:Verifier_name.t -> Verifier_status.t
+
+module Criteria_and_probability : sig
+  type t =
+    { criteria : Criteria.t
+    ; probability : float
+    }
+  [@@deriving equal, sexp_of]
+end
+
+val criteria_distribution_exn
+  :  t
+  -> verifier_name:Verifier_name.t
+  -> Criteria_and_probability.t Nonempty_list.t

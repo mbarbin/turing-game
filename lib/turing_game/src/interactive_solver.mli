@@ -62,3 +62,19 @@ end
 val simulate_hypotheses : decoder:Decoder.t -> which_hypotheses:Which_hypotheses.t -> unit
 
 val cmd : Command.t
+
+module Test_evaluation : sig
+  type t =
+    { evaluation : Evaluation.t
+    ; score_if_true : Expected_information_gained.t
+    ; score_if_false : Expected_information_gained.t
+    ; info : Info.t
+    }
+  [@@deriving sexp_of]
+end
+
+val evaluate_test
+  :  decoder:Decoder.t
+  -> code:Code.t
+  -> verifier:Verifier.t
+  -> Test_evaluation.t

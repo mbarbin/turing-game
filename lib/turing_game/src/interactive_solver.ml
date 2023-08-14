@@ -39,31 +39,64 @@ module Evaluation = struct
   ;;
 end
 
-let evaluate_test ~decoder ~code ~verifier =
+module Test_evaluation = struct
+  type t =
+    { evaluation : Evaluation.t
+    ; score_if_true : Expected_information_gained.t
+    ; score_if_false : Expected_information_gained.t
+    ; info : Info.t
+    }
+  [@@deriving sexp_of]
+end
+
+let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
+  let verifier_name = verifier.verifier_name in
   let starting_number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if starting_number_of_remaining_codes <= 0
   then
-    ( Evaluation.zero
-    , Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }] )
+    { Test_evaluation.evaluation = Evaluation.zero
+    ; score_if_true = Expected_information_gained.unreachable
+    ; score_if_false = Expected_information_gained.unreachable
+    ; info =
+        Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
+    }
   else (
+    let criteria_distribution =
+      Decoder.criteria_distribution_exn decoder ~verifier_name
+      |> Nonempty_list.map ~f:(fun c -> c, Condition.evaluate c.criteria.condition ~code)
+    in
     let compute_expected_information_gained ~result =
       match Decoder.add_test_result decoder ~code ~verifier ~result with
       | Error _ -> Expected_information_gained.unreachable
       | Ok decoder ->
-        Expected_information_gained.compute
-          ~starting_number:starting_number_of_remaining_codes
-          ~remaining_number:(Decoder.number_of_remaining_codes decoder)
+        let probability =
+          Nonempty_list.sum
+            (module Float)
+            criteria_distribution
+            ~f:(fun ({ criteria = _; probability }, criteria_result) ->
+              if Bool.equal result criteria_result then probability else 0.)
+        in
+        let evaluation =
+          Expected_information_gained.compute
+            ~starting_number:starting_number_of_remaining_codes
+            ~remaining_number:(Decoder.number_of_remaining_codes decoder)
+        in
+        { evaluation with probability }
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
-    ( Evaluation.compute [ score_if_true; score_if_false ]
-    , Info.create_s
-        [%sexp
-          { code : Code.t
-          ; verifier_name = (verifier.verifier_name : Verifier_name.t)
-          ; score_if_true : Expected_information_gained.t
-          ; score_if_false : Expected_information_gained.t
-          }] ))
+    { evaluation = Evaluation.compute [ score_if_true; score_if_false ]
+    ; score_if_true
+    ; score_if_false
+    ; info =
+        Info.create_s
+          [%sexp
+            { code : Code.t
+            ; verifier_name : Verifier_name.t
+            ; score_if_true : Expected_information_gained.t
+            ; score_if_false : Expected_information_gained.t
+            }]
+    })
 ;;
 
 module Test_key = struct
@@ -180,7 +213,9 @@ let pick_best_positive_evaluation alist =
 
 let pick_best_verifier ~decoder ~code =
   Nonempty_list.filter_map (Decoder.verifiers decoder) ~f:(fun verifier ->
-    let evaluation, info = evaluate_test ~decoder ~code ~verifier in
+    let { Test_evaluation.evaluation; info; _ } =
+      evaluate_test ~decoder ~code ~verifier
+    in
     if Evaluation.is_zero evaluation
     then None
     else Some (evaluation, (verifier.verifier_name, info)))

@@ -102,22 +102,21 @@ let verifiers t =
   |> Nonempty_list.of_list_exn
 ;;
 
+let find_slot_with_verifier_name_exn t ~verifier_name =
+  Array.Permissioned.find_exn t.slots ~f:(fun slot ->
+    Verifier_name.equal verifier_name slot.verifier.verifier_name)
+;;
+
 let verifier_exn t ~verifier_name =
-  Array.Permissioned.find_mapi_exn t.slots ~f:(fun i slot ->
-    if Verifier_name.equal verifier_name slot.verifier.verifier_name
-    then
-      Some
-        { Verifier_info.verifier = slot.verifier
-        ; verifier_letter = Verifier_letter.of_index i
-        }
-    else None)
+  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+  { Verifier_info.verifier = slot.verifier
+  ; verifier_letter = Verifier_letter.of_index slot.index
+  }
 ;;
 
 let verifier_status_exn t ~verifier_name =
-  Array.Permissioned.find_map_exn t.slots ~f:(fun slot ->
-    Option.some_if
-      (Verifier_name.equal verifier_name slot.verifier.verifier_name)
-      slot.verifier_status)
+  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+  slot.verifier_status
 ;;
 
 module Cycle_counter = struct
@@ -260,4 +259,32 @@ let add_test_result t ~code ~verifier ~result =
         if i = index then { slot with Slot.verifier_status } else slot)
     in
     return (create_internal ~slots)
+;;
+
+module Criteria_and_probability = struct
+  type t =
+    { criteria : Criteria.t
+    ; probability : float
+    }
+  [@@deriving equal, sexp_of]
+end
+
+let criteria_distribution_exn t ~verifier_name =
+  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+  let hypotheses = hypotheses t ~strict:true in
+  let number_of_hypotheses = Float.of_int (List.length hypotheses) in
+  match slot.verifier_status with
+  | Determined criteria ->
+    Nonempty_list.singleton { Criteria_and_probability.criteria; probability = 1. }
+  | Undetermined { remaining_criteria } ->
+    Nonempty_list.map remaining_criteria ~f:(fun criteria ->
+      let number_of_hypotheses_with_this_criteria =
+        List.count hypotheses ~f:(fun hypothesis ->
+          criteria.index
+          = (Array.Permissioned.get hypothesis.verifiers slot.index).criteria.index)
+      in
+      { Criteria_and_probability.criteria
+      ; probability =
+          Float.of_int number_of_hypotheses_with_this_criteria /. number_of_hypotheses
+      })
 ;;
