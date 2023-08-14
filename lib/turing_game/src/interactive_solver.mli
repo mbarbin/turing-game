@@ -17,7 +17,7 @@ module Evaluation : sig
 
   val zero : t
   val is_zero : t -> bool
-  val compute : Expected_information_gained.t Nonempty_list.t -> t
+  val compute : Expected_information_gained.t Nonempty_list.t -> t Or_error.t
 end
 
 module Request_test : sig
@@ -77,4 +77,4 @@ val evaluate_test
   :  decoder:Decoder.t
   -> code:Code.t
   -> verifier:Verifier.t
-  -> Test_evaluation.t
+  -> Test_evaluation.t Or_error.t

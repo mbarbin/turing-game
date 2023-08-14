@@ -55,7 +55,7 @@ let evaluate_test ~decoder ~code ~verifier ~result =
       ; info
       }
     =
-    Interactive_solver.evaluate_test ~decoder ~code ~verifier
+    Interactive_solver.evaluate_test ~decoder ~code ~verifier |> ok_exn
   in
   let starting_number = Decoder.number_of_remaining_codes decoder in
   let remaining_codes =
@@ -113,6 +113,12 @@ let%expect_test "remaining codes" =
         ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
      (expected_information_gained
       ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))) |}];
+  let evaluation = Interactive_solver.Evaluation.compute [ t_true; t_false ] in
+  Expect_test_helpers_base.require_ok
+    [%here]
+    ~print_ok:(fun evaluation -> [%sexp (evaluation : Interactive_solver.Evaluation.t)])
+    evaluation;
+  [%expect {| ((expected_information_gained 0.76847851345185014)) |}];
   Expect_test_helpers_base.require_ok
     [%here]
     (if Float.( > ) 1e-7 (Float.abs (t_true.probability +. t_false.probability -. 1.))

@@ -1,5 +1,6 @@
 open! Core
 open! Import
+open! Or_error.Let_syntax
 
 module Expected_information_gained = struct
   (* Evaluate a test in term of expected information bits gained. *)
@@ -30,6 +31,19 @@ module Evaluation = struct
   let is_zero t = Float.(t.expected_information_gained <= 0.)
 
   let compute (ts : Expected_information_gained.t Nonempty_list.t) =
+    let%map () =
+      let sum_probabilities =
+        Nonempty_list.sum (module Float) ts ~f:(fun t -> t.probability)
+      in
+      if Float.( > ) 1e-7 (Float.abs (1. -. sum_probabilities))
+      then return ()
+      else
+        Or_error.error_s
+          [%sexp
+            "Sum of probabilities does not equal 1"
+            , (ts : Expected_information_gained.t Nonempty_list.t)
+            , { sum_probabilities : float }]
+    in
     let expected_information_gained =
       Nonempty_list.fold ts ~init:0. ~f:(fun acc t ->
         acc +. (t.probability *. t.bits_gained))
@@ -53,12 +67,14 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
   let starting_number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if starting_number_of_remaining_codes <= 0
   then
-    { Test_evaluation.evaluation = Evaluation.zero
-    ; score_if_true = Expected_information_gained.unreachable
-    ; score_if_false = Expected_information_gained.unreachable
-    ; info =
-        Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
-    }
+    return
+      { Test_evaluation.evaluation = Evaluation.zero
+      ; score_if_true = Expected_information_gained.unreachable
+      ; score_if_false = Expected_information_gained.unreachable
+      ; info =
+          Info.create_s
+            [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
+      }
   else (
     let criteria_distribution =
       Decoder.criteria_distribution_exn decoder ~verifier_name
@@ -82,7 +98,8 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
-    { evaluation = Evaluation.compute [ score_if_true; score_if_false ]
+    let%map evaluation = Evaluation.compute [ score_if_true; score_if_false ] in
+    { Test_evaluation.evaluation
     ; score_if_true
     ; score_if_false
     ; info =
@@ -123,27 +140,37 @@ let compute_test_results ~hypotheses ~test_keys =
       Array.map test_keys ~f:(fun { Test_key.code; verifier_name } ->
         Decoder.Hypothesis.evaluate_exn hypothesis ~code ~verifier_name)
     in
-    test_results, Decoder.Hypothesis.remaining_codes hypothesis)
+    test_results, hypothesis)
 ;;
 
 let evaluate_code ~decoder ~code =
   let hypotheses = Decoder.hypotheses decoder in
+  let initial_number_of_hypotheses = List.length hypotheses |> Float.of_int in
   let verifiers = Decoder.verifiers decoder in
   let initial_number_of_codes = Decoder.number_of_remaining_codes decoder in
   let evaluate_test_keys ~test_keys =
     match
       compute_test_results ~hypotheses ~test_keys
-      |> Map.of_alist_fold (module Test_results) ~init:Codes.empty ~f:Codes.append
+      |> Map.of_alist_fold
+           (module Test_results)
+           ~init:(0, Codes.empty)
+           ~f:(fun (h, codes) hypothesis ->
+             h + 1, Codes.append codes (Decoder.Hypothesis.remaining_codes hypothesis))
       |> Map.to_alist
-      |> List.map ~f:(fun (_, remaining_codes) ->
+      |> List.map ~f:(fun (_, (remaining_number_of_hypotheses, remaining_codes)) ->
         let remaining_number = Codes.length remaining_codes in
         Expected_information_gained.compute
           ~starting_number:initial_number_of_codes
           ~remaining_number
-          ~probability:Float.(of_int remaining_number /. of_int initial_number_of_codes))
+          ~probability:
+            Float.(of_int remaining_number_of_hypotheses /. initial_number_of_hypotheses))
     with
     | [] -> Evaluation.zero
-    | hd :: tl -> Evaluation.compute (hd :: tl)
+    | hd :: tl ->
+      (match Evaluation.compute (hd :: tl) with
+       | Ok evaluation -> evaluation
+       | Error error ->
+         raise_s [%sexp "evaluate_code failed", { code : Code.t }, (error : Error.t)])
   in
   let rec aux ~evaluation ~test_keys =
     if Array.length test_keys = 3
@@ -214,7 +241,7 @@ let pick_best_positive_evaluation alist =
 let pick_best_verifier ~decoder ~code =
   Nonempty_list.filter_map (Decoder.verifiers decoder) ~f:(fun verifier ->
     let { Test_evaluation.evaluation; info; _ } =
-      evaluate_test ~decoder ~code ~verifier
+      evaluate_test ~decoder ~code ~verifier |> ok_exn
     in
     if Evaluation.is_zero evaluation
     then None
@@ -309,7 +336,6 @@ module Running_mode = struct
 end
 
 let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
-  let open Or_error.Let_syntax in
   let rec aux ~decoder ~(rounds : Resolution_path.Round.t Reversed_list.t) ~current_round =
     (if Running_mode.is_interactive running_mode then Stdio.Out_channel.(flush stdout));
     let next_step = next_step ~decoder ~current_round in
