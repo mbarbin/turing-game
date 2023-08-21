@@ -4,7 +4,7 @@ type t =
   | Triangle
   | Square
   | Circle
-[@@deriving compare, enumerate, equal, hash, sexp_of]
+[@@deriving compare, enumerate, equal, hash, sexp]
 
 module Color = struct
   type t =

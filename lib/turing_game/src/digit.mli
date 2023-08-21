@@ -10,7 +10,7 @@ type t =
   | Three
   | Four
   | Five
-[@@deriving compare, enumerate, equal, hash, sexp_of]
+[@@deriving compare, enumerate, equal, hash, sexp]
 
 val to_int : t -> int
 

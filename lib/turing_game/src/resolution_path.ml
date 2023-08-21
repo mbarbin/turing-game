@@ -3,7 +3,7 @@ open! Core
 module Round = struct
   type t =
     { code : Code.t
-    ; verifiers : Verifier_name.t Nonempty_list.t
+    ; verifiers : int Nonempty_list.t
     }
   [@@deriving compare, equal, hash, sexp_of]
 end

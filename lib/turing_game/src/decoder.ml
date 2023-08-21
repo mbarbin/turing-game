@@ -19,7 +19,7 @@ end
 module Hypothesis = struct
   module One_verifier = struct
     type t =
-      { verifier_name : Verifier_name.t
+      { verifier_index : int
       ; criteria : Criteria.t
       }
     [@@deriving equal, sexp_of]
@@ -48,13 +48,11 @@ module Hypothesis = struct
         }]
   ;;
 
-  let verifier_exn t ~verifier_name =
+  let verifier_exn t ~verifier_index =
     t.verifiers
     |> Array.Permissioned.to_list
     |> List.find_map_exn ~f:(fun verifier ->
-      Option.some_if
-        (Verifier_name.equal verifier_name verifier.verifier_name)
-        verifier.criteria)
+      Option.some_if (verifier_index = verifier.verifier_index) verifier.criteria)
   ;;
 
   let remaining_code_exn t =
@@ -67,8 +65,8 @@ module Hypothesis = struct
 
   let remaining_codes t = t.remaining_codes
 
-  let evaluate_exn t ~code ~verifier_name =
-    let criteria = verifier_exn t ~verifier_name in
+  let evaluate_exn t ~code ~verifier_index =
+    let criteria = verifier_exn t ~verifier_index in
     Condition.evaluate criteria.condition ~code
   ;;
 end
@@ -89,7 +87,12 @@ let create ~verifiers =
     |> Array.Permissioned.mapi ~f:(fun index verifier ->
       { Slot.index
       ; verifier
-      ; verifier_status = Undetermined { remaining_criteria = verifier.criteria }
+      ; verifier_status =
+          Undetermined
+            { remaining_criteria =
+                Nonempty_list.mapi verifier.conditions ~f:(fun index condition ->
+                  { Criteria.index; condition })
+            }
       })
   in
   create_internal ~slots
@@ -102,20 +105,20 @@ let verifiers t =
   |> Nonempty_list.of_list_exn
 ;;
 
-let find_slot_with_verifier_name_exn t ~verifier_name =
+let find_slot_with_verifier_index_exn t ~verifier_index =
   Array.Permissioned.find_exn t.slots ~f:(fun slot ->
-    Verifier_name.equal verifier_name slot.verifier.verifier_name)
+    verifier_index = slot.verifier.index)
 ;;
 
-let verifier_exn t ~verifier_name =
-  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+let verifier_exn t ~verifier_index =
+  let slot = find_slot_with_verifier_index_exn t ~verifier_index in
   { Verifier_info.verifier = slot.verifier
   ; verifier_letter = Verifier_letter.of_index slot.index
   }
 ;;
 
-let verifier_status_exn t ~verifier_name =
-  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+let verifier_status_exn t ~verifier_index =
+  let slot = find_slot_with_verifier_index_exn t ~verifier_index in
   slot.verifier_status
 ;;
 
@@ -149,12 +152,12 @@ let compute_hypotheses (t : t) ~strict =
     Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
   in
   Array.Permissioned.iteri t.slots ~f:(fun i slot ->
-    let verifier_name = slot.verifier.verifier_name in
+    let verifier_index = slot.verifier.index in
     match slot.verifier_status with
     | Undetermined { remaining_criteria } ->
       Nonempty_list.iter remaining_criteria ~f:(fun criteria ->
-        Queue.enqueue verifiers.(i) { verifier_name; criteria })
-    | Determined criteria -> Queue.enqueue verifiers.(i) { verifier_name; criteria });
+        Queue.enqueue verifiers.(i) { verifier_index; criteria })
+    | Determined criteria -> Queue.enqueue verifiers.(i) { verifier_index; criteria });
   let verifiers =
     Array.map verifiers ~f:(fun queue ->
       { Cycle_counter.values = Queue.to_array queue; current_value = 0 })
@@ -269,8 +272,8 @@ module Criteria_and_probability = struct
   [@@deriving equal, sexp_of]
 end
 
-let criteria_distribution_exn t ~verifier_name =
-  let slot = find_slot_with_verifier_name_exn t ~verifier_name in
+let criteria_distribution_exn t ~verifier_index =
+  let slot = find_slot_with_verifier_index_exn t ~verifier_index in
   let hypotheses = hypotheses t ~strict:true in
   let number_of_hypotheses = Float.of_int (List.length hypotheses) in
   match slot.verifier_status with

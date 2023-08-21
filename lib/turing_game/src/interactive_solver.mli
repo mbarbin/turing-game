@@ -24,7 +24,7 @@ module Request_test : sig
   type t =
     { new_round : bool
     ; code : Code.t
-    ; verifier_name : Verifier_name.t
+    ; verifier_index : int
     ; info : Info.t
     }
   [@@deriving sexp_of]

@@ -34,17 +34,17 @@ type t =
   | Sum2_equal_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Sum2_greater_than_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Sum2_less_than_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Is_odd of { symbol : Symbol.t }
   | Is_even of { symbol : Symbol.t }
@@ -63,7 +63,7 @@ type t =
   | Are_increasing
   | Are_decreasing
   | Are_neither_increasing_nor_decreasing
-[@@deriving compare, equal, sexp_of]
+[@@deriving compare, equal, sexp]
 
 let digit_counts t =
   let counts = Digit.Tuple.init ~f:(fun _ -> ref 0) in
@@ -120,13 +120,13 @@ let evaluate t ~code =
   | More_even_than_odd_digits -> even_digits_count code > odd_digits_count code
   | Sum2_equal_value { a; b; value } ->
     Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    = Digit.to_int value
+    = value
   | Sum2_greater_than_value { a; b; value } ->
     Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    > Digit.to_int value
+    > value
   | Sum2_less_than_value { a; b; value } ->
     Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    > Digit.to_int value
+    > value
   | Is_odd { symbol } -> Digit.to_int (Symbol.Tuple.get code symbol) % 2 = 1
   | Is_even { symbol } -> Digit.to_int (Symbol.Tuple.get code symbol) % 2 = 0
   | Sum_is_even -> sum code % 2 = 0

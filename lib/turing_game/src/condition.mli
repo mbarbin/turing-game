@@ -34,17 +34,17 @@ type t =
   | Sum2_equal_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Sum2_greater_than_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Sum2_less_than_value of
       { a : Symbol.t
       ; b : Symbol.t
-      ; value : Digit.t
+      ; value : int
       }
   | Is_odd of { symbol : Symbol.t }
   | Is_even of { symbol : Symbol.t }
@@ -63,6 +63,6 @@ type t =
   | Are_increasing
   | Are_decreasing
   | Are_neither_increasing_nor_decreasing
-[@@deriving compare, equal, sexp_of]
+[@@deriving compare, equal, sexp]
 
 val evaluate : t -> code:Code.t -> bool

@@ -18,6 +18,20 @@ let to_int = function
 
 let sexp_of_t t = [%sexp (to_int t : int)]
 
+let of_int = function
+  | 1 -> One
+  | 2 -> Two
+  | 3 -> Three
+  | 4 -> Four
+  | 5 -> Five
+  | i -> raise_s [%sexp "Out of bounds", { i : int }]
+;;
+
+let t_of_sexp sexp =
+  let i = [%of_sexp: int] sexp in
+  of_int i
+;;
+
 module Tuple = struct
   type 'a t =
     { one : 'a
