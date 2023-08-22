@@ -22,7 +22,10 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((index 1)
           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -75,7 +78,10 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((index 0)
           (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -125,7 +131,10 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((index 0)
           (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -192,7 +201,10 @@ let%expect_test "interactive solver simulation decoder 1" =
           (condition
            (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 1) (condition (Is_smallest (symbol Square)))))))))
+        (criteria
+         ((index 1)
+          (condition
+           (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -258,7 +270,10 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((index 1)
           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -340,7 +355,10 @@ let%expect_test "interactive solver simulation decoder 1" =
           (condition
            (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -407,7 +425,10 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((index 1)
           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
-        (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+        (criteria
+         ((index 2)
+          (condition
+           (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
      ((new_round true) (code 211) (verifier_index 9)
@@ -502,58 +523,62 @@ let%expect_test "interactive solver simulation decoder 20" =
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition (Is_smallest_or_equally_smallest (symbol Triangle))))))
+          (condition
+           (Compare_symbol_with_others (symbol Triangle)
+            (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 0)
           (condition
            (Compare_symbol_with_value (symbol Triangle) (ordering Less)
             (value 3)))))))))
-    (Info ((remaining_bits 4.8579809951275719) (number_of_remaining_codes 29)))
+    (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
     (Request_test
-     ((new_round true) (code 444) (verifier_index 11)
+     ((new_round true) (code 555) (verifier_index 11)
       (info
-       ((code 444) (verifier_index 11)
+       ((code 555) (verifier_index 11)
         (score_if_true
-         ((bits_gained 2.5360529002402097) (probability 0.41221374045801529)))
+         ((bits_gained 2.3219280948873626) (probability 0.42201834862385323)))
         (score_if_false
-         ((bits_gained 0.27301849440641579) (probability 0.58778625954198471)))))))
+         ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
-     ((code 444) (verifier_letter A) (verifier_index 11)
+     ((code 555) (verifier_letter A) (verifier_index 11)
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result false) (remaining_bits_before 4.8579809951275719)
-      (bits_gained 0.27301849440641579) (remaining_bits 4.5849625007211561)
-      (number_of_remaining_codes 24)))
+      (result false) (remaining_bits_before 5.4918530963296748)
+      (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
+      (number_of_remaining_codes 36)))
     (Request_test
-     ((new_round false) (code 444) (verifier_index 22)
+     ((new_round false) (code 555) (verifier_index 40)
       (info
-       ((code 444) (verifier_index 22)
+       ((code 555) (verifier_index 40)
         (score_if_true
-         ((bits_gained 0.58496250072115608) (probability 0.7142857142857143)))
+         ((bits_gained 1.5849625007211561) (probability 0.46825396825396826)))
         (score_if_false
-         ((bits_gained 1.5849625007211561) (probability 0.2857142857142857)))))))
+         ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
-     ((code 444) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
-      (remaining_bits_before 4.5849625007211561) (bits_gained 1.5849625007211561)
-      (remaining_bits 3) (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 40)
-      (info
-       ((code 444) (verifier_index 40)
-        (score_if_true
-         ((bits_gained 0.41503749927884392) (probability 0.36363636363636365)))
-        (score_if_false ((bits_gained 0) (probability 0.63636363636363635)))))))
-    (Test_result
-     ((code 444) (verifier_letter F) (verifier_index 40)
+     ((code 555) (verifier_letter F) (verifier_index 40)
       (condition
        ((index 0)
         (condition
          (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
-      (result false) (remaining_bits_before 3) (bits_gained 0) (remaining_bits 3)
-      (number_of_remaining_codes 8)))
+      (result false) (remaining_bits_before 5.1699250014423122)
+      (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
+      (number_of_remaining_codes 31)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 22)
+      (info
+       ((code 555) (verifier_index 22)
+        (score_if_true
+         ((bits_gained 0.7062687969432897) (probability 0.64179104477611937)))
+        (score_if_false
+         ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
+    (Test_result
+     ((code 555) (verifier_letter B) (verifier_index 22)
+      (condition ((index 0) (condition Are_increasing))) (result false)
+      (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
+      (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
     (Request_test
      ((new_round true) (code 141) (verifier_index 11)
       (info
@@ -565,39 +590,54 @@ let%expect_test "interactive solver simulation decoder 20" =
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result true) (remaining_bits_before 3) (bits_gained 1) (remaining_bits 2)
-      (number_of_remaining_codes 4)))
+      (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
+      (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
      ((new_round false) (code 141) (verifier_index 30)
       (info
        ((code 141) (verifier_index 30)
-        (score_if_true ((bits_gained 1) (probability 0.2857142857142857)))
-        (score_if_false ((bits_gained 1) (probability 0.7142857142857143)))))))
+        (score_if_true ((bits_gained 1) (probability 0.41666666666666669)))
+        (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
       (condition
        ((index 1)
         (condition
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
-      (result true) (remaining_bits_before 2) (bits_gained 1) (remaining_bits 1)
+      (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
+      (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
+    (Request_test
+     ((new_round false) (code 141) (verifier_index 40)
+      (info
+       ((code 141) (verifier_index 40)
+        (score_if_true ((bits_gained 0.58496250072115608) (probability 0.4)))
+        (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
+    (Test_result
+     ((code 141) (verifier_letter F) (verifier_index 40)
+      (condition
+       ((index 0)
+        (condition
+         (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
+      (result true) (remaining_bits_before 1.5849625007211561)
+      (bits_gained 0.58496250072115608) (remaining_bits 1)
       (number_of_remaining_codes 2)))
     (Request_test
-     ((new_round false) (code 141) (verifier_index 33)
+     ((new_round true) (code 111) (verifier_index 33)
       (info
-       ((code 141) (verifier_index 33)
+       ((code 111) (verifier_index 33)
         (score_if_true ((bits_gained 1) (probability 0.5)))
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
-     ((code 141) (verifier_letter D) (verifier_index 33)
+     ((code 111) (verifier_letter D) (verifier_index 33)
       (condition ((index 0) (condition (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
      ((resolution_path
        ((rounds
-         (((code 444) (verifiers (11 22 40)))
-          ((code 141) (verifiers (11 30 33)))))))
-      (cost ((number_of_rounds 2) (number_of_verifiers 6)))))
+         (((code 555) (verifiers (11 40 22))) ((code 141) (verifiers (11 30 40)))
+          ((code 111) (verifiers (33)))))))
+      (cost ((number_of_rounds 3) (number_of_verifiers 7)))))
     (Propose_solution (code 245))
     (Ok "Code match hypothesis expected code")
     ============= NEW HYPOTHESIS =============
@@ -618,57 +658,59 @@ let%expect_test "interactive solver simulation decoder 20" =
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition (Is_smallest_or_equally_smallest (symbol Triangle))))))
+          (condition
+           (Compare_symbol_with_others (symbol Triangle)
+            (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 5)
           (condition
            (Compare_symbol_with_value (symbol Square) (ordering Greater)
             (value 3)))))))))
-    (Info ((remaining_bits 4.8579809951275719) (number_of_remaining_codes 29)))
+    (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
     (Request_test
-     ((new_round true) (code 444) (verifier_index 11)
+     ((new_round true) (code 555) (verifier_index 11)
       (info
-       ((code 444) (verifier_index 11)
+       ((code 555) (verifier_index 11)
         (score_if_true
-         ((bits_gained 2.5360529002402097) (probability 0.41221374045801529)))
+         ((bits_gained 2.3219280948873626) (probability 0.42201834862385323)))
         (score_if_false
-         ((bits_gained 0.27301849440641579) (probability 0.58778625954198471)))))))
+         ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
-     ((code 444) (verifier_letter A) (verifier_index 11)
+     ((code 555) (verifier_letter A) (verifier_index 11)
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result false) (remaining_bits_before 4.8579809951275719)
-      (bits_gained 0.27301849440641579) (remaining_bits 4.5849625007211561)
-      (number_of_remaining_codes 24)))
+      (result false) (remaining_bits_before 5.4918530963296748)
+      (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
+      (number_of_remaining_codes 36)))
     (Request_test
-     ((new_round false) (code 444) (verifier_index 22)
+     ((new_round false) (code 555) (verifier_index 40)
       (info
-       ((code 444) (verifier_index 22)
+       ((code 555) (verifier_index 40)
         (score_if_true
-         ((bits_gained 0.58496250072115608) (probability 0.7142857142857143)))
+         ((bits_gained 1.5849625007211561) (probability 0.46825396825396826)))
         (score_if_false
-         ((bits_gained 1.5849625007211561) (probability 0.2857142857142857)))))))
+         ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
-     ((code 444) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
-      (remaining_bits_before 4.5849625007211561) (bits_gained 1.5849625007211561)
-      (remaining_bits 3) (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 40)
-      (info
-       ((code 444) (verifier_index 40)
-        (score_if_true
-         ((bits_gained 0.41503749927884392) (probability 0.36363636363636365)))
-        (score_if_false ((bits_gained 0) (probability 0.63636363636363635)))))))
-    (Test_result
-     ((code 444) (verifier_letter F) (verifier_index 40)
+     ((code 555) (verifier_letter F) (verifier_index 40)
       (condition
        ((index 5)
         (condition
          (Compare_symbol_with_value (symbol Square) (ordering Greater) (value 3)))))
-      (result true) (remaining_bits_before 3) (bits_gained 0.41503749927884392)
+      (result true) (remaining_bits_before 5.1699250014423122)
+      (bits_gained 1.5849625007211561) (remaining_bits 3.5849625007211561)
+      (number_of_remaining_codes 12)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 22)
+      (info
+       ((code 555) (verifier_index 22)
+        (score_if_true ((bits_gained 1) (probability 0.864406779661017)))
+        (score_if_false ((bits_gained 1) (probability 0.13559322033898305)))))))
+    (Test_result
+     ((code 555) (verifier_letter B) (verifier_index 22)
+      (condition ((index 0) (condition Are_increasing))) (result false)
+      (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
      ((new_round true) (code 141) (verifier_index 30)
@@ -701,7 +743,7 @@ let%expect_test "interactive solver simulation decoder 20" =
     (Info
      ((resolution_path
        ((rounds
-         (((code 444) (verifiers (11 22 40))) ((code 141) (verifiers (30 11)))))))
+         (((code 555) (verifiers (11 40 22))) ((code 141) (verifiers (30 11)))))))
       (cost ((number_of_rounds 2) (number_of_verifiers 5)))))
     (Propose_solution (code 245))
     (Ok "Code match hypothesis expected code")
@@ -723,57 +765,59 @@ let%expect_test "interactive solver simulation decoder 20" =
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition (Is_smallest_or_equally_smallest (symbol Triangle))))))
+          (condition
+           (Compare_symbol_with_others (symbol Triangle)
+            (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 8)
           (condition
            (Compare_symbol_with_value (symbol Circle) (ordering Greater)
             (value 3)))))))))
-    (Info ((remaining_bits 4.8579809951275719) (number_of_remaining_codes 29)))
+    (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
     (Request_test
-     ((new_round true) (code 444) (verifier_index 11)
+     ((new_round true) (code 555) (verifier_index 11)
       (info
-       ((code 444) (verifier_index 11)
+       ((code 555) (verifier_index 11)
         (score_if_true
-         ((bits_gained 2.5360529002402097) (probability 0.41221374045801529)))
+         ((bits_gained 2.3219280948873626) (probability 0.42201834862385323)))
         (score_if_false
-         ((bits_gained 0.27301849440641579) (probability 0.58778625954198471)))))))
+         ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
-     ((code 444) (verifier_letter A) (verifier_index 11)
+     ((code 555) (verifier_letter A) (verifier_index 11)
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result false) (remaining_bits_before 4.8579809951275719)
-      (bits_gained 0.27301849440641579) (remaining_bits 4.5849625007211561)
-      (number_of_remaining_codes 24)))
+      (result false) (remaining_bits_before 5.4918530963296748)
+      (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
+      (number_of_remaining_codes 36)))
     (Request_test
-     ((new_round false) (code 444) (verifier_index 22)
+     ((new_round false) (code 555) (verifier_index 40)
       (info
-       ((code 444) (verifier_index 22)
+       ((code 555) (verifier_index 40)
         (score_if_true
-         ((bits_gained 0.58496250072115608) (probability 0.7142857142857143)))
+         ((bits_gained 1.5849625007211561) (probability 0.46825396825396826)))
         (score_if_false
-         ((bits_gained 1.5849625007211561) (probability 0.2857142857142857)))))))
+         ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
-     ((code 444) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
-      (remaining_bits_before 4.5849625007211561) (bits_gained 1.5849625007211561)
-      (remaining_bits 3) (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 40)
-      (info
-       ((code 444) (verifier_index 40)
-        (score_if_true
-         ((bits_gained 0.41503749927884392) (probability 0.36363636363636365)))
-        (score_if_false ((bits_gained 0) (probability 0.63636363636363635)))))))
-    (Test_result
-     ((code 444) (verifier_letter F) (verifier_index 40)
+     ((code 555) (verifier_letter F) (verifier_index 40)
       (condition
        ((index 8)
         (condition
          (Compare_symbol_with_value (symbol Circle) (ordering Greater) (value 3)))))
-      (result true) (remaining_bits_before 3) (bits_gained 0.41503749927884392)
+      (result true) (remaining_bits_before 5.1699250014423122)
+      (bits_gained 1.5849625007211561) (remaining_bits 3.5849625007211561)
+      (number_of_remaining_codes 12)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 22)
+      (info
+       ((code 555) (verifier_index 22)
+        (score_if_true ((bits_gained 1) (probability 0.864406779661017)))
+        (score_if_false ((bits_gained 1) (probability 0.13559322033898305)))))))
+    (Test_result
+     ((code 555) (verifier_letter B) (verifier_index 22)
+      (condition ((index 0) (condition Are_increasing))) (result false)
+      (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
      ((new_round true) (code 141) (verifier_index 30)
@@ -806,9 +850,144 @@ let%expect_test "interactive solver simulation decoder 20" =
     (Info
      ((resolution_path
        ((rounds
-         (((code 444) (verifiers (11 22 40))) ((code 141) (verifiers (30 11)))))))
+         (((code 555) (verifiers (11 40 22))) ((code 141) (verifiers (30 11)))))))
       (cost ((number_of_rounds 2) (number_of_verifiers 5)))))
     (Propose_solution (code 245))
+    (Ok "Code match hypothesis expected code")
+    ============= NEW HYPOTHESIS =============
+    ((code 145)
+     (verifiers
+      (((verifier_index 11)
+        (criteria
+         ((index 0)
+          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+       ((verifier_index 30)
+        (criteria
+         ((index 1)
+          (condition
+           (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
+       ((verifier_index 33)
+        (criteria ((index 1) (condition (Is_odd (symbol Triangle))))))
+       ((verifier_index 34)
+        (criteria
+         ((index 0)
+          (condition
+           (Compare_symbol_with_others (symbol Triangle)
+            (orderings (Less Equal)))))))
+       ((verifier_index 40)
+        (criteria
+         ((index 0)
+          (condition
+           (Compare_symbol_with_value (symbol Triangle) (ordering Less)
+            (value 3)))))))))
+    (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
+    (Request_test
+     ((new_round true) (code 555) (verifier_index 11)
+      (info
+       ((code 555) (verifier_index 11)
+        (score_if_true
+         ((bits_gained 2.3219280948873626) (probability 0.42201834862385323)))
+        (score_if_false
+         ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
+    (Test_result
+     ((code 555) (verifier_letter A) (verifier_index 11)
+      (condition
+       ((index 0)
+        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+      (result false) (remaining_bits_before 5.4918530963296748)
+      (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
+      (number_of_remaining_codes 36)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 40)
+      (info
+       ((code 555) (verifier_index 40)
+        (score_if_true
+         ((bits_gained 1.5849625007211561) (probability 0.46825396825396826)))
+        (score_if_false
+         ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
+    (Test_result
+     ((code 555) (verifier_letter F) (verifier_index 40)
+      (condition
+       ((index 0)
+        (condition
+         (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
+      (result false) (remaining_bits_before 5.1699250014423122)
+      (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
+      (number_of_remaining_codes 31)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 22)
+      (info
+       ((code 555) (verifier_index 22)
+        (score_if_true
+         ((bits_gained 0.7062687969432897) (probability 0.64179104477611937)))
+        (score_if_false
+         ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
+    (Test_result
+     ((code 555) (verifier_letter B) (verifier_index 22)
+      (condition ((index 0) (condition Are_increasing))) (result false)
+      (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
+      (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
+    (Request_test
+     ((new_round true) (code 141) (verifier_index 11)
+      (info
+       ((code 141) (verifier_index 11)
+        (score_if_true ((bits_gained 1) (probability 0.5)))
+        (score_if_false ((bits_gained 1) (probability 0.5)))))))
+    (Test_result
+     ((code 141) (verifier_letter A) (verifier_index 11)
+      (condition
+       ((index 0)
+        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+      (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
+      (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
+    (Request_test
+     ((new_round false) (code 141) (verifier_index 30)
+      (info
+       ((code 141) (verifier_index 30)
+        (score_if_true ((bits_gained 1) (probability 0.41666666666666669)))
+        (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
+    (Test_result
+     ((code 141) (verifier_letter C) (verifier_index 30)
+      (condition
+       ((index 1)
+        (condition
+         (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
+      (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
+      (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
+    (Request_test
+     ((new_round false) (code 141) (verifier_index 40)
+      (info
+       ((code 141) (verifier_index 40)
+        (score_if_true ((bits_gained 0.58496250072115608) (probability 0.4)))
+        (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
+    (Test_result
+     ((code 141) (verifier_letter F) (verifier_index 40)
+      (condition
+       ((index 0)
+        (condition
+         (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
+      (result true) (remaining_bits_before 1.5849625007211561)
+      (bits_gained 0.58496250072115608) (remaining_bits 1)
+      (number_of_remaining_codes 2)))
+    (Request_test
+     ((new_round true) (code 111) (verifier_index 33)
+      (info
+       ((code 111) (verifier_index 33)
+        (score_if_true ((bits_gained 1) (probability 0.5)))
+        (score_if_false ((bits_gained 1) (probability 0.5)))))))
+    (Test_result
+     ((code 111) (verifier_letter D) (verifier_index 33)
+      (condition ((index 1) (condition (Is_odd (symbol Triangle)))))
+      (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
+      (number_of_remaining_codes 1)))
+    (Info
+     ((resolution_path
+       ((rounds
+         (((code 555) (verifiers (11 40 22))) ((code 141) (verifiers (11 30 40)))
+          ((code 111) (verifiers (33)))))))
+      (cost ((number_of_rounds 3) (number_of_verifiers 7)))))
+    (Propose_solution (code 145))
     (Ok "Code match hypothesis expected code")
     ============= NEW HYPOTHESIS =============
     ((code 345)
@@ -824,62 +1003,66 @@ let%expect_test "interactive solver simulation decoder 20" =
           (condition
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 1) (condition (Is_even (symbol Square))))))
+        (criteria ((index 1) (condition (Is_odd (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition (Is_smallest_or_equally_smallest (symbol Triangle))))))
+          (condition
+           (Compare_symbol_with_others (symbol Triangle)
+            (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 1)
           (condition
            (Compare_symbol_with_value (symbol Triangle) (ordering Equal)
             (value 3)))))))))
-    (Info ((remaining_bits 4.8579809951275719) (number_of_remaining_codes 29)))
+    (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
     (Request_test
-     ((new_round true) (code 444) (verifier_index 11)
+     ((new_round true) (code 555) (verifier_index 11)
       (info
-       ((code 444) (verifier_index 11)
+       ((code 555) (verifier_index 11)
         (score_if_true
-         ((bits_gained 2.5360529002402097) (probability 0.41221374045801529)))
+         ((bits_gained 2.3219280948873626) (probability 0.42201834862385323)))
         (score_if_false
-         ((bits_gained 0.27301849440641579) (probability 0.58778625954198471)))))))
+         ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
-     ((code 444) (verifier_letter A) (verifier_index 11)
+     ((code 555) (verifier_letter A) (verifier_index 11)
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result false) (remaining_bits_before 4.8579809951275719)
-      (bits_gained 0.27301849440641579) (remaining_bits 4.5849625007211561)
-      (number_of_remaining_codes 24)))
+      (result false) (remaining_bits_before 5.4918530963296748)
+      (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
+      (number_of_remaining_codes 36)))
     (Request_test
-     ((new_round false) (code 444) (verifier_index 22)
+     ((new_round false) (code 555) (verifier_index 40)
       (info
-       ((code 444) (verifier_index 22)
+       ((code 555) (verifier_index 40)
         (score_if_true
-         ((bits_gained 0.58496250072115608) (probability 0.7142857142857143)))
+         ((bits_gained 1.5849625007211561) (probability 0.46825396825396826)))
         (score_if_false
-         ((bits_gained 1.5849625007211561) (probability 0.2857142857142857)))))))
+         ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
-     ((code 444) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
-      (remaining_bits_before 4.5849625007211561) (bits_gained 1.5849625007211561)
-      (remaining_bits 3) (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 40)
-      (info
-       ((code 444) (verifier_index 40)
-        (score_if_true
-         ((bits_gained 0.41503749927884392) (probability 0.36363636363636365)))
-        (score_if_false ((bits_gained 0) (probability 0.63636363636363635)))))))
-    (Test_result
-     ((code 444) (verifier_letter F) (verifier_index 40)
+     ((code 555) (verifier_letter F) (verifier_index 40)
       (condition
        ((index 1)
         (condition
          (Compare_symbol_with_value (symbol Triangle) (ordering Equal) (value 3)))))
-      (result false) (remaining_bits_before 3) (bits_gained 0) (remaining_bits 3)
-      (number_of_remaining_codes 8)))
+      (result false) (remaining_bits_before 5.1699250014423122)
+      (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
+      (number_of_remaining_codes 31)))
+    (Request_test
+     ((new_round false) (code 555) (verifier_index 22)
+      (info
+       ((code 555) (verifier_index 22)
+        (score_if_true
+         ((bits_gained 0.7062687969432897) (probability 0.64179104477611937)))
+        (score_if_false
+         ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
+    (Test_result
+     ((code 555) (verifier_letter B) (verifier_index 22)
+      (condition ((index 0) (condition Are_increasing))) (result false)
+      (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
+      (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
     (Request_test
      ((new_round true) (code 141) (verifier_index 11)
       (info
@@ -891,167 +1074,44 @@ let%expect_test "interactive solver simulation decoder 20" =
       (condition
        ((index 0)
         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result true) (remaining_bits_before 3) (bits_gained 1) (remaining_bits 2)
-      (number_of_remaining_codes 4)))
+      (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
+      (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
      ((new_round false) (code 141) (verifier_index 30)
       (info
        ((code 141) (verifier_index 30)
-        (score_if_true ((bits_gained 1) (probability 0.2857142857142857)))
-        (score_if_false ((bits_gained 1) (probability 0.7142857142857143)))))))
+        (score_if_true ((bits_gained 1) (probability 0.41666666666666669)))
+        (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
       (condition
        ((index 1)
         (condition
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
-      (result true) (remaining_bits_before 2) (bits_gained 1) (remaining_bits 1)
-      (number_of_remaining_codes 2)))
+      (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
+      (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
     (Request_test
-     ((new_round false) (code 141) (verifier_index 33)
+     ((new_round false) (code 141) (verifier_index 40)
       (info
-       ((code 141) (verifier_index 33)
-        (score_if_true ((bits_gained 1) (probability 0.5)))
-        (score_if_false ((bits_gained 1) (probability 0.5)))))))
+       ((code 141) (verifier_index 40)
+        (score_if_true ((bits_gained 0.58496250072115608) (probability 0.4)))
+        (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
     (Test_result
-     ((code 141) (verifier_letter D) (verifier_index 33)
-      (condition ((index 1) (condition (Is_even (symbol Square))))) (result true)
-      (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
+     ((code 141) (verifier_letter F) (verifier_index 40)
+      (condition
+       ((index 1)
+        (condition
+         (Compare_symbol_with_value (symbol Triangle) (ordering Equal) (value 3)))))
+      (result false) (remaining_bits_before 1.5849625007211561)
+      (bits_gained 1.5849625007211561) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
      ((resolution_path
        ((rounds
-         (((code 444) (verifiers (11 22 40)))
-          ((code 141) (verifiers (11 30 33)))))))
+         (((code 555) (verifiers (11 40 22)))
+          ((code 141) (verifiers (11 30 40)))))))
       (cost ((number_of_rounds 2) (number_of_verifiers 6)))))
     (Propose_solution (code 345))
-    (Ok "Code match hypothesis expected code")
-    ============= NEW HYPOTHESIS =============
-    ((code 234)
-     (verifiers
-      (((verifier_index 11)
-        (criteria
-         ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
-       ((verifier_index 30)
-        (criteria
-         ((index 2)
-          (condition
-           (Compare_symbol_with_value (symbol Circle) (ordering Equal) (value 4))))))
-       ((verifier_index 33)
-        (criteria ((index 0) (condition (Is_even (symbol Triangle))))))
-       ((verifier_index 34)
-        (criteria
-         ((index 0)
-          (condition (Is_smallest_or_equally_smallest (symbol Triangle))))))
-       ((verifier_index 40)
-        (criteria
-         ((index 0)
-          (condition
-           (Compare_symbol_with_value (symbol Triangle) (ordering Less)
-            (value 3)))))))))
-    (Info ((remaining_bits 4.8579809951275719) (number_of_remaining_codes 29)))
-    (Request_test
-     ((new_round true) (code 444) (verifier_index 11)
-      (info
-       ((code 444) (verifier_index 11)
-        (score_if_true
-         ((bits_gained 2.5360529002402097) (probability 0.41221374045801529)))
-        (score_if_false
-         ((bits_gained 0.27301849440641579) (probability 0.58778625954198471)))))))
-    (Test_result
-     ((code 444) (verifier_letter A) (verifier_index 11)
-      (condition
-       ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result false) (remaining_bits_before 4.8579809951275719)
-      (bits_gained 0.27301849440641579) (remaining_bits 4.5849625007211561)
-      (number_of_remaining_codes 24)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 22)
-      (info
-       ((code 444) (verifier_index 22)
-        (score_if_true
-         ((bits_gained 0.58496250072115608) (probability 0.7142857142857143)))
-        (score_if_false
-         ((bits_gained 1.5849625007211561) (probability 0.2857142857142857)))))))
-    (Test_result
-     ((code 444) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
-      (remaining_bits_before 4.5849625007211561) (bits_gained 1.5849625007211561)
-      (remaining_bits 3) (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round false) (code 444) (verifier_index 40)
-      (info
-       ((code 444) (verifier_index 40)
-        (score_if_true
-         ((bits_gained 0.41503749927884392) (probability 0.36363636363636365)))
-        (score_if_false ((bits_gained 0) (probability 0.63636363636363635)))))))
-    (Test_result
-     ((code 444) (verifier_letter F) (verifier_index 40)
-      (condition
-       ((index 0)
-        (condition
-         (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
-      (result false) (remaining_bits_before 3) (bits_gained 0) (remaining_bits 3)
-      (number_of_remaining_codes 8)))
-    (Request_test
-     ((new_round true) (code 141) (verifier_index 11)
-      (info
-       ((code 141) (verifier_index 11)
-        (score_if_true ((bits_gained 1) (probability 0.5)))
-        (score_if_false ((bits_gained 1) (probability 0.5)))))))
-    (Test_result
-     ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
-       ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
-      (result true) (remaining_bits_before 3) (bits_gained 1) (remaining_bits 2)
-      (number_of_remaining_codes 4)))
-    (Request_test
-     ((new_round false) (code 141) (verifier_index 30)
-      (info
-       ((code 141) (verifier_index 30)
-        (score_if_true ((bits_gained 1) (probability 0.2857142857142857)))
-        (score_if_false ((bits_gained 1) (probability 0.7142857142857143)))))))
-    (Test_result
-     ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
-       ((index 2)
-        (condition
-         (Compare_symbol_with_value (symbol Circle) (ordering Equal) (value 4)))))
-      (result false) (remaining_bits_before 2) (bits_gained 1) (remaining_bits 1)
-      (number_of_remaining_codes 2)))
-    (Request_test
-     ((new_round false) (code 141) (verifier_index 33)
-      (info
-       ((code 141) (verifier_index 33)
-        (score_if_true ((bits_gained 1) (probability 0.4)))
-        (score_if_false ((bits_gained 0) (probability 0.60000000000000009)))))))
-    (Test_result
-     ((code 141) (verifier_letter D) (verifier_index 33)
-      (condition ((index 0) (condition (Is_even (symbol Triangle)))))
-      (result false) (remaining_bits_before 1) (bits_gained 0) (remaining_bits 1)
-      (number_of_remaining_codes 2)))
-    (Request_test
-     ((new_round true) (code 112) (verifier_index 33)
-      (info
-       ((code 112) (verifier_index 33)
-        (score_if_true ((bits_gained 1) (probability 0.33333333333333331)))
-        (score_if_false ((bits_gained 1) (probability 0.66666666666666663)))))))
-    (Test_result
-     ((code 112) (verifier_letter D) (verifier_index 33)
-      (condition ((index 0) (condition (Is_even (symbol Triangle)))))
-      (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
-      (number_of_remaining_codes 1)))
-    (Info
-     ((resolution_path
-       ((rounds
-         (((code 444) (verifiers (11 22 40))) ((code 141) (verifiers (11 30 33)))
-          ((code 112) (verifiers (33)))))))
-      (cost ((number_of_rounds 3) (number_of_verifiers 7)))))
-    (Propose_solution (code 234))
     (Ok "Code match hypothesis expected code") |}];
   ()
 ;;

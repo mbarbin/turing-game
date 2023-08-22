@@ -79,7 +79,10 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code=212 - verifier=D(14): 
   (Test_result
    ((code 212) (verifier_letter D) (verifier_index 14)
-    (condition ((index 1) (condition (Is_smallest (symbol Square)))))
+    (condition
+     ((index 1)
+      (condition
+       (Compare_symbol_with_others (symbol Square) (orderings (Less))))))
     (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
     (number_of_remaining_codes 1)))
   

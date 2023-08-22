@@ -43,19 +43,23 @@ let%expect_test "one verifier" =
        (((verifier_index 34)
          (criteria
           ((index 0)
-           (condition (Is_smallest_or_equally_smallest (symbol Triangle)))))))))
+           (condition
+            (Compare_symbol_with_others (symbol Triangle)
+             (orderings (Less Equal))))))))))
      ((number_of_remaining_codes 55)
       (verifiers
        (((verifier_index 34)
          (criteria
           ((index 1)
-           (condition (Is_smallest_or_equally_smallest (symbol Square)))))))))
+           (condition
+            (Compare_symbol_with_others (symbol Square) (orderings (Less Equal))))))))))
      ((number_of_remaining_codes 55)
       (verifiers
        (((verifier_index 34)
          (criteria
           ((index 2)
-           (condition (Is_smallest_or_equally_smallest (symbol Circle)))))))))) |}];
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less Equal))))))))))) |}];
   ()
 ;;
 
@@ -107,37 +111,39 @@ let%expect_test "remaining codes" =
     {|
     ((code 334) (verifier_index 34) (result true)
      (remaining_codes
-      (245 345 234 124 454 242 243 244 344 444 224 334 422 423 434 544 214 324))
-     (starting_number 29) (remaining_number 18)
+      (245 145 345 234 124 134 454 455 242 243 244 344 343 141 354 444 445 224
+       114 334 422 423 434 411 544 545 214 534 324 314))
+     (starting_number 45) (remaining_number 30)
      (info
       ((code 334) (verifier_index 34)
        (score_if_true
-        ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))
+        ((bits_gained 0.58496250072115608) (probability 0.536697247706422)))
        (score_if_false
-        ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
+        ((bits_gained 0.96829114027266172) (probability 0.463302752293578)))))
      (expected_information_gained
-      ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))) |}];
+      ((bits_gained 0.58496250072115608) (probability 0.536697247706422)))) |}];
   let t_false = evaluate_test ~decoder ~code ~verifier_index:34 ~result:false in
   [%expect
     {|
     ((code 334) (verifier_index 34) (result false)
      (remaining_codes
-      (453 454 452 343 242 342 443 444 442 421 432 543 542 433 422 544))
-     (starting_number 29) (remaining_number 16)
+      (453 454 452 451 141 343 242 342 443 444 442 441 554 421 432 431 543 542
+       541 433 422 411 544))
+     (starting_number 45) (remaining_number 23)
      (info
       ((code 334) (verifier_index 34)
        (score_if_true
-        ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))
+        ((bits_gained 0.58496250072115608) (probability 0.536697247706422)))
        (score_if_false
-        ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
+        ((bits_gained 0.96829114027266172) (probability 0.463302752293578)))))
      (expected_information_gained
-      ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))) |}];
+      ((bits_gained 0.96829114027266172) (probability 0.463302752293578)))) |}];
   let evaluation = Interactive_solver.Evaluation.compute [ t_true; t_false ] in
   Expect_test_helpers_base.require_ok
     [%here]
     ~print_ok:(fun evaluation -> [%sexp (evaluation : Interactive_solver.Evaluation.t)])
     evaluation;
-  [%expect {| ((expected_information_gained 0.76847851345185014)) |}];
+  [%expect {| ((expected_information_gained 0.7625597144583216)) |}];
   Expect_test_helpers_base.require_ok
     [%here]
     (if Float.( > ) 1e-7 (Float.abs (t_true.probability +. t_false.probability -. 1.))
@@ -173,7 +179,10 @@ let%expect_test "all verifiers" =
           ((index 1)
            (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 231)
       (verifiers
        (((verifier_index 4)
@@ -188,7 +197,10 @@ let%expect_test "all verifiers" =
           ((index 0)
            (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 241)
       (verifiers
        (((verifier_index 4)
@@ -204,7 +216,10 @@ let%expect_test "all verifiers" =
           ((index 0)
            (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 545)
       (verifiers
        (((verifier_index 4)
@@ -221,7 +236,10 @@ let%expect_test "all verifiers" =
            (condition
             (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 1) (condition (Is_smallest (symbol Square)))))))))
+         (criteria
+          ((index 1)
+           (condition
+            (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
      ((code 443)
       (verifiers
        (((verifier_index 4)
@@ -237,7 +255,10 @@ let%expect_test "all verifiers" =
           ((index 1)
            (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 543)
       (verifiers
        (((verifier_index 4)
@@ -254,7 +275,10 @@ let%expect_test "all verifiers" =
            (condition
             (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 553)
       (verifiers
        (((verifier_index 4)
@@ -270,7 +294,10 @@ let%expect_test "all verifiers" =
           ((index 1)
            (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
-         (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))) |}];
+         (criteria
+          ((index 2)
+           (condition
+            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))) |}];
   ()
 ;;
 
@@ -318,7 +345,10 @@ let%expect_test "example of path" =
     -        ((index 1)
     -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+    -       (criteria
+    -        ((index 2)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 231)
     -    (verifiers
     -     (((verifier_index 4)
@@ -333,12 +363,15 @@ let%expect_test "example of path" =
     -        ((index 0)
     -         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+    -       (criteria
+    -        ((index 2)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
         ((code 241)
          (verifiers
-                                 ...74 unchanged lines...
-           ((verifier_index 14)
-            (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))))) |}];
+                                 ...89 unchanged lines...
+              (condition
+               (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result decoder ~code ~verifier_index:9 ~result:true |> ok_exn
@@ -351,9 +384,9 @@ let%expect_test "example of path" =
     +  2
       )
       (hypotheses
-                                  ...29 unchanged lines...
-           ((verifier_index 14)
-            (criteria ((index 1) (condition (Is_smallest (symbol Square)))))))))
+                                  ...35 unchanged lines...
+              (condition
+               (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
     -   ((code 443)
     -    (verifiers
     -     (((verifier_index 4)
@@ -368,7 +401,10 @@ let%expect_test "example of path" =
     -        ((index 1)
     -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+    -       (criteria
+    -        ((index 2)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 543)
     -    (verifiers
     -     (((verifier_index 4)
@@ -384,7 +420,10 @@ let%expect_test "example of path" =
     -         (condition
     -          (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+    -       (criteria
+    -        ((index 2)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 553)
     -    (verifiers
     -     (((verifier_index 4)
@@ -400,7 +439,10 @@ let%expect_test "example of path" =
     -        ((index 1)
     -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+    -       (criteria
+    -        ((index 2)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
@@ -414,9 +456,9 @@ let%expect_test "example of path" =
     +  1
       )
       (hypotheses
-                                  ...13 unchanged lines...
-           ((verifier_index 14)
-            (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))
+                                  ...16 unchanged lines...
+              (condition
+               (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 545)
     -    (verifiers
     -     (((verifier_index 4)
@@ -432,7 +474,10 @@ let%expect_test "example of path" =
     -         (condition
     -          (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
     -      ((verifier_index 14)
-    -       (criteria ((index 1) (condition (Is_smallest (symbol Square)))))))))
+    -       (criteria
+    -        ((index 1)
+    -         (condition
+    -          (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
@@ -462,6 +507,9 @@ let%expect_test "example of path" =
              (condition
               (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
           ((verifier_index 14)
-           (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))))) |}];
+           (criteria
+            ((index 2)
+             (condition
+              (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))))) |}];
   ()
 ;;

@@ -74,7 +74,8 @@ let () =
   add
     ~index:33
     ~conditions:
-      (Nonempty_list.map symbols ~f:(fun symbol -> Condition.Is_even { symbol }))
+      (Nonempty_list.concat_map symbols ~f:(fun symbol ->
+         Condition.[ Is_even { symbol }; Is_odd { symbol } ]))
 ;;
 
 let () =
