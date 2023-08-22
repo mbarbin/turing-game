@@ -63,6 +63,6 @@ type t =
   | Are_increasing
   | Are_decreasing
   | Are_neither_increasing_nor_decreasing
-[@@deriving compare, equal, sexp]
+[@@deriving compare, equal, sexp_of]
 
 val evaluate : t -> code:Code.t -> bool
