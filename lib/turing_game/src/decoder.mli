@@ -42,7 +42,7 @@ val hypotheses : ?strict:bool -> t -> Hypothesis.t list
 val add_test_result
   :  t
   -> code:Code.t
-  -> verifier:Verifier.t
+  -> verifier_index:int
   -> result:bool
   -> t Or_error.t
 

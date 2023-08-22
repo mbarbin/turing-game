@@ -81,7 +81,7 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
       |> Nonempty_list.map ~f:(fun c -> c, Condition.evaluate c.criteria.condition ~code)
     in
     let compute_expected_information_gained ~result =
-      match Decoder.add_test_result decoder ~code ~verifier ~result with
+      match Decoder.add_test_result decoder ~code ~verifier_index ~result with
       | Error _ -> Expected_information_gained.unreachable
       | Ok decoder ->
         let probability =
@@ -371,7 +371,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
             ~prompt:"No more test to run with this code.\nReady for next round."
         else wait_for_newline ~prompt:"Ready to request a new test.";
       print_s [%sexp (next_step : Step.t)];
-      let { Verifier_info.verifier; verifier_letter } =
+      let { Verifier_info.verifier = _; verifier_letter } =
         Decoder.verifier_exn decoder ~verifier_index
       in
       let result =
@@ -382,7 +382,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
           Condition.evaluate criteria.condition ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
-      let%bind decoder = Decoder.add_test_result decoder ~code ~verifier ~result in
+      let%bind decoder = Decoder.add_test_result decoder ~code ~verifier_index ~result in
       let () =
         let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
         let remaining_bits = remaining_bits ~decoder in
@@ -474,31 +474,16 @@ let cmd =
     ~summary:"solve game interactively"
     (let%map_open.Command stress_test =
        flag "stress-test" no_arg ~doc:" run for all hypotheses"
-     and game =
-       let game =
-         flag "game" (optional string) ~doc:"NAME load game from config"
-         >>| Option.map ~f:(fun name -> `Game name)
-       and verifiers =
-         flag
-           "verifiers"
-           (optional (Arg_type.comma_separated int))
-           ~doc:"N,N[,...] specify verifiers"
-         >>| Option.map ~f:(fun verifiers -> `Verifiers verifiers)
-       in
-       choose_one [ game; verifiers ] ~if_nothing_chosen:Raise
+     and verifiers =
+       flag
+         "verifiers"
+         (required (Arg_type.comma_separated int))
+         ~doc:"N,N[,...] specify verifiers"
+       >>| Nonempty_list.of_list_exn
      in
      fun () ->
        let config = Config.load_exn () in
-       let decoder =
-         match game with
-         | `Game name -> Config.find_game_exn config ~name
-         | `Verifiers verifiers ->
-           let verifiers =
-             List.map verifiers ~f:(fun index -> Config.find_verifier_exn config ~index)
-             |> Nonempty_list.of_list_exn
-           in
-           Decoder.create ~verifiers
-       in
+       let decoder = Config.decoder_exn config verifiers in
        if stress_test
        then simulate_hypotheses ~decoder ~which_hypotheses:All
        else (

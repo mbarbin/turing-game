@@ -215,14 +215,15 @@ let remaining_codes t =
 
 let number_of_remaining_codes t = Codes.length (remaining_codes t)
 
-let add_test_result t ~code ~verifier ~result =
+let add_test_result t ~code ~verifier_index ~result =
   let open Or_error.Let_syntax in
   let slot =
     match
-      Array.Permissioned.find t.slots ~f:(fun slot -> phys_equal verifier slot.verifier)
+      Array.Permissioned.find t.slots ~f:(fun slot ->
+        verifier_index = slot.verifier.index)
     with
     | Some slot -> slot
-    | None -> raise_s [%sexp "Verifier not found in t", { verifier : Verifier.t }]
+    | None -> raise_s [%sexp "Verifier not found in t", { verifier_index : int }]
   in
   let index = slot.index in
   match slot.verifier_status with

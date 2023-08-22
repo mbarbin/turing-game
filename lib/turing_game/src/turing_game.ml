@@ -5,7 +5,6 @@ module Condition = Condition
 module Config = Config
 module Criteria = Criteria
 module Decoder = Decoder
-module Decoders = Decoders
 module Digit = Digit
 module Interactive_solver = Interactive_solver
 module Resolution_path = Resolution_path

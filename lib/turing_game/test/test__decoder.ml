@@ -1,10 +1,11 @@
 open! Core
 open! Turing_game
 
-let decoder_01 = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
+let config = Config.load_exn ()
+let decoder_01 = Config.decoder_exn config [ 4; 9; 11; 14 ]
 
 let%expect_test "one verifier" =
-  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04 ] in
+  let decoder = Config.decoder_exn config [ 4 ] in
   let hypotheses = Decoder.hypotheses decoder ~strict:false in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -24,7 +25,7 @@ let%expect_test "one verifier" =
        (((verifier_index 4)
          (criteria
           ((index 2) (condition (Greater_than_value (symbol Square) (value 4)))))))))) |}];
-  let decoder = Decoder.create ~verifiers:Verifiers.[ v_34 ] in
+  let decoder = Config.decoder_exn config [ 34 ] in
   let hypotheses = Decoder.hypotheses decoder ~strict:false in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -50,7 +51,8 @@ let%expect_test "one verifier" =
   ()
 ;;
 
-let evaluate_test ~decoder ~code ~verifier ~result =
+let evaluate_test ~decoder ~code ~verifier_index ~result =
+  let verifier = Config.find_verifier_exn config ~index:verifier_index in
   let { Interactive_solver.Test_evaluation.evaluation = _
       ; score_if_true
       ; score_if_false
@@ -61,7 +63,7 @@ let evaluate_test ~decoder ~code ~verifier ~result =
   in
   let starting_number = Decoder.number_of_remaining_codes decoder in
   let remaining_codes =
-    match Decoder.add_test_result decoder ~code ~verifier ~result with
+    match Decoder.add_test_result decoder ~code ~verifier_index ~result with
     | Ok decoder -> Decoder.remaining_codes decoder
     | Error _ -> Codes.empty
   in
@@ -90,11 +92,9 @@ let%expect_test "initial hypotheses" =
 ;;
 
 let%expect_test "remaining codes" =
-  let decoder =
-    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
-  in
+  let decoder = Config.decoder_exn config [ 11; 22; 30; 33; 34; 40 ] in
   let code = { Symbol.Tuple.triangle = Digit.Three; square = Three; circle = Four } in
-  let t_true = evaluate_test ~decoder ~code ~verifier:Verifiers.v_34 ~result:true in
+  let t_true = evaluate_test ~decoder ~code ~verifier_index:34 ~result:true in
   [%expect
     {|
     ((code 334) (verifier_index 34) (result true)
@@ -109,7 +109,7 @@ let%expect_test "remaining codes" =
         ((bits_gained 0.85798099512757187) (probability 0.47328244274809161)))))
      (expected_information_gained
       ((bits_gained 0.68805599368525971) (probability 0.52671755725190839)))) |}];
-  let t_false = evaluate_test ~decoder ~code ~verifier:Verifiers.v_34 ~result:false in
+  let t_false = evaluate_test ~decoder ~code ~verifier_index:34 ~result:false in
   [%expect
     {|
     ((code 334) (verifier_index 34) (result false)
@@ -252,7 +252,7 @@ let%expect_test "example of path" =
   in
   let code : Code.t = { triangle = One; square = Two; circle = Three } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_04 ~result:false |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:4 ~result:false |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -292,7 +292,7 @@ let%expect_test "example of path" =
             (criteria ((index 2) (condition (Is_smallest (symbol Circle)))))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_09 ~result:true |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:9 ~result:true |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -341,7 +341,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_11 ~result:true |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:11 ~result:true |> ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -368,7 +368,7 @@ let%expect_test "example of path" =
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier:Verifiers.v_14 ~result:false |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:14 ~result:false |> ok_exn
   in
   print_progress ~decoder;
   [%expect {| (no changes) |}];
