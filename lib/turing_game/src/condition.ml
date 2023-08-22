@@ -26,6 +26,7 @@ type t =
   | Is_even of { symbol : Symbol.t }
   | Sum_is_even
   | Sum_is_odd
+  | Sum_is_multiple of { divider : int }
   | Has_digit_count of
       { digit : Digit.t
       ; count : int
@@ -105,6 +106,7 @@ let evaluate t ~code =
   | Is_even { symbol } -> Digit.to_int (Symbol.Tuple.get code symbol) % 2 = 0
   | Sum_is_even -> sum code % 2 = 0
   | Sum_is_odd -> sum code % 2 = 1
+  | Sum_is_multiple { divider } -> sum code % divider = 0
   | Has_digit_count { digit; count } -> Digit.Tuple.get (digit_counts code) digit = count
   | Compare_symbol_with_others { symbol; orderings } ->
     let value = Symbol.Tuple.get code symbol in

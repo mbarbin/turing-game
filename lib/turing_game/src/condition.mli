@@ -26,6 +26,7 @@ type t =
   | Is_even of { symbol : Symbol.t }
   | Sum_is_even
   | Sum_is_odd
+  | Sum_is_multiple of { divider : int }
   | Has_digit_count of
       { digit : Digit.t
       ; count : int
