@@ -2,7 +2,8 @@ open! Core
 open! Turing_game
 
 let%expect_test "interactive solver simulation decoder 1" =
-  Interactive_solver.simulate_hypotheses ~decoder:Decoders.v_01 ~which_hypotheses:All;
+  let decoder = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ] in
+  Interactive_solver.simulate_hypotheses ~decoder ~which_hypotheses:All;
   [%expect
     {|
     ============= NEW HYPOTHESIS =============
@@ -411,8 +412,11 @@ let%expect_test "interactive solver simulation decoder 1" =
 ;;
 
 let%expect_test "interactive solver simulation decoder 20" =
+  let decoder =
+    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
+  in
   Interactive_solver.simulate_hypotheses
-    ~decoder:Decoders.v_20
+    ~decoder
     ~which_hypotheses:(Only_the_first_n { n = 5 });
   [%expect
     {|

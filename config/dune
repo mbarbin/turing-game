@@ -1,0 +1,18 @@
+(executable
+ (name main)
+ (flags -w +a-4-40-41-42-44-66-32 -warn-error +a)
+ (libraries core core_unix.command_unix turing-game)
+ (preprocess
+  (pps ppx_jane ppx_js_style -check-doc-comments)))
+
+(install
+ (section
+  (site
+   (turing-game config)))
+ (files config.sexp))
+
+(rule
+ (action
+  (with-stdout-to
+   config.sexp
+   (run %{dep:./main.exe} gen-config))))

@@ -2,16 +2,7 @@
  (name turing_game)
  (public_name turing-game)
  (flags -w +a-4-40-41-42-44-66 -warn-error +a)
- (libraries
-  core
-  core_kernel.nonempty_list
-  core_kernel.reversed_list
-  dune-site
-  stdio
-  core_unix.sys_unix)
+ (libraries core core_kernel.nonempty_list core_kernel.reversed_list stdio)
+ (library_flags (-linkall))
  (preprocess
   (pps ppx_jane ppx_js_style -check-doc-comments)))
-
-(generate_sites_module
- (module turing_game_sites)
- (sites turing-game))

@@ -1,6 +1,8 @@
 open! Core
 open! Turing_game
 
+let decoder_01 = Decoder.create ~verifiers:Verifiers.[ v_04; v_09; v_11; v_14 ]
+
 let%expect_test "one verifier" =
   let decoder = Decoder.create ~verifiers:Verifiers.[ v_04 ] in
   let hypotheses = Decoder.hypotheses decoder ~strict:false in
@@ -81,14 +83,16 @@ let evaluate_test ~decoder ~code ~verifier ~result =
 ;;
 
 let%expect_test "initial hypotheses" =
-  let decoder = Decoders.v_01 in
+  let decoder = decoder_01 in
   print_s [%sexp (Decoder.remaining_codes decoder : Codes.t)];
   [%expect {| (221 231 241 545 443 543 553) |}];
   ()
 ;;
 
 let%expect_test "remaining codes" =
-  let decoder = Decoders.v_20 in
+  let decoder =
+    Decoder.create ~verifiers:Verifiers.[ v_11; v_22; v_30; v_33; v_34; v_40 ]
+  in
   let code = { Symbol.Tuple.triangle = Digit.Three; square = Three; circle = Four } in
   let t_true = evaluate_test ~decoder ~code ~verifier:Verifiers.v_34 ~result:true in
   [%expect
@@ -142,7 +146,7 @@ let%expect_test "remaining codes" =
 ;;
 
 let%expect_test "all verifiers" =
-  let decoder = Decoders.v_01 in
+  let decoder = decoder_01 in
   let hypotheses = Decoder.hypotheses decoder in
   print_s [%sexp (hypotheses : Decoder.Hypothesis.t list)];
   [%expect
@@ -230,7 +234,7 @@ let%expect_test "all verifiers" =
 ;;
 
 let%expect_test "example of path" =
-  let decoder = Decoders.v_01 in
+  let decoder = decoder_01 in
   let info ~decoder =
     let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
     let hypotheses = Decoder.hypotheses decoder in

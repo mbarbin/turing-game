@@ -14,6 +14,9 @@ type t =
   }
 [@@deriving sexp]
 
+let verifiers = ref []
+let add_verifier verifier = verifiers := verifier :: !verifiers
+
 let find_config_file_exn () =
   let sites = Turing_game_sites.Sites.config in
   let basename = "config.sexp" in
@@ -30,4 +33,21 @@ let find_config_file_exn () =
 let load_exn () =
   let config_file = find_config_file_exn () in
   Sexp.load_sexp_conv_exn config_file t_of_sexp
+;;
+
+let find_verifier_exn t ~index =
+  match List.find t.verifiers ~f:(fun verifier -> index = verifier.index) with
+  | Some verifier -> verifier
+  | None -> raise_s [%sexp "Verifier not found", { index : int }]
+;;
+
+let find_game_exn t ~name =
+  match List.find t.games ~f:(fun game -> String.equal name game.name) with
+  | None ->
+    raise_s [%sexp "Game not found", { games = (t.games : Game.t list); name : string }]
+  | Some game ->
+    let verifiers =
+      Nonempty_list.map game.verifiers ~f:(fun index -> find_verifier_exn t ~index)
+    in
+    Decoder.create ~verifiers
 ;;

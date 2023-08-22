@@ -3,6 +3,7 @@
         "alist",
         "dedup",
         "Deque",
+        "linkall",
         "Permissioned"
     ]
 }

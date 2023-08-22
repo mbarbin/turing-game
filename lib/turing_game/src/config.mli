@@ -16,3 +16,10 @@ type t =
 
 (** Load the config installed in the system *)
 val load_exn : unit -> t
+
+val find_verifier_exn : t -> index:int -> Verifier.t
+val find_game_exn : t -> name:string -> Decoder.t
+
+(** Register API *)
+
+val add_verifier : Verifier.t -> unit

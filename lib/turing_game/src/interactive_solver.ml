@@ -469,13 +469,36 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
     else raise_s [%sexp Error "Code mismatch", { expected_code : Code.t; code : Code.t }])
 ;;
 
-let make_command ~index ~decoder =
+let cmd =
   Command.basic
-    ~summary:(sprintf "solve problem %d interactively" index)
+    ~summary:"solve game interactively"
     (let%map_open.Command stress_test =
        flag "stress-test" no_arg ~doc:" run for all hypotheses"
+     and game =
+       let game =
+         flag "game" (optional string) ~doc:"NAME load game from config"
+         >>| Option.map ~f:(fun name -> `Game name)
+       and verifiers =
+         flag
+           "verifiers"
+           (optional (Arg_type.comma_separated int))
+           ~doc:"N,N[,...] specify verifiers"
+         >>| Option.map ~f:(fun verifiers -> `Verifiers verifiers)
+       in
+       choose_one [ game; verifiers ] ~if_nothing_chosen:Raise
      in
      fun () ->
+       let config = Config.load_exn () in
+       let decoder =
+         match game with
+         | `Game name -> Config.find_game_exn config ~name
+         | `Verifiers verifiers ->
+           let verifiers =
+             List.map verifiers ~f:(fun index -> Config.find_verifier_exn config ~index)
+             |> Nonempty_list.of_list_exn
+           in
+           Decoder.create ~verifiers
+       in
        if stress_test
        then simulate_hypotheses ~decoder ~which_hypotheses:All
        else (
@@ -484,11 +507,4 @@ let make_command ~index ~decoder =
          | Error e ->
            prerr_endline (Error.to_string_hum e);
            exit 1))
-;;
-
-let cmd =
-  Command.group
-    ~summary:"interactive solver"
-    (List.map Decoders.all ~f:(fun (index, decoder) ->
-       Int.to_string index, make_command ~index ~decoder))
 ;;
