@@ -2,28 +2,14 @@ open! Core
 
 type t =
   | Const of bool
-  | Equal_value of
+  | Compare_symbol_with_value of
       { symbol : Symbol.t
+      ; ordering : Ordering.t
       ; value : Digit.t
       }
-  | Greater_than_value of
-      { symbol : Symbol.t
-      ; value : Digit.t
-      }
-  | Less_than_value of
-      { symbol : Symbol.t
-      ; value : Digit.t
-      }
-  | Equal of
+  | Compare_symbols of
       { a : Symbol.t
-      ; b : Symbol.t
-      }
-  | Greater_than of
-      { a : Symbol.t
-      ; b : Symbol.t
-      }
-  | Less_than of
-      { a : Symbol.t
+      ; ordering : Ordering.t
       ; b : Symbol.t
       }
   | Has_twins of bool
@@ -31,19 +17,9 @@ type t =
   | Has_no_triplets_no_twins
   | Less_even_than_odd_digits
   | More_even_than_odd_digits
-  | Sum2_equal_value of
-      { a : Symbol.t
-      ; b : Symbol.t
-      ; value : int
-      }
-  | Sum2_greater_than_value of
-      { a : Symbol.t
-      ; b : Symbol.t
-      ; value : int
-      }
-  | Sum2_less_than_value of
-      { a : Symbol.t
-      ; b : Symbol.t
+  | Compare_sum_with_value of
+      { symbols : Symbol.t list
+      ; ordering : Ordering.t
       ; value : int
       }
   | Is_odd of { symbol : Symbol.t }

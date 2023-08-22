@@ -2,28 +2,14 @@ open! Core
 
 type t =
   | Const of bool
-  | Equal_value of
+  | Compare_symbol_with_value of
       { symbol : Symbol.t
+      ; ordering : Ordering.t
       ; value : Digit.t
       }
-  | Greater_than_value of
-      { symbol : Symbol.t
-      ; value : Digit.t
-      }
-  | Less_than_value of
-      { symbol : Symbol.t
-      ; value : Digit.t
-      }
-  | Equal of
+  | Compare_symbols of
       { a : Symbol.t
-      ; b : Symbol.t
-      }
-  | Greater_than of
-      { a : Symbol.t
-      ; b : Symbol.t
-      }
-  | Less_than of
-      { a : Symbol.t
+      ; ordering : Ordering.t
       ; b : Symbol.t
       }
   | Has_twins of bool
@@ -31,19 +17,9 @@ type t =
   | Has_no_triplets_no_twins
   | Less_even_than_odd_digits
   | More_even_than_odd_digits
-  | Sum2_equal_value of
-      { a : Symbol.t
-      ; b : Symbol.t
-      ; value : int
-      }
-  | Sum2_greater_than_value of
-      { a : Symbol.t
-      ; b : Symbol.t
-      ; value : int
-      }
-  | Sum2_less_than_value of
-      { a : Symbol.t
-      ; b : Symbol.t
+  | Compare_sum_with_value of
+      { symbols : Symbol.t list
+      ; ordering : Ordering.t
       ; value : int
       }
   | Is_odd of { symbol : Symbol.t }
@@ -103,30 +79,28 @@ let are_decreasing { Symbol.Tuple.triangle; square; circle } =
 let evaluate t ~code =
   match (t : t) with
   | Const bool -> bool
-  | Equal_value { symbol; value } -> Digit.equal (Symbol.Tuple.get code symbol) value
-  | Greater_than_value { symbol; value } ->
-    Digit.to_int (Symbol.Tuple.get code symbol) > Digit.to_int value
-  | Less_than_value { symbol; value } ->
-    Digit.to_int (Symbol.Tuple.get code symbol) < Digit.to_int value
-  | Equal { a; b } -> Digit.equal (Symbol.Tuple.get code a) (Symbol.Tuple.get code b)
-  | Greater_than { a; b } ->
-    Symbol.Tuple.get code a |> Digit.to_int > (Symbol.Tuple.get code b |> Digit.to_int)
-  | Less_than { a; b } ->
-    Symbol.Tuple.get code a |> Digit.to_int < (Symbol.Tuple.get code b |> Digit.to_int)
+  | Compare_symbol_with_value { symbol; ordering; value } ->
+    Ordering.equal
+      ordering
+      (Digit.compare (Symbol.Tuple.get code symbol) value |> Ordering.of_int)
+  | Compare_symbols { a; ordering; b } ->
+    Ordering.equal
+      ordering
+      (Digit.compare (Symbol.Tuple.get code a) (Symbol.Tuple.get code b)
+       |> Ordering.of_int)
   | Has_twins bool -> Bool.equal bool (has_twins code)
   | Has_triplets bool -> Bool.equal bool (has_triplets code)
   | Has_no_triplets_no_twins -> not (has_triplets code || has_twins code)
   | Less_even_than_odd_digits -> even_digits_count code < odd_digits_count code
   | More_even_than_odd_digits -> even_digits_count code > odd_digits_count code
-  | Sum2_equal_value { a; b; value } ->
-    Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    = value
-  | Sum2_greater_than_value { a; b; value } ->
-    Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    > value
-  | Sum2_less_than_value { a; b; value } ->
-    Digit.to_int (Symbol.Tuple.get code a) + Digit.to_int (Symbol.Tuple.get code b)
-    > value
+  | Compare_sum_with_value { symbols; ordering; value } ->
+    let sum =
+      List.sum
+        (module Int)
+        symbols
+        ~f:(fun symbol -> Digit.to_int (Symbol.Tuple.get code symbol))
+    in
+    Ordering.equal ordering (Int.compare sum value |> Ordering.of_int)
   | Is_odd { symbol } -> Digit.to_int (Symbol.Tuple.get code symbol) % 2 = 1
   | Is_even { symbol } -> Digit.to_int (Symbol.Tuple.get code symbol) % 2 = 0
   | Sum_is_even -> sum code % 2 = 0

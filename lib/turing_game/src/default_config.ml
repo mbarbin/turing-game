@@ -2,25 +2,22 @@ open! Core
 
 let add ~index ~conditions = Config.add_verifier { index; conditions }
 let symbols = Symbol.all |> Nonempty_list.of_list_exn
+let orderings = Ordering.all |> Nonempty_list.of_list_exn
 
 let () =
   add
     ~index:3
     ~conditions:
-      [ Less_than_value { symbol = Square; value = Three }
-      ; Equal_value { symbol = Square; value = Three }
-      ; Greater_than_value { symbol = Square; value = Three }
-      ]
+      (Nonempty_list.map orderings ~f:(fun ordering ->
+         Condition.Compare_symbol_with_value { symbol = Square; ordering; value = Three }))
 ;;
 
 let () =
   add
     ~index:4
     ~conditions:
-      [ Less_than_value { symbol = Square; value = Four }
-      ; Equal_value { symbol = Square; value = Four }
-      ; Greater_than_value { symbol = Square; value = Four }
-      ]
+      (Nonempty_list.map orderings ~f:(fun ordering ->
+         Condition.Compare_symbol_with_value { symbol = Square; ordering; value = Four }))
 ;;
 
 let () =
@@ -47,10 +44,8 @@ let () =
   add
     ~index:11
     ~conditions:
-      [ Less_than { a = Triangle; b = Square }
-      ; Equal { a = Triangle; b = Square }
-      ; Greater_than { a = Triangle; b = Square }
-      ]
+      (Nonempty_list.map orderings ~f:(fun ordering ->
+         Condition.Compare_symbols { a = Triangle; ordering; b = Square }))
 ;;
 
 let () =
@@ -71,7 +66,7 @@ let () =
     ~index:30
     ~conditions:
       (Nonempty_list.map symbols ~f:(fun symbol ->
-         Condition.Equal_value { symbol; value = Four }))
+         Condition.Compare_symbol_with_value { symbol; ordering = Equal; value = Four }))
 ;;
 
 let () =
@@ -94,9 +89,6 @@ let () =
     ~index:40
     ~conditions:
       (Nonempty_list.concat_map symbols ~f:(fun symbol ->
-         Condition.
-           [ Less_than_value { symbol; value = Three }
-           ; Equal_value { symbol; value = Three }
-           ; Greater_than_value { symbol; value = Three }
-           ]))
+         Nonempty_list.map orderings ~f:(fun ordering ->
+           Condition.Compare_symbol_with_value { symbol; ordering; value = Three })))
 ;;
