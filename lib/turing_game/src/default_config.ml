@@ -52,7 +52,8 @@ let () =
   add
     ~index:14
     ~conditions:
-      (Nonempty_list.map symbols ~f:(fun symbol -> Condition.Is_smallest { symbol }))
+      (Nonempty_list.map symbols ~f:(fun symbol ->
+         Condition.Compare_symbol_with_others { symbol; orderings = [ Less ] }))
 ;;
 
 let () =
@@ -81,7 +82,7 @@ let () =
     ~index:34
     ~conditions:
       (Nonempty_list.map symbols ~f:(fun symbol ->
-         Condition.Is_smallest_or_equally_smallest { symbol }))
+         Condition.Compare_symbol_with_others { symbol; orderings = [ Less; Equal ] }))
 ;;
 
 let () =

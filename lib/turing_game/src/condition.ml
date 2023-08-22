@@ -30,10 +30,10 @@ type t =
       { digit : Digit.t
       ; count : int
       }
-  | Is_smallest of { symbol : Symbol.t }
-  | Is_smallest_or_equally_smallest of { symbol : Symbol.t }
-  | Is_biggest of { symbol : Symbol.t }
-  | Is_biggest_or_equally_biggest of { symbol : Symbol.t }
+  | Compare_symbol_with_others of
+      { symbol : Symbol.t
+      ; orderings : Ordering.t list
+      }
   | Has_odd_digits_count of { count : int }
   | Has_even_digits_count of { count : int }
   | Are_increasing
@@ -106,20 +106,13 @@ let evaluate t ~code =
   | Sum_is_even -> sum code % 2 = 0
   | Sum_is_odd -> sum code % 2 = 1
   | Has_digit_count { digit; count } -> Digit.Tuple.get (digit_counts code) digit = count
-  | Is_smallest { symbol } ->
-    let value = Symbol.Tuple.get code symbol |> Digit.to_int in
+  | Compare_symbol_with_others { symbol; orderings } ->
+    let value = Symbol.Tuple.get code symbol in
     List.for_all Symbol.all ~f:(fun s ->
-      Symbol.equal symbol s || Digit.to_int (Symbol.Tuple.get code s) > value)
-  | Is_smallest_or_equally_smallest { symbol } ->
-    let value = Symbol.Tuple.get code symbol |> Digit.to_int in
-    List.for_all Symbol.all ~f:(fun s -> Digit.to_int (Symbol.Tuple.get code s) >= value)
-  | Is_biggest { symbol } ->
-    let value = Symbol.Tuple.get code symbol |> Digit.to_int in
-    List.for_all Symbol.all ~f:(fun s ->
-      Symbol.equal symbol s || Digit.to_int (Symbol.Tuple.get code s) < value)
-  | Is_biggest_or_equally_biggest { symbol } ->
-    let value = Symbol.Tuple.get code symbol |> Digit.to_int in
-    List.for_all Symbol.all ~f:(fun s -> Digit.to_int (Symbol.Tuple.get code s) <= value)
+      Symbol.equal symbol s
+      ||
+      let ordering = Digit.compare value (Symbol.Tuple.get code s) |> Ordering.of_int in
+      List.exists orderings ~f:(fun o -> Ordering.equal o ordering))
   | Has_odd_digits_count { count } -> odd_digits_count code = count
   | Has_even_digits_count { count } -> even_digits_count code = count
   | Are_increasing -> are_increasing code
