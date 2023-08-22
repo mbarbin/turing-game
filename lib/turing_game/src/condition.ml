@@ -37,6 +37,8 @@ type t =
       }
   | Has_odd_digits_count of { count : int }
   | Has_even_digits_count of { count : int }
+  | Has_consecutive_decreasing_digits of { count : int }
+  | Has_consecutive_increasing_digits of { count : int }
   | Are_increasing
   | Are_decreasing
   | Are_neither_increasing_nor_decreasing
@@ -75,6 +77,30 @@ let are_increasing { Symbol.Tuple.triangle; square; circle } =
 
 let are_decreasing { Symbol.Tuple.triangle; square; circle } =
   Digit.to_int triangle > Digit.to_int square && Digit.to_int square > Digit.to_int circle
+;;
+
+let has_consecutive_decreasing_digits { Symbol.Tuple.triangle; square; circle } =
+  match
+    List.count
+      [ triangle, square; square, circle ]
+      ~f:(fun (a, b) -> Digit.to_int a = Digit.to_int b + 1)
+  with
+  | 0 -> 0
+  | 1 -> 2
+  | 2 -> 3
+  | _ -> assert false
+;;
+
+let has_consecutive_increasing_digits { Symbol.Tuple.triangle; square; circle } =
+  match
+    List.count
+      [ triangle, square; square, circle ]
+      ~f:(fun (a, b) -> Digit.to_int a + 1 = Digit.to_int b)
+  with
+  | 0 -> 0
+  | 1 -> 2
+  | 2 -> 3
+  | _ -> assert false
 ;;
 
 let evaluate t ~code =
@@ -117,6 +143,10 @@ let evaluate t ~code =
       List.exists orderings ~f:(fun o -> Ordering.equal o ordering))
   | Has_odd_digits_count { count } -> odd_digits_count code = count
   | Has_even_digits_count { count } -> even_digits_count code = count
+  | Has_consecutive_decreasing_digits { count } ->
+    has_consecutive_decreasing_digits code = count
+  | Has_consecutive_increasing_digits { count } ->
+    has_consecutive_increasing_digits code = count
   | Are_increasing -> are_increasing code
   | Are_decreasing -> are_decreasing code
   | Are_neither_increasing_nor_decreasing ->

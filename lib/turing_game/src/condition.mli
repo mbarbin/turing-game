@@ -37,6 +37,8 @@ type t =
       }
   | Has_odd_digits_count of { count : int }
   | Has_even_digits_count of { count : int }
+  | Has_consecutive_decreasing_digits of { count : int }
+  | Has_consecutive_increasing_digits of { count : int }
   | Are_increasing
   | Are_decreasing
   | Are_neither_increasing_nor_decreasing
