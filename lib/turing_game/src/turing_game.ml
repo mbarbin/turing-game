@@ -10,6 +10,5 @@ module Interactive_solver = Interactive_solver
 module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
-module Verifiers = Verifiers
 
 let main = Command.group ~summary:"" [ "solver", Interactive_solver.cmd ]

@@ -1,6 +1,7 @@
 open! Core
 
 let add ~index ~conditions = Config.add_verifier { index; conditions }
+let symbols = Symbol.all |> Nonempty_list.of_list_exn
 
 let () =
   add
@@ -30,16 +31,16 @@ let () =
   add
     ~index:9
     ~conditions:
-      (List.init 4 ~f:(fun count -> Condition.Has_digit_count { digit = Three; count })
-       |> Nonempty_list.of_list_exn)
+      (Nonempty_list.init 4 ~f:(fun count ->
+         Condition.Has_digit_count { digit = Three; count }))
 ;;
 
 let () =
   add
     ~index:10
     ~conditions:
-      (List.init 4 ~f:(fun count -> Condition.Has_digit_count { digit = Four; count })
-       |> Nonempty_list.of_list_exn)
+      (Nonempty_list.init 4 ~f:(fun count ->
+         Condition.Has_digit_count { digit = Four; count }))
 ;;
 
 let () =
@@ -56,10 +57,7 @@ let () =
   add
     ~index:14
     ~conditions:
-      [ Is_smallest { symbol = Triangle }
-      ; Is_smallest { symbol = Square }
-      ; Is_smallest { symbol = Circle }
-      ]
+      (Nonempty_list.map symbols ~f:(fun symbol -> Condition.Is_smallest { symbol }))
 ;;
 
 let () =
@@ -72,39 +70,30 @@ let () =
   add
     ~index:30
     ~conditions:
-      [ Equal_value { symbol = Triangle; value = Four }
-      ; Equal_value { symbol = Square; value = Four }
-      ; Equal_value { symbol = Circle; value = Four }
-      ]
+      (Nonempty_list.map symbols ~f:(fun symbol ->
+         Condition.Equal_value { symbol; value = Four }))
 ;;
 
 let () =
   add
     ~index:33
     ~conditions:
-      [ Is_even { symbol = Triangle }
-      ; Is_even { symbol = Square }
-      ; Is_even { symbol = Circle }
-      ]
+      (Nonempty_list.map symbols ~f:(fun symbol -> Condition.Is_even { symbol }))
 ;;
 
 let () =
   add
     ~index:34
     ~conditions:
-      [ Is_smallest_or_equally_smallest { symbol = Triangle }
-      ; Is_smallest_or_equally_smallest { symbol = Square }
-      ; Is_smallest_or_equally_smallest { symbol = Circle }
-      ]
+      (Nonempty_list.map symbols ~f:(fun symbol ->
+         Condition.Is_smallest_or_equally_smallest { symbol }))
 ;;
 
 let () =
   add
     ~index:40
     ~conditions:
-      (Symbol.all
-       |> Nonempty_list.of_list_exn
-       |> Nonempty_list.concat_map ~f:(fun symbol ->
+      (Nonempty_list.concat_map symbols ~f:(fun symbol ->
          Condition.
            [ Less_than_value { symbol; value = Three }
            ; Equal_value { symbol; value = Three }
