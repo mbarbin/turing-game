@@ -25,7 +25,10 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code=231 - verifier=A(03): 
   (Test_result
    ((code 231) (verifier_letter A) (verifier_index 3)
-    (condition ((index 1) (condition (Equal_value (symbol Square) (value 3)))))
+    (condition
+     ((index 1)
+      (condition
+       (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 3)))))
     (result true) (remaining_bits_before 3.7004397181410922)
     (bits_gained 0.893084796083488) (remaining_bits 2.8073549220576042)
     (number_of_remaining_codes 7)))
