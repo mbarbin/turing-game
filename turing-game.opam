@@ -10,7 +10,6 @@ bug-reports: "https://github.com/mbarbin/turing-game/issues"
 depends: [
   "ocaml" {>= "5.0"}
   "dune" {>= "3.9"}
-  "dune-site" {>= "3.9"}
   "core" {>= "v0.16" & < "v0.17"}
   "core_kernel" {>= "v0.16" & < "v0.17"}
   "core_unix" {>= "v0.16" & < "v0.17"}
