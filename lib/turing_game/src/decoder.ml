@@ -1,4 +1,10 @@
-open! Core
+open! Base
+
+(* mbarbin: Array.Permissioned is only available in Core, and not currently
+   available in Base, or as a standalone package. To be revisited. *)
+module Array = Core.Array
+
+type immutable = Core.immutable [@@deriving sexp_of]
 
 module Verifier_status = struct
   type t =
@@ -26,7 +32,7 @@ module Hypothesis = struct
 
     let remaining_codes t ~remaining_codes =
       Codes.filter remaining_codes ~f:(fun code ->
-        Condition.evaluate t.criteria.condition ~code)
+        Predicate.evaluate t.criteria.predicate ~code)
     ;;
   end
 
@@ -67,7 +73,7 @@ module Hypothesis = struct
 
   let evaluate_exn t ~code ~verifier_index =
     let criteria = verifier_exn t ~verifier_index in
-    Condition.evaluate criteria.condition ~code
+    Predicate.evaluate criteria.predicate ~code
   ;;
 end
 
@@ -90,8 +96,8 @@ let create ~verifiers =
       ; verifier_status =
           Undetermined
             { remaining_criteria =
-                Nonempty_list.mapi verifier.conditions ~f:(fun index condition ->
-                  { Criteria.index; condition })
+                Nonempty_list.mapi verifier.predicates ~f:(fun index predicate ->
+                  { Criteria.index; predicate })
             }
       })
   in
@@ -227,9 +233,9 @@ let add_test_result t ~code ~verifier_index ~result =
   in
   let index = slot.index in
   match slot.verifier_status with
-  | Determined { index; condition } ->
+  | Determined { index; predicate } ->
     (* Nothing to learn. *)
-    let expected_result = Condition.evaluate condition ~code in
+    let expected_result = Predicate.evaluate predicate ~code in
     if Bool.equal expected_result result
     then return t
     else
@@ -239,23 +245,23 @@ let add_test_result t ~code ~verifier_index ~result =
           , { index : int
             ; verifier_status =
                 Determined
-                  { condition : Condition.t; expected_result : bool; result : bool }
+                  { predicate : Predicate.t; expected_result : bool; result : bool }
             }]
   | Undetermined { remaining_criteria } ->
     let%bind verifier_status =
       let remaining_conditions =
-        Nonempty_list.filter remaining_criteria ~f:(fun { index = _; condition } ->
-          Bool.equal result (Condition.evaluate condition ~code))
+        Nonempty_list.filter remaining_criteria ~f:(fun { index = _; predicate } ->
+          Bool.equal result (Predicate.evaluate predicate ~code))
       in
       match remaining_conditions with
-      | [ condition ] -> return (Verifier_status.Determined condition)
+      | [ predicate ] -> return (Verifier_status.Determined predicate)
       | hd :: (_ :: _ as tl) ->
         return (Verifier_status.Undetermined { remaining_criteria = hd :: tl })
       | [] ->
         Or_error.error_s
           [%sexp
             "Unexpected result"
-            , "Verifier has no remaining possible condition"
+            , "Verifier has no remaining possible predicate"
             , { index : int }]
     in
     let slots =

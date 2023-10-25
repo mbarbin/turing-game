@@ -2,9 +2,10 @@
  (name turing_game_test)
  (flags -w +a-4-40-41-42-44-66 -warn-error +a)
  (libraries
-  core
+  base
   expect_test_helpers_core.expect_test_helpers_base
   sexp_diff
+  stdio
   turing-game)
  (inline_tests)
  (preprocess

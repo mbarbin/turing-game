@@ -1,4 +1,4 @@
-open! Core
+open! Base
 
 (** A representation for a set of codes, where each code is unique. This is
     equivalent to a list with no duplicate. *)

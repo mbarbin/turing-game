@@ -1,4 +1,5 @@
-open! Core
+open! Base
+open! Stdio
 open! Import
 open! Or_error.Let_syntax
 
@@ -78,7 +79,7 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
   else (
     let criteria_distribution =
       Decoder.criteria_distribution_exn decoder ~verifier_index
-      |> Nonempty_list.map ~f:(fun c -> c, Condition.evaluate c.criteria.condition ~code)
+      |> Nonempty_list.map ~f:(fun c -> c, Predicate.evaluate c.criteria.predicate ~code)
     in
     let compute_expected_information_gained ~result =
       match Decoder.add_test_result decoder ~code ~verifier_index ~result with
@@ -241,7 +242,7 @@ let pick_best_positive_evaluation alist =
 let pick_best_verifier ~decoder ~code =
   Nonempty_list.filter_map (Decoder.verifiers decoder) ~f:(fun verifier ->
     let { Test_evaluation.evaluation; info; _ } =
-      evaluate_test ~decoder ~code ~verifier |> ok_exn
+      evaluate_test ~decoder ~code ~verifier |> Or_error.ok_exn
     in
     if Evaluation.is_zero evaluation
     then None
@@ -308,7 +309,7 @@ let input_test_result ~code ~verifier_index ~verifier_letter =
   in
   input_bool
     ~prompt:
-      (sprintf
+      (Printf.sprintf
          "Enter result for test. code=%s - verifier=%s(%02d): "
          (Code.to_string code)
          (Verifier_letter.to_string verifier_letter)
@@ -379,7 +380,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         | Interactive -> input_test_result ~code ~verifier_index ~verifier_letter
         | Simulated_hypothesis hypothesis ->
           let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_index in
-          Condition.evaluate criteria.condition ~code
+          Predicate.evaluate criteria.predicate ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
       let%bind decoder = Decoder.add_test_result decoder ~code ~verifier_index ~result in
@@ -387,7 +388,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
         let remaining_bits = remaining_bits ~decoder in
         let bits_gained = remaining_bits_before -. remaining_bits in
-        let condition =
+        let predicate =
           match running_mode with
           | Simulated_hypothesis hypothesis ->
             let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_index in
@@ -403,7 +404,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
               { code : Code.t
               ; verifier_letter : Verifier_letter.t
               ; verifier_index : int
-              ; condition : Info.t
+              ; predicate : Info.t
               ; result : bool
               ; remaining_bits_before : float
               ; bits_gained : float
@@ -461,7 +462,8 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
     print_endline "============= NEW HYPOTHESIS =============";
     print_s [%sexp (hypothesis : Decoder.Hypothesis.t)];
     let code =
-      interactive_solve ~decoder ~running_mode:(Simulated_hypothesis hypothesis) |> ok_exn
+      interactive_solve ~decoder ~running_mode:(Simulated_hypothesis hypothesis)
+      |> Or_error.ok_exn
     in
     let expected_code = Decoder.Hypothesis.remaining_code_exn hypothesis in
     if Code.equal expected_code code
@@ -491,5 +493,5 @@ let cmd =
          | Ok (_ : Code.t) -> ()
          | Error e ->
            prerr_endline (Error.to_string_hum e);
-           exit 1))
+           Stdlib.exit 1))
 ;;

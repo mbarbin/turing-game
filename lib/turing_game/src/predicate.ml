@@ -1,4 +1,4 @@
-open! Core
+open! Base
 
 type t =
   | Const of bool
@@ -46,7 +46,7 @@ type t =
 
 let digit_counts t =
   let counts = Digit.Tuple.init ~f:(fun _ -> ref 0) in
-  Symbol.Tuple.iter t ~f:(fun digit -> Digit.Tuple.get counts digit |> incr);
+  Symbol.Tuple.iter t ~f:(fun digit -> Digit.Tuple.get counts digit |> Int.incr);
   Digit.Tuple.map counts ~f:(fun t -> t.contents)
 ;;
 
@@ -55,13 +55,13 @@ let has_triplets t = Digit.Tuple.exists (digit_counts t) ~f:(fun count -> count 
 
 let odd_digits_count t =
   let count = ref 0 in
-  Symbol.Tuple.iter t ~f:(fun digit -> if Digit.to_int digit % 2 = 1 then incr count);
+  Symbol.Tuple.iter t ~f:(fun digit -> if Digit.to_int digit % 2 = 1 then Int.incr count);
   !count
 ;;
 
 let even_digits_count t =
   let count = ref 0 in
-  Symbol.Tuple.iter t ~f:(fun digit -> if Digit.to_int digit % 2 = 0 then incr count);
+  Symbol.Tuple.iter t ~f:(fun digit -> if Digit.to_int digit % 2 = 0 then Int.incr count);
   !count
 ;;
 

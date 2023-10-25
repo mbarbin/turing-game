@@ -1,4 +1,5 @@
-open! Core
+open! Base
+open! Stdio
 open! Turing_game
 
 let config = Config.load_exn ()
@@ -15,14 +16,14 @@ let%expect_test "one verifier" =
        (((verifier_index 4)
          (criteria
           ((index 0)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4)))))))))
      ((number_of_remaining_codes 25)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Equal)
              (value 4)))))))))
      ((number_of_remaining_codes 25)
@@ -30,7 +31,7 @@ let%expect_test "one verifier" =
        (((verifier_index 4)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Greater)
              (value 4)))))))))) |}];
   let decoder = Config.decoder_exn config [ 34 ] in
@@ -43,7 +44,7 @@ let%expect_test "one verifier" =
        (((verifier_index 34)
          (criteria
           ((index 0)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Triangle)
              (orderings (Less Equal))))))))))
      ((number_of_remaining_codes 55)
@@ -51,14 +52,14 @@ let%expect_test "one verifier" =
        (((verifier_index 34)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Square) (orderings (Less Equal))))))))))
      ((number_of_remaining_codes 55)
       (verifiers
        (((verifier_index 34)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less Equal))))))))))) |}];
   ()
 ;;
@@ -71,7 +72,7 @@ let evaluate_test ~decoder ~code ~verifier_index ~result =
       ; info
       }
     =
-    Interactive_solver.evaluate_test ~decoder ~code ~verifier |> ok_exn
+    Interactive_solver.evaluate_test ~decoder ~code ~verifier |> Or_error.ok_exn
   in
   let starting_number = Decoder.number_of_remaining_codes decoder in
   let remaining_codes =
@@ -170,133 +171,133 @@ let%expect_test "all verifiers" =
        (((verifier_index 4)
          (criteria
           ((index 0)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+         (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
         ((verifier_index 11)
          (criteria
           ((index 1)
-           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+           (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 231)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 0)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+         (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
         ((verifier_index 11)
          (criteria
           ((index 0)
-           (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+           (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 241)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Equal)
              (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+         (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
         ((verifier_index 11)
          (criteria
           ((index 0)
-           (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+           (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 545)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Equal)
              (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+         (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
         ((verifier_index 11)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
      ((code 443)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Equal)
              (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+         (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
         ((verifier_index 11)
          (criteria
           ((index 1)
-           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+           (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 543)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 1)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Equal)
              (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+         (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
         ((verifier_index 11)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
      ((code 553)
       (verifiers
        (((verifier_index 4)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_value (symbol Square) (ordering Greater)
              (value 4))))))
         ((verifier_index 9)
-         (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+         (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
         ((verifier_index 11)
          (criteria
           ((index 1)
-           (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+           (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
         ((verifier_index 14)
          (criteria
           ((index 2)
-           (condition
+           (predicate
             (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))) |}];
   ()
 ;;
@@ -320,7 +321,8 @@ let%expect_test "example of path" =
   in
   let code : Code.t = { triangle = One; square = Two; circle = Three } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier_index:4 ~result:false |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:4 ~result:false
+    |> Or_error.ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -336,45 +338,46 @@ let%expect_test "example of path" =
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 0)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+    -       (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 1)
-    -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+    -         (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 231)
     -    (verifiers
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 0)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+    -       (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 0)
-    -         (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+    -         (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
         ((code 241)
          (verifiers
                                  ...89 unchanged lines...
-              (condition
+              (predicate
                (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier_index:9 ~result:true |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:9 ~result:true
+    |> Or_error.ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -385,68 +388,69 @@ let%expect_test "example of path" =
       )
       (hypotheses
                                   ...35 unchanged lines...
-              (condition
+              (predicate
                (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
     -   ((code 443)
     -    (verifiers
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 1)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+    -       (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 1)
-    -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+    -         (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 543)
     -    (verifiers
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 1)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+    -       (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 553)
     -    (verifiers
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Greater)
     -           (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+    -       (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 1)
-    -         (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+    -         (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier_index:11 ~result:true |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:11 ~result:true
+    |> Or_error.ok_exn
   in
   print_progress ~decoder;
   [%expect
@@ -457,31 +461,32 @@ let%expect_test "example of path" =
       )
       (hypotheses
                                   ...16 unchanged lines...
-              (condition
+              (predicate
                (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     -   ((code 545)
     -    (verifiers
     -     (((verifier_index 4)
     -       (criteria
     -        ((index 1)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
     -      ((verifier_index 9)
-    -       (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+    -       (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
     -      ((verifier_index 11)
     -       (criteria
     -        ((index 2)
-    -         (condition
+    -         (predicate
     -          (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
     -      ((verifier_index 14)
     -       (criteria
     -        ((index 1)
-    -         (condition
+    -         (predicate
     -          (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
        ))) |}];
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
-    Decoder.add_test_result decoder ~code ~verifier_index:14 ~result:false |> ok_exn
+    Decoder.add_test_result decoder ~code ~verifier_index:14 ~result:false
+    |> Or_error.ok_exn
   in
   print_progress ~decoder;
   [%expect {| (no changes) |}];
@@ -495,21 +500,21 @@ let%expect_test "example of path" =
          (((verifier_index 4)
            (criteria
             ((index 1)
-             (condition
+             (predicate
               (Compare_symbol_with_value (symbol Square) (ordering Equal)
                (value 4))))))
           ((verifier_index 9)
            (criteria
-            ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+            ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
           ((verifier_index 11)
            (criteria
             ((index 0)
-             (condition
+             (predicate
               (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
           ((verifier_index 14)
            (criteria
             ((index 2)
-             (condition
+             (predicate
               (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))))) |}];
   ()
 ;;

@@ -25,9 +25,9 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code=231 - verifier=A(03): 
   (Test_result
    ((code 231) (verifier_letter A) (verifier_index 3)
-    (condition
+    (predicate
      ((index 1)
-      (condition
+      (predicate
        (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 3)))))
     (result true) (remaining_bits_before 3.7004397181410922)
     (bits_gained 0.893084796083488) (remaining_bits 2.8073549220576042)
@@ -46,7 +46,7 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code=231 - verifier=B(07): 
   (Test_result
    ((code 231) (verifier_letter B) (verifier_index 7)
-    (condition ((index 1) (condition (Is_odd (symbol Circle))))) (result true)
+    (predicate ((index 1) (predicate (Is_odd (symbol Circle))))) (result true)
     (remaining_bits_before 2.8073549220576042) (bits_gained 1.2223924213364481)
     (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
   
@@ -62,7 +62,7 @@ Simulating an interactive resolution to problem 2.
   
   Enter result for test. code=231 - verifier=C(10): 
   (Test_result
-   ((code 231) (verifier_letter C) (verifier_index 10) (condition Undetermined)
+   ((code 231) (verifier_letter C) (verifier_index 10) (predicate Undetermined)
     (result false) (remaining_bits_before 1.5849625007211561)
     (bits_gained 0.58496250072115608) (remaining_bits 1)
     (number_of_remaining_codes 2)))
@@ -79,9 +79,9 @@ Simulating an interactive resolution to problem 2.
   Enter result for test. code=212 - verifier=D(14): 
   (Test_result
    ((code 212) (verifier_letter D) (verifier_index 14)
-    (condition
+    (predicate
      ((index 1)
-      (condition
+      (predicate
        (Compare_symbol_with_others (symbol Square) (orderings (Less))))))
     (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
     (number_of_remaining_codes 1)))

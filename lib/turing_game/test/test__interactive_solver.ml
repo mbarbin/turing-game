@@ -1,4 +1,4 @@
-open! Core
+open! Base
 open! Turing_game
 
 let%expect_test "interactive solver simulation decoder 1" =
@@ -13,18 +13,18 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+        (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
        ((verifier_index 11)
         (criteria
          ((index 1)
-          (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+          (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -37,7 +37,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
+      (predicate ((index 0) (predicate (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
       (number_of_remaining_codes 3)))
@@ -51,9 +51,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 0)
@@ -69,18 +69,18 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+        (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
        ((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -93,7 +93,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
+      (predicate ((index 1) (predicate (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
       (number_of_remaining_codes 4)))
@@ -105,9 +105,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Less) (value 4)))))
       (result true) (remaining_bits_before 2) (bits_gained 2) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -122,18 +122,18 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+        (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
        ((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -146,7 +146,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
+      (predicate ((index 0) (predicate (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
       (number_of_remaining_codes 3)))
@@ -160,9 +160,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -175,9 +175,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 211) (verifier_letter C) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -191,19 +191,19 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 0) (condition (Has_digit_count (digit 3) (count 0))))))
+        (criteria ((index 0) (predicate (Has_digit_count (digit 3) (count 0))))))
        ((verifier_index 11)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Square) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -216,7 +216,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 0) (condition (Has_digit_count (digit 3) (count 0)))))
+      (predicate ((index 0) (predicate (Has_digit_count (digit 3) (count 0)))))
       (result true) (remaining_bits_before 2.8073549220576042)
       (bits_gained 1.2223924213364481) (remaining_bits 1.5849625007211561)
       (number_of_remaining_codes 3)))
@@ -230,9 +230,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -245,9 +245,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 211) (verifier_letter C) (verifier_index 11)
-      (condition
+      (predicate
        ((index 2)
-        (condition (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -261,18 +261,18 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+        (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
        ((verifier_index 11)
         (criteria
          ((index 1)
-          (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+          (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -285,7 +285,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
+      (predicate ((index 1) (predicate (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
       (number_of_remaining_codes 4)))
@@ -297,9 +297,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -313,9 +313,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter C) (verifier_index 11)
-      (condition
+      (predicate
        ((index 1)
-        (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
       (number_of_remaining_codes 2)))
@@ -327,9 +327,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -345,19 +345,19 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+        (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
        ((verifier_index 11)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbols (a Triangle) (ordering Greater) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -370,7 +370,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
+      (predicate ((index 1) (predicate (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
       (number_of_remaining_codes 4)))
@@ -382,9 +382,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -398,9 +398,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter C) (verifier_index 11)
-      (condition
+      (predicate
        ((index 2)
-        (condition (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -415,19 +415,19 @@ let%expect_test "interactive solver simulation decoder 1" =
       (((verifier_index 4)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Greater)
             (value 4))))))
        ((verifier_index 9)
-        (criteria ((index 1) (condition (Has_digit_count (digit 3) (count 1))))))
+        (criteria ((index 1) (predicate (Has_digit_count (digit 3) (count 1))))))
        ((verifier_index 11)
         (criteria
          ((index 1)
-          (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
+          (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square))))))
        ((verifier_index 14)
         (criteria
          ((index 2)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Circle) (orderings (Less))))))))))
     (Info ((remaining_bits 2.8073549220576042) (number_of_remaining_codes 7)))
     (Request_test
@@ -440,7 +440,7 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.80735492205760417) (probability 0.5714285714285714)))))))
     (Test_result
      ((code 211) (verifier_letter B) (verifier_index 9)
-      (condition ((index 1) (condition (Has_digit_count (digit 3) (count 1)))))
+      (predicate ((index 1) (predicate (Has_digit_count (digit 3) (count 1)))))
       (result false) (remaining_bits_before 2.8073549220576042)
       (bits_gained 0.80735492205760417) (remaining_bits 2)
       (number_of_remaining_codes 4)))
@@ -452,9 +452,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 0.41503749927884392) (probability 0.75)))))))
     (Test_result
      ((code 211) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 2)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Greater) (value 4)))))
       (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -468,9 +468,9 @@ let%expect_test "interactive solver simulation decoder 1" =
          ((bits_gained 0.58496250072115608) (probability 0.66666666666666663)))))))
     (Test_result
      ((code 211) (verifier_letter C) (verifier_index 11)
-      (condition
+      (predicate
        ((index 1)
-        (condition (Compare_symbols (a Triangle) (ordering Equal) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Equal) (b Square)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
       (number_of_remaining_codes 2)))
@@ -482,9 +482,9 @@ let%expect_test "interactive solver simulation decoder 1" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 4)
-      (condition
+      (predicate
        ((index 2)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Greater) (value 4)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
@@ -511,25 +511,25 @@ let%expect_test "interactive solver simulation decoder 20" =
       (((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (predicate Are_increasing))))
        ((verifier_index 30)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 0) (condition (Is_even (symbol Triangle))))))
+        (criteria ((index 0) (predicate (Is_even (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Triangle)
             (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Triangle) (ordering Less)
             (value 3)))))))))
     (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
@@ -543,9 +543,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
      ((code 555) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 5.4918530963296748)
       (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
       (number_of_remaining_codes 36)))
@@ -559,9 +559,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
      ((code 555) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
       (result false) (remaining_bits_before 5.1699250014423122)
       (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
@@ -576,7 +576,7 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
     (Test_result
      ((code 555) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
+      (predicate ((index 0) (predicate Are_increasing))) (result false)
       (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
       (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
     (Request_test
@@ -587,9 +587,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
@@ -600,9 +600,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -614,9 +614,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
     (Test_result
      ((code 141) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -629,7 +629,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 111) (verifier_letter D) (verifier_index 33)
-      (condition ((index 0) (condition (Is_even (symbol Triangle)))))
+      (predicate ((index 0) (predicate (Is_even (symbol Triangle)))))
       (result false) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -646,25 +646,25 @@ let%expect_test "interactive solver simulation decoder 20" =
       (((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (predicate Are_increasing))))
        ((verifier_index 30)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 0) (condition (Is_even (symbol Triangle))))))
+        (criteria ((index 0) (predicate (Is_even (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Triangle)
             (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 5)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Greater)
             (value 3)))))))))
     (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
@@ -678,9 +678,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
      ((code 555) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 5.4918530963296748)
       (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
       (number_of_remaining_codes 36)))
@@ -694,9 +694,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
      ((code 555) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 5)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Greater) (value 3)))))
       (result true) (remaining_bits_before 5.1699250014423122)
       (bits_gained 1.5849625007211561) (remaining_bits 3.5849625007211561)
@@ -709,7 +709,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.13559322033898305)))))))
     (Test_result
      ((code 555) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
+      (predicate ((index 0) (predicate Are_increasing))) (result false)
       (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
@@ -720,9 +720,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 0.58496250072115608) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 2.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 1)
@@ -735,9 +735,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -753,25 +753,25 @@ let%expect_test "interactive solver simulation decoder 20" =
       (((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (predicate Are_increasing))))
        ((verifier_index 30)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 0) (condition (Is_even (symbol Triangle))))))
+        (criteria ((index 0) (predicate (Is_even (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Triangle)
             (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 8)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Circle) (ordering Greater)
             (value 3)))))))))
     (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
@@ -785,9 +785,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
      ((code 555) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 5.4918530963296748)
       (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
       (number_of_remaining_codes 36)))
@@ -801,9 +801,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
      ((code 555) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 8)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Circle) (ordering Greater) (value 3)))))
       (result true) (remaining_bits_before 5.1699250014423122)
       (bits_gained 1.5849625007211561) (remaining_bits 3.5849625007211561)
@@ -816,7 +816,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.13559322033898305)))))))
     (Test_result
      ((code 555) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
+      (predicate ((index 0) (predicate Are_increasing))) (result false)
       (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
@@ -827,9 +827,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 0.58496250072115608) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 2.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 1)
@@ -842,9 +842,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -860,25 +860,25 @@ let%expect_test "interactive solver simulation decoder 20" =
       (((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (predicate Are_increasing))))
        ((verifier_index 30)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 1) (condition (Is_odd (symbol Triangle))))))
+        (criteria ((index 1) (predicate (Is_odd (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Triangle)
             (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Triangle) (ordering Less)
             (value 3)))))))))
     (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
@@ -892,9 +892,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
      ((code 555) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 5.4918530963296748)
       (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
       (number_of_remaining_codes 36)))
@@ -908,9 +908,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
      ((code 555) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
       (result false) (remaining_bits_before 5.1699250014423122)
       (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
@@ -925,7 +925,7 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
     (Test_result
      ((code 555) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
+      (predicate ((index 0) (predicate Are_increasing))) (result false)
       (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
       (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
     (Request_test
@@ -936,9 +936,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
@@ -949,9 +949,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -963,9 +963,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
     (Test_result
      ((code 141) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 0)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Less) (value 3)))))
       (result true) (remaining_bits_before 1.5849625007211561)
       (bits_gained 0.58496250072115608) (remaining_bits 1)
@@ -978,7 +978,7 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 111) (verifier_letter D) (verifier_index 33)
-      (condition ((index 1) (condition (Is_odd (symbol Triangle)))))
+      (predicate ((index 1) (predicate (Is_odd (symbol Triangle)))))
       (result true) (remaining_bits_before 1) (bits_gained 1) (remaining_bits 0)
       (number_of_remaining_codes 1)))
     (Info
@@ -995,25 +995,25 @@ let%expect_test "interactive solver simulation decoder 20" =
       (((verifier_index 11)
         (criteria
          ((index 0)
-          (condition (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
-       ((verifier_index 22) (criteria ((index 0) (condition Are_increasing))))
+          (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square))))))
+       ((verifier_index 22) (criteria ((index 0) (predicate Are_increasing))))
        ((verifier_index 30)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4))))))
        ((verifier_index 33)
-        (criteria ((index 1) (condition (Is_odd (symbol Triangle))))))
+        (criteria ((index 1) (predicate (Is_odd (symbol Triangle))))))
        ((verifier_index 34)
         (criteria
          ((index 0)
-          (condition
+          (predicate
            (Compare_symbol_with_others (symbol Triangle)
             (orderings (Less Equal)))))))
        ((verifier_index 40)
         (criteria
          ((index 1)
-          (condition
+          (predicate
            (Compare_symbol_with_value (symbol Triangle) (ordering Equal)
             (value 3)))))))))
     (Info ((remaining_bits 5.4918530963296748) (number_of_remaining_codes 45)))
@@ -1027,9 +1027,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.32192809488736263) (probability 0.57798165137614688)))))))
     (Test_result
      ((code 555) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result false) (remaining_bits_before 5.4918530963296748)
       (bits_gained 0.32192809488736263) (remaining_bits 5.1699250014423122)
       (number_of_remaining_codes 36)))
@@ -1043,9 +1043,9 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 0.21572869105543724) (probability 0.53174603174603174)))))))
     (Test_result
      ((code 555) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Equal) (value 3)))))
       (result false) (remaining_bits_before 5.1699250014423122)
       (bits_gained 0.21572869105543724) (remaining_bits 4.9541963103868749)
@@ -1060,7 +1060,7 @@ let%expect_test "interactive solver simulation decoder 20" =
          ((bits_gained 1.3692338096657188) (probability 0.35820895522388058)))))))
     (Test_result
      ((code 555) (verifier_letter B) (verifier_index 22)
-      (condition ((index 0) (condition Are_increasing))) (result false)
+      (predicate ((index 0) (predicate Are_increasing))) (result false)
       (remaining_bits_before 4.9541963103868749) (bits_gained 1.3692338096657188)
       (remaining_bits 3.5849625007211561) (number_of_remaining_codes 12)))
     (Request_test
@@ -1071,9 +1071,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.5)))))))
     (Test_result
      ((code 141) (verifier_letter A) (verifier_index 11)
-      (condition
+      (predicate
        ((index 0)
-        (condition (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
+        (predicate (Compare_symbols (a Triangle) (ordering Less) (b Square)))))
       (result true) (remaining_bits_before 3.5849625007211561) (bits_gained 1)
       (remaining_bits 2.5849625007211561) (number_of_remaining_codes 6)))
     (Request_test
@@ -1084,9 +1084,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1) (probability 0.58333333333333337)))))))
     (Test_result
      ((code 141) (verifier_letter C) (verifier_index 30)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Square) (ordering Equal) (value 4)))))
       (result true) (remaining_bits_before 2.5849625007211561) (bits_gained 1)
       (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
@@ -1098,9 +1098,9 @@ let%expect_test "interactive solver simulation decoder 20" =
         (score_if_false ((bits_gained 1.5849625007211561) (probability 0.6)))))))
     (Test_result
      ((code 141) (verifier_letter F) (verifier_index 40)
-      (condition
+      (predicate
        ((index 1)
-        (condition
+        (predicate
          (Compare_symbol_with_value (symbol Triangle) (ordering Equal) (value 3)))))
       (result false) (remaining_bits_before 1.5849625007211561)
       (bits_gained 1.5849625007211561) (remaining_bits 0)

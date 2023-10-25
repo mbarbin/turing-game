@@ -1,4 +1,4 @@
-open! Core
+open! Base
 
 type t [@@deriving compare, equal, sexp_of]
 

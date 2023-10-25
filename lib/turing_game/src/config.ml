@@ -1,4 +1,4 @@
-open! Core
+open! Base
 
 type t = { verifiers : Verifier.t list } [@@deriving sexp_of]
 

@@ -1,4 +1,4 @@
-open! Core
+open! Base
 
 type t = Code.t list [@@deriving equal, compare, sexp_of]
 

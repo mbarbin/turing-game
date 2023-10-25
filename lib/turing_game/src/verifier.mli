@@ -1,7 +1,7 @@
-open! Core
+open! Base
 
 type t =
   { index : int
-  ; conditions : Condition.t Nonempty_list.t
+  ; predicates : Predicate.t Nonempty_list.t
   }
 [@@deriving compare, equal, sexp_of]

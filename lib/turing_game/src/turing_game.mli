@@ -1,7 +1,7 @@
-open! Core
+open! Base
 module Code = Code
 module Codes = Codes
-module Condition = Condition
+module Predicate = Predicate
 module Config = Config
 module Criteria = Criteria
 module Decoder = Decoder

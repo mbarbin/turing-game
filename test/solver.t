@@ -23,7 +23,7 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   
   Enter result for test. code=211 - verifier=B(09): 
   (Test_result
-   ((code 211) (verifier_letter B) (verifier_index 9) (condition Undetermined)
+   ((code 211) (verifier_letter B) (verifier_index 9) (predicate Undetermined)
     (result false) (remaining_bits_before 2.8073549220576042)
     (bits_gained 0.80735492205760417) (remaining_bits 2)
     (number_of_remaining_codes 4)))
@@ -38,7 +38,7 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   
   Enter result for test. code=211 - verifier=A(04): 
   (Test_result
-   ((code 211) (verifier_letter A) (verifier_index 4) (condition Undetermined)
+   ((code 211) (verifier_letter A) (verifier_index 4) (predicate Undetermined)
     (result false) (remaining_bits_before 2) (bits_gained 0.41503749927884392)
     (remaining_bits 1.5849625007211561) (number_of_remaining_codes 3)))
   
@@ -55,9 +55,9 @@ Simulating an interactive resolution, as if the solution to the 1st problem was
   Enter result for test. code=211 - verifier=C(11): 
   (Test_result
    ((code 211) (verifier_letter C) (verifier_index 11)
-    (condition
+    (predicate
      ((index 2)
-      (condition (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
+      (predicate (Compare_symbols (a Triangle) (ordering Greater) (b Square)))))
     (result true) (remaining_bits_before 1.5849625007211561)
     (bits_gained 1.5849625007211561) (remaining_bits 0)
     (number_of_remaining_codes 1)))
