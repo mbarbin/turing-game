@@ -35,11 +35,11 @@ module Step : sig
   type t =
     | Request_test of Request_test.t
     | Propose_solution of { code : Code.t }
-        (** The solver believes it has reached the solution. *)
+    (** The solver believes it has reached the solution. *)
     | Error of Error.t
-        (** The solver has reached an unexpected condition and cannot make progress. *)
+    (** The solver has reached an unexpected condition and cannot make progress. *)
     | Info of Info.t
-        (** This is only returned by the simulation to insert useful information. *)
+    (** This is only returned by the simulation to insert useful information. *)
   [@@deriving sexp_of]
 end
 
