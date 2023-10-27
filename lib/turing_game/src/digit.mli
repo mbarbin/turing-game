@@ -15,21 +15,20 @@ type t =
 val to_int : t -> int
 
 module Tuple : sig
-    type digit
+  type digit := t
 
-    type 'a t =
-      { one : 'a
-      ; two : 'a
-      ; three : 'a
-      ; four : 'a
-      ; five : 'a
-      }
-    [@@deriving compare, enumerate, equal, fields, hash, sexp_of]
+  type 'a t =
+    { one : 'a
+    ; two : 'a
+    ; three : 'a
+    ; four : 'a
+    ; five : 'a
+    }
+  [@@deriving compare, enumerate, equal, fields, hash, sexp_of]
 
-    val init : f:(digit -> 'a) -> 'a t
-    val get : 'a t -> digit -> 'a
+  val init : f:(digit -> 'a) -> 'a t
+  val get : 'a t -> digit -> 'a
 
-    include Container.S1 with type 'a t := 'a t
-    include Applicative.S with type 'a t := 'a t
-  end
-  with type digit := t
+  include Container.S1 with type 'a t := 'a t
+  include Applicative.S with type 'a t := 'a t
+end

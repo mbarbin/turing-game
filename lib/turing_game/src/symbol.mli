@@ -19,21 +19,20 @@ end
 val color : t -> Color.t
 
 module Tuple : sig
-    type symbol
+  type symbol := t
 
-    type 'a t =
-      { triangle : 'a
-      ; square : 'a
-      ; circle : 'a
-      }
-    [@@deriving compare, enumerate, equal, fields, hash, sexp_of]
+  type 'a t =
+    { triangle : 'a
+    ; square : 'a
+    ; circle : 'a
+    }
+  [@@deriving compare, enumerate, equal, fields, hash, sexp_of]
 
-    val init : f:(symbol -> 'a) -> 'a t
-    val get : 'a t -> symbol -> 'a
+  val init : f:(symbol -> 'a) -> 'a t
+  val get : 'a t -> symbol -> 'a
 
-    include Container.S1 with type 'a t := 'a t
-    include Applicative.S with type 'a t := 'a t
-  end
-  with type symbol := t
+  include Container.S1 with type 'a t := 'a t
+  include Applicative.S with type 'a t := 'a t
+end
 
 val colors : Color.t Tuple.t
