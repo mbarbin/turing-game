@@ -379,7 +379,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         match running_mode with
         | Interactive -> input_test_result ~code ~verifier_index ~verifier_letter
         | Simulated_hypothesis hypothesis ->
-          let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_index in
+          let criteria = Decoder.Hypothesis.criteria_exn hypothesis ~verifier_index in
           Predicate.evaluate criteria.predicate ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
@@ -391,7 +391,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         let predicate =
           match running_mode with
           | Simulated_hypothesis hypothesis ->
-            let criteria = Decoder.Hypothesis.verifier_exn hypothesis ~verifier_index in
+            let criteria = Decoder.Hypothesis.criteria_exn hypothesis ~verifier_index in
             Info.create_s [%sexp (criteria : Criteria.t)]
           | Interactive ->
             (match Decoder.verifier_status_exn decoder ~verifier_index with

@@ -18,7 +18,7 @@ val remaining_codes : t -> Codes.t
 module Hypothesis : sig
   type t [@@deriving sexp_of]
 
-  val verifier_exn : t -> verifier_index:int -> Criteria.t
+  val criteria_exn : t -> verifier_index:int -> Criteria.t
 
   (** Assuming the hypothesis [t], returns the expected result of the given
       test. Raises if [verifier] is unknown. *)
