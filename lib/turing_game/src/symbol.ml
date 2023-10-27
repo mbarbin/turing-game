@@ -39,7 +39,7 @@ module Tuple = struct
   let init ~f = { triangle = f Triangle; square = f Square; circle = f Circle }
 
   let map t ~f =
-    let f field = f (Core.Field.get field t) in
+    let f field = f (Field.get field t) in
     Fields.map ~triangle:f ~square:f ~circle:f
   ;;
 

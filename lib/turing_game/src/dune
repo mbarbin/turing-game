@@ -4,7 +4,6 @@
  (flags -w +a-4-40-41-42-44-66 -warn-error +a)
  (libraries
   base
-  core ;; for Array.Permissioned
   core.command
   core_kernel.nonempty_list
   core_kernel.reversed_list

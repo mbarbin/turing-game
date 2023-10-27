@@ -42,7 +42,7 @@ module Tuple = struct
   ;;
 
   let map t ~f =
-    let f field = f (Core.Field.get field t) in
+    let f field = f (Field.get field t) in
     Fields.map ~one:f ~two:f ~three:f ~four:f ~five:f
   ;;
 

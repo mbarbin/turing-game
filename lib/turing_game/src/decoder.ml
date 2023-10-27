@@ -1,11 +1,5 @@
 open! Base
 
-(* mbarbin: Array.Permissioned is only available in Core, and not currently
-   available in Base, or as a standalone package. To be revisited. *)
-module Array = Core.Array
-
-type immutable = Core.immutable [@@deriving sexp_of]
-
 module Verifier_status = struct
   type t =
     | Undetermined of { remaining_criteria : Criteria.t Nonempty_list.t }
@@ -37,28 +31,24 @@ module Hypothesis = struct
   end
 
   type t =
-    { verifiers : (One_verifier.t, immutable) Array.Permissioned.t
+    { verifiers : One_verifier.t Immutable_array.t
     ; number_of_remaining_codes : int
     ; remaining_codes : Codes.t (* Must be non empty. *)
     }
 
   let sexp_of_t { verifiers; number_of_remaining_codes; remaining_codes } =
     match Codes.is_singleton remaining_codes with
-    | Some code ->
-      [%sexp
-        { code : Code.t; verifiers : (One_verifier.t, immutable) Array.Permissioned.t }]
+    | Some code -> [%sexp { code : Code.t; verifiers : One_verifier.t Immutable_array.t }]
     | None ->
       [%sexp
-        { number_of_remaining_codes : int
-        ; verifiers : (One_verifier.t, immutable) Array.Permissioned.t
-        }]
+        { number_of_remaining_codes : int; verifiers : One_verifier.t Immutable_array.t }]
   ;;
 
-  let verifier_exn t ~verifier_index =
+  let criteria_exn t ~verifier_index =
     t.verifiers
-    |> Array.Permissioned.to_list
-    |> List.find_map_exn ~f:(fun verifier ->
+    |> Immutable_array.find_map ~f:(fun verifier ->
       Option.some_if (verifier_index = verifier.verifier_index) verifier.criteria)
+    |> Option.value_exn ~here:[%here]
   ;;
 
   let remaining_code_exn t =
@@ -72,13 +62,13 @@ module Hypothesis = struct
   let remaining_codes t = t.remaining_codes
 
   let evaluate_exn t ~code ~verifier_index =
-    let criteria = verifier_exn t ~verifier_index in
+    let criteria = criteria_exn t ~verifier_index in
     Predicate.evaluate criteria.predicate ~code
   ;;
 end
 
 type t =
-  { slots : (Slot.t, immutable) Array.Permissioned.t
+  { slots : Slot.t Immutable_array.t
   ; mutable strict_hypotheses : Hypothesis.t list option
   }
 [@@deriving sexp_of]
@@ -89,8 +79,7 @@ let create ~verifiers =
   let slots =
     verifiers
     |> Nonempty_list.to_array
-    |> Array.Permissioned.of_array_id
-    |> Array.Permissioned.mapi ~f:(fun index verifier ->
+    |> Immutable_array.of_array_mapi ~f:(fun index verifier ->
       { Slot.index
       ; verifier
       ; verifier_status =
@@ -106,14 +95,14 @@ let create ~verifiers =
 
 let verifiers t =
   t.slots
-  |> Array.Permissioned.to_list
+  |> Immutable_array.to_list
   |> List.map ~f:(fun slot -> slot.verifier)
   |> Nonempty_list.of_list_exn
 ;;
 
 let find_slot_with_verifier_index_exn t ~verifier_index =
-  Array.Permissioned.find_exn t.slots ~f:(fun slot ->
-    verifier_index = slot.verifier.index)
+  Immutable_array.find t.slots ~f:(fun slot -> verifier_index = slot.verifier.index)
+  |> Option.value_exn ~here:[%here]
 ;;
 
 let verifier_exn t ~verifier_index =
@@ -155,9 +144,9 @@ end
 
 let compute_hypotheses (t : t) ~strict =
   let verifiers : Hypothesis.One_verifier.t Queue.t array =
-    Array.init (Array.Permissioned.length t.slots) ~f:(fun _ -> Queue.create ())
+    Array.init (Immutable_array.length t.slots) ~f:(fun _ -> Queue.create ())
   in
-  Array.Permissioned.iteri t.slots ~f:(fun i slot ->
+  Immutable_array.iteri t.slots ~f:(fun i slot ->
     let verifier_index = slot.verifier.index in
     match slot.verifier_status with
     | Undetermined { remaining_criteria } ->
@@ -180,12 +169,11 @@ let compute_hypotheses (t : t) ~strict =
   let rec loop () =
     let verifiers =
       verifiers
-      |> Array.Permissioned.of_array_id
-      |> Array.Permissioned.map ~f:(fun { Cycle_counter.values; current_value } ->
-        values.(current_value))
+      |> Immutable_array.of_array_mapi
+           ~f:(fun _ { Cycle_counter.values; current_value } -> values.(current_value))
     in
     let remaining_codes =
-      Array.Permissioned.fold
+      Immutable_array.fold
         verifiers
         ~init:Codes.all
         ~f:(fun remaining_codes one_verifier ->
@@ -225,8 +213,7 @@ let add_test_result t ~code ~verifier_index ~result =
   let open Or_error.Let_syntax in
   let slot =
     match
-      Array.Permissioned.find t.slots ~f:(fun slot ->
-        verifier_index = slot.verifier.index)
+      Immutable_array.find t.slots ~f:(fun slot -> verifier_index = slot.verifier.index)
     with
     | Some slot -> slot
     | None -> raise_s [%sexp "Verifier not found in t", { verifier_index : int }]
@@ -265,7 +252,7 @@ let add_test_result t ~code ~verifier_index ~result =
             , { index : int }]
     in
     let slots =
-      Array.Permissioned.mapi t.slots ~f:(fun i slot ->
+      Immutable_array.mapi t.slots ~f:(fun i slot ->
         if i = index then { slot with Slot.verifier_status } else slot)
     in
     return (create_internal ~slots)
@@ -291,7 +278,7 @@ let criteria_distribution_exn t ~verifier_index =
       let number_of_hypotheses_with_this_criteria =
         List.count hypotheses ~f:(fun hypothesis ->
           criteria.index
-          = (Array.Permissioned.get hypothesis.verifiers slot.index).criteria.index)
+          = (Immutable_array.get hypothesis.verifiers slot.index).criteria.index)
       in
       { Criteria_and_probability.criteria
       ; probability =
