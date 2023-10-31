@@ -207,12 +207,12 @@ let%expect_test "remaining codes" =
        (bits_gained 0.96829114027266172)
        (probability 0.463302752293578)))) |}];
   let evaluation = Interactive_solver.Evaluation.compute [ t_true; t_false ] in
-  Expect_test_helpers_base.require_ok
+  require_ok
     [%here]
     ~print_ok:(fun evaluation -> [%sexp (evaluation : Interactive_solver.Evaluation.t)])
     evaluation;
   [%expect {| ((expected_information_gained 0.7625597144583216)) |}];
-  Expect_test_helpers_base.require_ok
+  require_ok
     [%here]
     (if Float.( > ) 1e-7 (Float.abs (t_true.probability +. t_false.probability -. 1.))
      then Ok ()
