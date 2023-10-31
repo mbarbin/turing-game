@@ -1,4 +1,3 @@
-open! Import
 open! Or_error.Let_syntax
 
 module Expected_information_gained = struct
@@ -16,8 +15,8 @@ module Expected_information_gained = struct
     then unreachable
     else (
       let starting_number = Float.of_int starting_number in
-      let starting_bits = Float.log2 starting_number in
-      let remaining_bits = Float.log2 (Float.of_int remaining_number) in
+      let starting_bits = Stdlib.Float.log2 starting_number in
+      let remaining_bits = Stdlib.Float.log2 (Float.of_int remaining_number) in
       let bits_gained = starting_bits -. remaining_bits in
       { bits_gained; probability })
   ;;
@@ -287,18 +286,18 @@ let remaining_bits ~decoder =
   let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if number_of_remaining_codes = 0
   then 0.
-  else Float.log2 (Float.of_int number_of_remaining_codes)
+  else Stdlib.Float.log2 (Float.of_int number_of_remaining_codes)
 ;;
 
-let input_line () = Stdio.In_channel.(input_line_exn stdin)
+let input_line () = In_channel.(input_line_exn stdin)
 
 let input_test_result ~code ~verifier_index ~verifier_letter =
   let rec input_bool ~prompt =
     print_string ("\n" ^ prompt);
-    Stdio.Out_channel.(flush stdout);
+    Out_channel.(flush stdout);
     let bool = input_line () in
     print_string "\n";
-    Stdio.Out_channel.(flush stdout);
+    Out_channel.(flush stdout);
     match Bool.of_string bool with
     | exception e ->
       print_s [%sexp (e : Exn.t)];
@@ -316,10 +315,10 @@ let input_test_result ~code ~verifier_index ~verifier_letter =
 
 let wait_for_newline ~prompt =
   print_string ("\n" ^ prompt ^ " Type ENTER to continue...");
-  Stdio.Out_channel.(flush stdout);
+  Out_channel.(flush stdout);
   let (_ : string) = input_line () in
   print_string "\n";
-  Stdio.Out_channel.(flush stdout);
+  Out_channel.(flush stdout);
   ()
 ;;
 
@@ -336,7 +335,7 @@ end
 
 let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
   let rec aux ~decoder ~(rounds : Resolution_path.Round.t Reversed_list.t) ~current_round =
-    (if Running_mode.is_interactive running_mode then Stdio.Out_channel.(flush stdout));
+    (if Running_mode.is_interactive running_mode then Out_channel.(flush stdout));
     let next_step = next_step ~decoder ~current_round in
     match next_step with
     | Error e -> Error e
