@@ -1,5 +1,3 @@
-open! Turing_game
-
 let%expect_test "interactive solver simulation decoder 1" =
   let config = Config.load_exn () in
   let decoder = Config.decoder_exn config [ 4; 9; 11; 14 ] in

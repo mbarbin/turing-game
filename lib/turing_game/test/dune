@@ -10,7 +10,9 @@
   -open
   Stdio
   -open
-  Expect_test_helpers_base)
+  Expect_test_helpers_base
+  -open
+  Turing_game)
  (libraries
   base
   expect_test_helpers_core.expect_test_helpers_base

@@ -1,5 +1,3 @@
-open! Turing_game
-
 let config = Config.load_exn ()
 let decoder_01 = Config.decoder_exn config [ 4; 9; 11; 14 ]
 
