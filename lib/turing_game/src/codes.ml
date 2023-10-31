@@ -1,5 +1,11 @@
 type t = Code.t list [@@deriving equal, compare, sexp_of]
 
+module With_sorted_sexp = struct
+  type nonrec t = t [@@deriving equal, compare]
+
+  let sexp_of_t (t : t) = List.sort t ~compare:Code.compare |> sexp_of_t
+end
+
 let empty = []
 
 let all =

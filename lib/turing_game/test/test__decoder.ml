@@ -92,7 +92,7 @@ let evaluate_test ~decoder ~code ~verifier_index ~result =
       { code : Code.t
       ; verifier_index : int
       ; result : bool
-      ; remaining_codes : Codes.t
+      ; remaining_codes : Codes.With_sorted_sexp.t
       ; starting_number : int
       ; remaining_number : int
       ; info : Info.t
@@ -103,8 +103,8 @@ let evaluate_test ~decoder ~code ~verifier_index ~result =
 
 let%expect_test "initial hypotheses" =
   let decoder = decoder_01 in
-  print_s [%sexp (Decoder.remaining_codes decoder : Codes.t)];
-  [%expect {| (221 231 241 545 443 543 553) |}];
+  print_s [%sexp (Decoder.remaining_codes decoder : Codes.With_sorted_sexp.t)];
+  [%expect {| (221 231 241 443 543 545 553) |}];
   ()
 ;;
 
@@ -118,36 +118,36 @@ let%expect_test "remaining codes" =
      (verifier_index 34)
      (result         true)
      (remaining_codes (
-       245
-       145
-       345
-       234
+       114
        124
        134
-       454
-       455
+       141
+       145
+       214
+       224
+       234
        242
        243
        244
-       344
-       343
-       141
-       354
-       444
-       445
-       224
-       114
+       245
+       314
+       324
        334
+       343
+       344
+       345
+       354
+       411
        422
        423
        434
-       411
-       544
-       545
-       214
+       444
+       445
+       454
+       455
        534
-       324
-       314))
+       544
+       545))
      (starting_number  45)
      (remaining_number 30)
      (info (
@@ -169,29 +169,29 @@ let%expect_test "remaining codes" =
      (verifier_index 34)
      (result         false)
      (remaining_codes (
-       453
-       454
-       452
-       451
        141
-       343
        242
        342
+       343
+       411
+       421
+       422
+       431
+       432
+       433
+       441
+       442
        443
        444
-       442
-       441
-       554
-       421
-       432
-       431
-       543
-       542
+       451
+       452
+       453
+       454
        541
-       433
-       422
-       411
-       544))
+       542
+       543
+       544
+       554))
      (starting_number  45)
      (remaining_number 23)
      (info (

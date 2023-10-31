@@ -3,6 +3,11 @@
 
 type t [@@deriving equal, compare, sexp_of]
 
+module With_sorted_sexp : sig
+  (** Sort the elements before creating the sexp. To be used by tests. *)
+  type nonrec t = t [@@deriving equal, compare, sexp_of]
+end
+
 val empty : t
 
 (** All the combinations of codes that can be used in the game. *)
