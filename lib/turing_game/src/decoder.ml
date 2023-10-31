@@ -1,5 +1,3 @@
-open! Base
-
 module Verifier_status = struct
   type t =
     | Undetermined of { remaining_criteria : Criteria.t Nonempty_list.t }

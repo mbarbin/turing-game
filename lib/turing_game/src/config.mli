@@ -1,5 +1,3 @@
-open! Base
-
 type t
 
 (** Load the config installed in the system *)

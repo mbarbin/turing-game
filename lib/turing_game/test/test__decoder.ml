@@ -1,5 +1,3 @@
-open! Base
-open! Stdio
 open! Turing_game
 
 let config = Config.load_exn ()

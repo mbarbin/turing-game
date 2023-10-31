@@ -1,5 +1,3 @@
-open! Base
-
 type t = { verifiers : Verifier.t list } [@@deriving sexp_of]
 
 let verifiers : Verifier.t list ref = ref []

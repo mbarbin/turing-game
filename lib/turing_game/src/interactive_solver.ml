@@ -1,5 +1,3 @@
-open! Base
-open! Stdio
 open! Import
 open! Or_error.Let_syntax
 

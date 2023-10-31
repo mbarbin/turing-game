@@ -1,4 +1,3 @@
-open! Base
 open! Turing_game
 
 let%expect_test "interactive solver simulation decoder 1" =

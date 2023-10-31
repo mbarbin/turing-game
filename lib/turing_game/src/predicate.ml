@@ -1,5 +1,3 @@
-open! Base
-
 type t =
   | Const of bool
   | Compare_symbol_with_value of

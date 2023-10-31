@@ -1,5 +1,3 @@
-open! Base
-
 module Expected_information_gained : sig
   (** Evaluate a test in term of expected information bits gained. *)
   type t = private

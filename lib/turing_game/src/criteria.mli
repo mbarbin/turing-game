@@ -1,5 +1,3 @@
-open! Base
-
 type t =
   { index : int
   ; predicate : Predicate.t

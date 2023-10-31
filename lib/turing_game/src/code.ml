@@ -1,5 +1,3 @@
-open! Base
-
 type t = Digit.t Symbol.Tuple.t [@@deriving compare, equal, hash]
 
 let to_string { Symbol.Tuple.triangle; square; circle } =

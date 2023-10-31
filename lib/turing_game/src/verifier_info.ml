@@ -1,5 +1,3 @@
-open! Base
-
 type t =
   { verifier : Verifier.t
   ; verifier_letter : Verifier_letter.t

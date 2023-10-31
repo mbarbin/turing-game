@@ -1,5 +1,3 @@
-open! Base
-
 (** A resolution path is a sequence of tests that the bot requests to be run, in
     order to decipher the code. *)
 

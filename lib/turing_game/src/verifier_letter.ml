@@ -1,5 +1,3 @@
-open! Base
-
 type t = int [@@deriving compare, equal]
 
 let of_index i = i

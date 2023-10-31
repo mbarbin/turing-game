@@ -1,5 +1,3 @@
-open! Base
-
 (** There are 3 symbols in this game, each associated with a unique color. *)
 
 type t =

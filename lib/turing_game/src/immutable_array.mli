@@ -1,5 +1,3 @@
-open! Base
-
 (** Handling arrays whose contents is never mutated. *)
 
 type 'a t [@@deriving compare, equal, sexp_of]

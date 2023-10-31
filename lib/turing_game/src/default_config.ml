@@ -1,5 +1,3 @@
-open! Base
-
 let add index predicates = Config.add_verifier { index; predicates }
 let symbols = Symbol.all |> Nonempty_list.of_list_exn
 let orderings = Ordering.all |> Nonempty_list.of_list_exn

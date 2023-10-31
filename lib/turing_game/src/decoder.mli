@@ -1,5 +1,3 @@
-open! Base
-
 type t [@@deriving sexp_of]
 
 val create : verifiers:Verifier.t Nonempty_list.t -> t
