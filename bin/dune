@@ -3,4 +3,4 @@
  (public_name turing-game)
  (package turing-game)
  (flags -w +a-4-40-41-42-44-66 -warn-error +a)
- (libraries core_unix.command_unix turing-game))
+ (libraries command-unix-for-opam turing-game))
