@@ -40,10 +40,8 @@
    (and
     (>= v0.16)
     (< v0.17)))
-  (core_unix
-   (and
-    (>= v0.16)
-    (< v0.17)))
+  (command-unix-for-opam
+   (>= 0.0.1))
   (expect_test_helpers_core
    (and
     :with-test
