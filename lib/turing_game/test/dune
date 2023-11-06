@@ -1,8 +1,9 @@
 (library
  (name turing_game_test)
  (flags
+  :standard
   -w
-  +a-4-40-41-42-44-66
+  +a-4-40-41-42-44-45-66
   -warn-error
   +a
   -open
@@ -18,7 +19,7 @@
   expect_test_helpers_core.expect_test_helpers_base
   sexp_diff
   stdio
-  turing-game)
+  turing_game)
  (inline_tests)
  (preprocess
   (pps ppx_jane ppx_js_style -check-doc-comments)))
