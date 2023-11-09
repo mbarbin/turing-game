@@ -11,12 +11,7 @@
   Base
   -open
   Stdio)
- (libraries
-  base
-  core.command
-  core_kernel.nonempty_list
-  core_kernel.reversed_list
-  stdio)
+ (libraries base core.command nonempty-list reversed-list stdio)
  (library_flags (-linkall))
  (preprocess
   (pps ppx_jane ppx_js_style -check-doc-comments)))

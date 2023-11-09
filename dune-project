@@ -38,13 +38,13 @@
    (and
     (>= v0.16)
     (< v0.17)))
-  (core_kernel
-   (and
-    (>= v0.16)
-    (< v0.17)))
   (expect_test_helpers_core
    (and
     :with-test
+    (>= v0.16)
+    (< v0.17)))
+  (nonempty-list
+   (and
     (>= v0.16)
     (< v0.17)))
   (ppx_jane
@@ -52,6 +52,10 @@
     (>= v0.16)
     (< v0.17)))
   (ppx_js_style
+   (and
+    (>= v0.16)
+    (< v0.17)))
+  (reversed-list
    (and
     (>= v0.16)
     (< v0.17)))
