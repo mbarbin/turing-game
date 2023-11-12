@@ -17,7 +17,7 @@
  (libraries
   base
   expect_test_helpers_core.expect_test_helpers_base
-  sexp_diff
+  patdiff.expect_test_patdiff
   stdio
   turing_game)
  (inline_tests)
