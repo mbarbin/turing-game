@@ -18,7 +18,6 @@
 (package
  (name turing-game)
  (synopsis "A bot that can play a board game called Turing Machine")
- (description "A bot that can play a board game called Turing Machine")
  (sites
   (share stdlib)
   (share bopboard)
