@@ -1,4 +1,4 @@
-(lang dune 3.11)
+(lang dune 3.12)
 
 (name turing-game)
 
@@ -25,8 +25,6 @@
  (depends
   (ocaml
    (>= 5.1))
-  (dune
-   (>= 3.11))
   (base
    (and
     (>= v0.16)
