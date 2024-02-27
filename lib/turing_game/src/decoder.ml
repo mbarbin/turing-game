@@ -44,7 +44,7 @@ module Hypothesis = struct
 
   let criteria_exn t ~verifier_index =
     t.verifiers
-    |> Immutable_array.find_map ~f:(fun verifier ->
+    |> Immutable_array.find_map ~f:(fun (verifier : One_verifier.t) ->
       Option.some_if (verifier_index = verifier.verifier_index) verifier.criteria)
     |> Option.value_exn ~here:[%here]
   ;;
@@ -94,7 +94,7 @@ let create ~verifiers =
 let verifiers t =
   t.slots
   |> Immutable_array.to_list
-  |> List.map ~f:(fun slot -> slot.verifier)
+  |> List.map ~f:(fun (slot : Slot.t) -> slot.verifier)
   |> Nonempty_list.of_list_exn
 ;;
 

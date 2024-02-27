@@ -76,7 +76,8 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
   else (
     let criteria_distribution =
       Decoder.criteria_distribution_exn decoder ~verifier_index
-      |> Nonempty_list.map ~f:(fun c -> c, Predicate.evaluate c.criteria.predicate ~code)
+      |> Nonempty_list.map ~f:(fun (c : Decoder.Criteria_and_probability.t) ->
+        c, Predicate.evaluate c.criteria.predicate ~code)
     in
     let compute_expected_information_gained ~result =
       match Decoder.add_test_result decoder ~code ~verifier_index ~result with
