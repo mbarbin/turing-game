@@ -1,2 +1,6 @@
+_opam
 _build
+_coverage
+.worktree
+*.install
 lib/turing_game/src/extra_config.ml*
