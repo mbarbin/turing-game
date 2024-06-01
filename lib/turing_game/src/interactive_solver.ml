@@ -15,8 +15,8 @@ module Expected_information_gained = struct
     then unreachable
     else (
       let starting_number = Float.of_int starting_number in
-      let starting_bits = Stdlib.Float.log2 starting_number in
-      let remaining_bits = Stdlib.Float.log2 (Float.of_int remaining_number) in
+      let starting_bits = Float.log2 starting_number in
+      let remaining_bits = Float.log2 (Float.of_int remaining_number) in
       let bits_gained = starting_bits -. remaining_bits in
       { bits_gained; probability })
   ;;
@@ -287,7 +287,7 @@ let remaining_bits ~decoder =
   let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if number_of_remaining_codes = 0
   then 0.
-  else Stdlib.Float.log2 (Float.of_int number_of_remaining_codes)
+  else Float.log2 (Float.of_int number_of_remaining_codes)
 ;;
 
 let input_line () = In_channel.(input_line_exn stdin)
