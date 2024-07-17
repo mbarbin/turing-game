@@ -17,6 +17,7 @@
  (library_flags (-linkall))
  (preprocess
   (pps
+   -unused-type-warnings=force
    ppx_compare
    ppx_enumerate
    ppx_fields_conv
