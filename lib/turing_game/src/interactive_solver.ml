@@ -470,26 +470,25 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
 ;;
 
 let cmd =
-  Command.basic
+  Command.make
     ~summary:"solve game interactively"
     (let%map_open.Command stress_test =
-       flag "stress-test" no_arg ~doc:" run for all hypotheses"
+       Arg.flag [ "stress-test" ] ~doc:"run for all hypotheses"
      and verifiers =
-       flag
-         "verifiers"
-         (required (Arg_type.comma_separated int))
-         ~doc:"N,N[,...] specify verifiers"
+       Arg.named
+         [ "verifiers" ]
+         (Param.comma_separated Param.int)
+         ~doc:"specify verifiers"
        >>| Nonempty_list.of_list_exn
      in
-     fun () ->
-       let config = Config.load_exn () in
-       let decoder = Config.decoder_exn config verifiers in
-       if stress_test
-       then simulate_hypotheses ~decoder ~which_hypotheses:All
-       else (
-         match interactive_solve ~decoder ~running_mode:Interactive with
-         | Ok (_ : Code.t) -> ()
-         | Error e ->
-           prerr_endline (Error.to_string_hum e);
-           Stdlib.exit 1))
+     let config = Config.load_exn () in
+     let decoder = Config.decoder_exn config verifiers in
+     if stress_test
+     then simulate_hypotheses ~decoder ~which_hypotheses:All
+     else (
+       match interactive_solve ~decoder ~running_mode:Interactive with
+       | Ok (_ : Code.t) -> ()
+       | Error e ->
+         prerr_endline (Error.to_string_hum e);
+         Stdlib.exit 1))
 ;;

@@ -1,6 +1,6 @@
 Simulating an interactive resolution to problem 2.
 
-  $ turing-game solver -verifiers 3,7,10,14 <<EOF
+  $ turing-game solver --verifiers 3,7,10,14 <<EOF
   > 
   > true
   > 

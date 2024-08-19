@@ -10,4 +10,4 @@ module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
 
-val main : Command.t
+val main : unit Command.t
