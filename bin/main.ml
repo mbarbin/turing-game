@@ -1,1 +1,8 @@
-let () = Command_unix_for_opam.run Turing_game.main
+let () =
+  Cmdliner.Cmd.eval
+    (Commandlang_to_cmdliner.Translate.command
+       Turing_game.main
+       ~name:"turing-game"
+       ~version:"%%VERSION%%")
+  |> Stdlib.exit
+;;

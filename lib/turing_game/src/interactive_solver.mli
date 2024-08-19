@@ -59,7 +59,7 @@ end
     happen if the given hypotheses were true. *)
 val simulate_hypotheses : decoder:Decoder.t -> which_hypotheses:Which_hypotheses.t -> unit
 
-val cmd : Command.t
+val cmd : unit Command.t
 
 module Test_evaluation : sig
   type t =

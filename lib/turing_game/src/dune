@@ -10,8 +10,10 @@
   -open
   Base
   -open
-  Stdio)
- (libraries base core.command nonempty-list reversed-list stdio)
+  Stdio
+  -open
+  Commandlang)
+ (libraries base commandlang nonempty-list reversed-list stdio)
  (lint
   (pps ppx_js_style -check-doc-comments))
  (library_flags (-linkall))
