@@ -1,5 +1,6 @@
 (library
  (name turing_game_test)
+ (public_name turing-game-tests.turing_game_test)
  (flags
   :standard
   -w
@@ -9,10 +10,14 @@
   -open
   Base
   -open
-  Expect_test_helpers
+  Expect_test_helpers_base
   -open
   Turing_game)
- (libraries base expect-test-helpers patdiff.expect_test_patdiff turing_game)
+ (libraries
+  base
+  expect_test_helpers_core.expect_test_helpers_base
+  patdiff.expect_test_patdiff
+  turing_game)
  (inline_tests)
  (lint
   (pps ppx_js_style -check-doc-comments))
