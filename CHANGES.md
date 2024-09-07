@@ -1,23 +1,16 @@
-## 0.0.9 (unreleased)
-
-### Added
+## 0.0.9 (2024-09-07)
 
 ### Changed
 
+- Upgrade to `cmdlang.0.0.4`.
 - Upgrade to usable version of `err0`.
 - Split test package & use `expect_test_helpers_base`.
-
-### Deprecated
-
-### Fixed
-
-### Removed
 
 ## 0.0.8 (2024-08-19)
 
 ### Changed
 
-- Switch to using `commandlang` for commands.
+- Switch to using `cmdlang` for commands.
 
 ## 0.0.7 (2024-07-26)
 

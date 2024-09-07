@@ -183,9 +183,8 @@ let evaluate_code ~decoder ~code =
               [| { Test_key.code; verifier_index = verifier.index } |]
           in
           evaluate_test_keys ~test_keys, test_keys)
-        |> Nonempty_list.to_list
-        |> List.max_elt ~compare:(fun (e1, _) (e2, _) -> Evaluation.compare e1 e2)
-        |> Option.value_exn ~here:[%here]
+        |> Nonempty_list.max_elt' ~compare:(fun (e1, _) (e2, _) ->
+          Evaluation.compare e1 e2)
       in
       aux ~evaluation ~test_keys)
   in

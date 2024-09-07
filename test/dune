@@ -1,4 +1,5 @@
 (cram
+ (package turing-game-tests)
  (deps
   (package turing-game)
   %{bin:turing-game}))
