@@ -32,7 +32,7 @@
   (cmdlang-to-cmdliner
    (>= 0.0.5))
   (cmdliner
-   (= 1.3.0))
+   (>= 1.3.0))
   (nonempty-list
    (and
     (>= v0.17)
@@ -105,7 +105,7 @@
   (cmdlang-to-cmdliner
    (>= 0.0.5))
   (cmdliner
-   (= 1.3.0))
+   (>= 1.3.0))
   (expect_test_helpers_core
    (and
     (>= v0.17)
