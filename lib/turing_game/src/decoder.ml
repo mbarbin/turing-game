@@ -207,14 +207,19 @@ let remaining_codes t =
 
 let number_of_remaining_codes t = Codes.length (remaining_codes t)
 
+module Test_result = struct
+  type nonrec t =
+    | Ok of t
+    | Inconsistency of Sexp.t
+end
+
 let add_test_result t ~code ~verifier_index ~result =
-  let open Or_error.Let_syntax in
   let slot =
     match
       Immutable_array.find t.slots ~f:(fun slot -> verifier_index = slot.verifier.index)
     with
     | Some slot -> slot
-    | None -> raise_s [%sexp "Verifier not found in t", { verifier_index : int }]
+    | None -> Err.raise_s "Verifier not found in t" [%sexp { verifier_index : int }]
   in
   let index = slot.index in
   match slot.verifier_status with
@@ -222,38 +227,36 @@ let add_test_result t ~code ~verifier_index ~result =
     (* Nothing to learn. *)
     let expected_result = Predicate.evaluate predicate ~code in
     if Bool.equal expected_result result
-    then return t
+    then Test_result.Ok t
     else
-      Or_error.error_s
+      Test_result.Inconsistency
         [%sexp
-          "Unexpected result"
-          , { index : int
-            ; verifier_status =
-                Determined
-                  { predicate : Predicate.t; expected_result : bool; result : bool }
-            }]
+          { index : int
+          ; verifier_status =
+              Determined
+                { predicate : Predicate.t; expected_result : bool; result : bool }
+          }]
   | Undetermined { remaining_criteria } ->
-    let%bind verifier_status =
+    let verifier_status =
       let remaining_conditions =
         Nonempty_list.filter remaining_criteria ~f:(fun { index = _; predicate } ->
           Bool.equal result (Predicate.evaluate predicate ~code))
       in
       match remaining_conditions with
-      | [ predicate ] -> return (Verifier_status.Determined predicate)
+      | [ predicate ] -> Ok (Verifier_status.Determined predicate)
       | hd :: (_ :: _ as tl) ->
-        return (Verifier_status.Undetermined { remaining_criteria = hd :: tl })
+        Ok (Verifier_status.Undetermined { remaining_criteria = hd :: tl })
       | [] ->
-        Or_error.error_s
-          [%sexp
-            "Unexpected result"
-            , "Verifier has no remaining possible predicate"
-            , { index : int }]
+        Error [%sexp "Verifier has no remaining possible predicate", { index : int }]
     in
-    let slots =
-      Immutable_array.mapi t.slots ~f:(fun i slot ->
-        if i = index then { slot with Slot.verifier_status } else slot)
-    in
-    return (create_internal ~slots)
+    (match verifier_status with
+     | Error error -> Test_result.Inconsistency error
+     | Ok verifier_status ->
+       let slots =
+         Immutable_array.mapi t.slots ~f:(fun i slot ->
+           if i = index then { slot with Slot.verifier_status } else slot)
+       in
+       Test_result.Ok (create_internal ~slots))
 ;;
 
 module Criteria_and_probability = struct

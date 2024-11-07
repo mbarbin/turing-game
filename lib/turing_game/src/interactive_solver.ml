@@ -1,5 +1,3 @@
-open! Or_error.Let_syntax
-
 module Expected_information_gained = struct
   (* Evaluate a test in term of expected information bits gained. *)
   type t =
@@ -29,17 +27,16 @@ module Evaluation = struct
   let is_zero t = Float.(t.expected_information_gained <= 0.)
 
   let compute (ts : Expected_information_gained.t Nonempty_list.t) =
-    let%map () =
+    let () =
       let sum_probabilities =
         Nonempty_list.sum (module Float) ts ~f:(fun t -> t.probability)
       in
-      if Float.( > ) 1e-7 (Float.abs (1. -. sum_probabilities))
-      then return ()
-      else
-        Or_error.error_s
+      if Float.( >= ) (Float.abs (1. -. sum_probabilities)) 1e-7
+      then
+        Err.raise_s
+          "Sum of probabilities does not equal 1"
           [%sexp
-            "Sum of probabilities does not equal 1"
-            , (ts : Expected_information_gained.t Nonempty_list.t)
+            (ts : Expected_information_gained.t Nonempty_list.t)
             , { sum_probabilities : float }]
     in
     let expected_information_gained =
@@ -65,14 +62,12 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
   let starting_number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
   if starting_number_of_remaining_codes <= 0
   then
-    return
-      { Test_evaluation.evaluation = Evaluation.zero
-      ; score_if_true = Expected_information_gained.unreachable
-      ; score_if_false = Expected_information_gained.unreachable
-      ; info =
-          Info.create_s
-            [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
-      }
+    { Test_evaluation.evaluation = Evaluation.zero
+    ; score_if_true = Expected_information_gained.unreachable
+    ; score_if_false = Expected_information_gained.unreachable
+    ; info =
+        Info.create_s [%sexp "Unreachable", { starting_number_of_remaining_codes : int }]
+    }
   else (
     let criteria_distribution =
       Decoder.criteria_distribution_exn decoder ~verifier_index
@@ -81,7 +76,7 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
     in
     let compute_expected_information_gained ~result =
       match Decoder.add_test_result decoder ~code ~verifier_index ~result with
-      | Error _ -> Expected_information_gained.unreachable
+      | Inconsistency _ -> Expected_information_gained.unreachable
       | Ok decoder ->
         let probability =
           Nonempty_list.sum
@@ -97,7 +92,7 @@ let evaluate_test ~decoder ~code ~(verifier : Verifier.t) =
     in
     let score_if_true = compute_expected_information_gained ~result:true in
     let score_if_false = compute_expected_information_gained ~result:false in
-    let%map evaluation = Evaluation.compute [ score_if_true; score_if_false ] in
+    let evaluation = Evaluation.compute [ score_if_true; score_if_false ] in
     { Test_evaluation.evaluation
     ; score_if_true
     ; score_if_false
@@ -165,11 +160,7 @@ let evaluate_code ~decoder ~code =
             Float.(of_int remaining_number_of_hypotheses /. initial_number_of_hypotheses))
     with
     | [] -> Evaluation.zero
-    | hd :: tl ->
-      (match Evaluation.compute (hd :: tl) with
-       | Ok evaluation -> evaluation
-       | Error error ->
-         raise_s [%sexp "evaluate_code failed", { code : Code.t }, (error : Error.t)])
+    | hd :: tl -> Evaluation.compute (hd :: tl)
   in
   let rec aux ~evaluation ~test_keys =
     if Array.length test_keys = 3
@@ -239,7 +230,7 @@ let pick_best_positive_evaluation alist =
 let pick_best_verifier ~decoder ~code =
   Nonempty_list.filter_map (Decoder.verifiers decoder) ~f:(fun verifier ->
     let { Test_evaluation.evaluation; info; _ } =
-      evaluate_test ~decoder ~code ~verifier |> Or_error.ok_exn
+      evaluate_test ~decoder ~code ~verifier
     in
     if Evaluation.is_zero evaluation
     then None
@@ -338,7 +329,9 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
     (if Running_mode.is_interactive running_mode then Out_channel.(flush stdout));
     let next_step = next_step ~decoder ~current_round in
     match next_step with
-    | Error e -> Error e
+    | Error e ->
+      Err.raise
+        [ Pp.text "Interactive solver failed"; Err.pp_of_sexp (Error.sexp_of_t e) ]
     | Propose_solution { code } ->
       let resolution_path =
         let rounds =
@@ -358,7 +351,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
       then wait_for_newline ~prompt:"Ready to propose a solution.";
       List.iter info ~f:(fun info -> print_s [%sexp Info, (info : Info.t)]);
       print_s [%sexp (next_step : Step.t)];
-      return code
+      code
     | Info _ -> assert false
     | Request_test { new_round; code; verifier_index; info = _ } ->
       if Running_mode.is_interactive running_mode
@@ -380,7 +373,12 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
           Predicate.evaluate criteria.predicate ~code
       in
       let remaining_bits_before = remaining_bits ~decoder in
-      let%bind decoder = Decoder.add_test_result decoder ~code ~verifier_index ~result in
+      let decoder =
+        match Decoder.add_test_result decoder ~code ~verifier_index ~result with
+        | Ok t -> t
+        | Inconsistency sexp ->
+          Err.raise [ Pp.text "Internal error during solving"; Err.pp_of_sexp sexp ]
+      in
       let () =
         let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
         let remaining_bits = remaining_bits ~decoder in
@@ -460,7 +458,6 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
     print_s [%sexp (hypothesis : Decoder.Hypothesis.t)];
     let code =
       interactive_solve ~decoder ~running_mode:(Simulated_hypothesis hypothesis)
-      |> Or_error.ok_exn
     in
     let expected_code = Decoder.Hypothesis.remaining_code_exn hypothesis in
     if Code.equal expected_code code
@@ -471,8 +468,8 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
 let cmd =
   Command.make
     ~summary:"solve game interactively"
-    (let%map_open.Command stress_test =
-       Arg.flag [ "stress-test" ] ~doc:"run for all hypotheses"
+    (let%map_open.Command () = Err_cli.set_config ()
+     and stress_test = Arg.flag [ "stress-test" ] ~doc:"run for all hypotheses"
      and verifiers =
        Arg.named
          [ "verifiers" ]
@@ -484,10 +481,5 @@ let cmd =
      let decoder = Config.decoder_exn config verifiers in
      if stress_test
      then simulate_hypotheses ~decoder ~which_hypotheses:All
-     else (
-       match interactive_solve ~decoder ~running_mode:Interactive with
-       | Ok (_ : Code.t) -> ()
-       | Error e ->
-         prerr_endline (Error.to_string_hum e);
-         Stdlib.exit 1))
+     else ignore (interactive_solve ~decoder ~running_mode:Interactive : Code.t))
 ;;

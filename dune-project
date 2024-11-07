@@ -33,6 +33,10 @@
    (>= 0.0.5))
   (cmdliner
    (>= 1.3.0))
+  (err
+   (>= 0.0.5))
+  (err-cli
+   (>= 0.0.5))
   (nonempty-list
    (and
     (>= v0.17)
@@ -106,6 +110,10 @@
    (>= 0.0.5))
   (cmdliner
    (>= 1.3.0))
+  (err
+   (>= 0.0.5))
+  (err-cli
+   (>= 0.0.5))
   (expect_test_helpers_core
    (and
     (>= v0.17)

@@ -35,6 +35,12 @@ end
     solution. *)
 val hypotheses : ?strict:bool -> t -> Hypothesis.t list
 
+module Test_result : sig
+  type nonrec t =
+    | Ok of t
+    | Inconsistency of Sexp.t
+end
+
 (** During the course of the decoding, the decoder will request some tests to be
     run. Use this function to inform back [t] of the test result. *)
 val add_test_result
@@ -42,7 +48,7 @@ val add_test_result
   -> code:Code.t
   -> verifier_index:int
   -> result:bool
-  -> t Or_error.t
+  -> Test_result.t
 
 module Verifier_status : sig
   type t =

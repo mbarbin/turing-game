@@ -74,13 +74,13 @@ let evaluate_test ~decoder ~code ~verifier_index ~result =
       ; info
       }
     =
-    Interactive_solver.evaluate_test ~decoder ~code ~verifier |> Or_error.ok_exn
+    Interactive_solver.evaluate_test ~decoder ~code ~verifier
   in
   let starting_number = Decoder.number_of_remaining_codes decoder in
   let remaining_codes =
     match Decoder.add_test_result decoder ~code ~verifier_index ~result with
     | Ok decoder -> Decoder.remaining_codes decoder
-    | Error _ -> Codes.empty
+    | Inconsistency _ -> Codes.empty
   in
   let remaining_number = Codes.length remaining_codes in
   let expected_information_gained = if result then score_if_true else score_if_false in
@@ -205,22 +205,17 @@ let%expect_test "remaining codes" =
        (bits_gained 0.96829114027266172)
        (probability 0.463302752293578)))) |}];
   let evaluation = Interactive_solver.Evaluation.compute [ t_true; t_false ] in
-  require_ok
-    [%here]
-    ~print_ok:(fun evaluation -> [%sexp (evaluation : Interactive_solver.Evaluation.t)])
-    evaluation;
+  print_s [%sexp (evaluation : Interactive_solver.Evaluation.t)];
   [%expect {| ((expected_information_gained 0.7625597144583216)) |}];
-  require_ok
-    [%here]
-    (if Float.( > ) 1e-7 (Float.abs (t_true.probability +. t_false.probability -. 1.))
-     then Ok ()
-     else
-       Or_error.error_s
-         [%sexp
-           "Probability do not sum to 1"
-           , { t_true : Interactive_solver.Expected_information_gained.t
-             ; t_false : Interactive_solver.Expected_information_gained.t
-             }]);
+  require_does_not_raise [%here] (fun () ->
+    if Float.( >= ) (Float.abs (t_true.probability +. t_false.probability -. 1.)) 1e-7
+    then
+      Err.raise_s
+        "Probability do not sum to 1"
+        [%sexp
+          { t_true : Interactive_solver.Expected_information_gained.t
+          ; t_false : Interactive_solver.Expected_information_gained.t
+          }]);
   [%expect {| |}];
   ()
 ;;
@@ -458,9 +453,14 @@ let%expect_test "example of path" =
     sexp_init := sexp
   in
   let code : Code.t = { triangle = One; square = Two; circle = Three } in
+  let test_result_exn result =
+    match (result : Decoder.Test_result.t) with
+    | Ok decoder -> decoder
+    | Inconsistency sexp -> raise_s sexp
+  in
   let decoder =
     Decoder.add_test_result decoder ~code ~verifier_index:4 ~result:false
-    |> Or_error.ok_exn
+    |> test_result_exn
   in
   print_progress ~decoder;
   [%expect
@@ -535,7 +535,7 @@ let%expect_test "example of path" =
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result decoder ~code ~verifier_index:9 ~result:true
-    |> Or_error.ok_exn
+    |> test_result_exn
   in
   print_progress ~decoder;
   [%expect
@@ -645,7 +645,7 @@ let%expect_test "example of path" =
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result decoder ~code ~verifier_index:11 ~result:true
-    |> Or_error.ok_exn
+    |> test_result_exn
   in
   print_progress ~decoder;
   [%expect
@@ -699,7 +699,7 @@ let%expect_test "example of path" =
   let code : Code.t = { triangle = One; square = Two; circle = Five } in
   let decoder =
     Decoder.add_test_result decoder ~code ~verifier_index:14 ~result:false
-    |> Or_error.ok_exn
+    |> test_result_exn
   in
   print_progress ~decoder;
   [%expect {| |}];
