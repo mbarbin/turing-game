@@ -468,7 +468,7 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
 let cmd =
   Command.make
     ~summary:"solve game interactively"
-    (let%map_open.Command () = Err_cli.set_config ()
+    (let%map_open.Command () = Pp_log_cli.set_config ()
      and stress_test = Arg.flag [ "stress-test" ] ~doc:"run for all hypotheses"
      and verifiers =
        Arg.named
