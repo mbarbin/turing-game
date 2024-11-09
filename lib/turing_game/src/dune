@@ -16,9 +16,9 @@
  (libraries
   base
   cmdlang
-  pp-log.err
-  pp-log.cli
   nonempty-list
+  pp-log.cli
+  pp-log.err
   reversed-list
   stdio)
  (lint
