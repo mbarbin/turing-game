@@ -15,6 +15,8 @@
 
 (documentation "https://mbarbin.github.io/turing-game/")
 
+(implicit_transitive_deps false)
+
 (package
  (name turing-game)
  (synopsis "A bot that can play a board game called Turing Machine")
