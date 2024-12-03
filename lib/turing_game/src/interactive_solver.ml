@@ -37,7 +37,7 @@ module Evaluation = struct
           "Sum of probabilities does not equal 1"
           [%sexp
             (ts : Expected_information_gained.t Nonempty_list.t)
-            , { sum_probabilities : float }]
+          , { sum_probabilities : float }]
     in
     let expected_information_gained =
       Nonempty_list.fold ts ~init:0. ~f:(fun acc t ->
