@@ -17,6 +17,7 @@
   base
   cmdlang
   nonempty-list
+  pp
   pp-log.cli
   pp-log.err
   reversed-list
