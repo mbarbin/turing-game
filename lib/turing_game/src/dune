@@ -18,8 +18,8 @@
   cmdlang
   nonempty-list
   pp
-  pp-log.cli
-  pp-log.err
+  pplumbing.err
+  pplumbing.log-cli
   reversed-list
   stdio)
  (lint
