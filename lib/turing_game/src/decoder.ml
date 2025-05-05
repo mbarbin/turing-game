@@ -219,7 +219,9 @@ let add_test_result t ~code ~verifier_index ~result =
       Immutable_array.find t.slots ~f:(fun slot -> verifier_index = slot.verifier.index)
     with
     | Some slot -> slot
-    | None -> Err.raise_s "Verifier not found in t" [%sexp { verifier_index : int }]
+    | None ->
+      Err.raise
+        [ Pp.text "Verifier not found in t"; Err.sexp [%sexp { verifier_index : int }] ]
   in
   let index = slot.index in
   match slot.verifier_status with

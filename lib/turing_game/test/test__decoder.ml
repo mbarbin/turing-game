@@ -210,12 +210,14 @@ let%expect_test "remaining codes" =
   require_does_not_raise [%here] (fun () ->
     if Float.( >= ) (Float.abs (t_true.probability +. t_false.probability -. 1.)) 1e-7
     then
-      Err.raise_s
-        "Probability do not sum to 1"
-        [%sexp
-          { t_true : Interactive_solver.Expected_information_gained.t
-          ; t_false : Interactive_solver.Expected_information_gained.t
-          }]);
+      Err.raise
+        [ Pp.text "Probability do not sum to 1"
+        ; Err.sexp
+            [%sexp
+              { t_true : Interactive_solver.Expected_information_gained.t
+              ; t_false : Interactive_solver.Expected_information_gained.t
+              }]
+        ]);
   [%expect {| |}];
   ()
 ;;

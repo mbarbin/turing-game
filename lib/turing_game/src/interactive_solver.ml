@@ -33,11 +33,13 @@ module Evaluation = struct
       in
       if Float.( >= ) (Float.abs (1. -. sum_probabilities)) 1e-7
       then
-        Err.raise_s
-          "Sum of probabilities does not equal 1"
-          [%sexp
-            (ts : Expected_information_gained.t Nonempty_list.t)
-          , { sum_probabilities : float }]
+        Err.raise
+          [ Pp.text "Sum of probabilities does not equal 1"
+          ; Err.sexp
+              [%sexp
+                (ts : Expected_information_gained.t Nonempty_list.t)
+              , { sum_probabilities : float }]
+          ]
     in
     let expected_information_gained =
       Nonempty_list.fold ts ~init:0. ~f:(fun acc t ->
@@ -330,8 +332,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
     let next_step = next_step ~decoder ~current_round in
     match next_step with
     | Error e ->
-      Err.raise
-        [ Pp.text "Interactive solver failed"; Err.pp_of_sexp (Error.sexp_of_t e) ]
+      Err.raise [ Pp.text "Interactive solver failed"; Err.sexp (Error.sexp_of_t e) ]
     | Propose_solution { code } ->
       let resolution_path =
         let rounds =
@@ -377,7 +378,7 @@ let interactive_solve ~decoder ~(running_mode : Running_mode.t) =
         match Decoder.add_test_result decoder ~code ~verifier_index ~result with
         | Ok t -> t
         | Inconsistency sexp ->
-          Err.raise [ Pp.text "Internal error during solving"; Err.pp_of_sexp sexp ]
+          Err.raise [ Pp.text "Internal error during solving"; Err.sexp sexp ]
       in
       let () =
         let number_of_remaining_codes = Decoder.number_of_remaining_codes decoder in
