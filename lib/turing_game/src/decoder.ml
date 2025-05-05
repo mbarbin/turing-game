@@ -221,7 +221,7 @@ let add_test_result t ~code ~verifier_index ~result =
     | Some slot -> slot
     | None ->
       Err.raise
-        [ Pp.text "Verifier not found in t"; Err.sexp [%sexp { verifier_index : int }] ]
+        [ Pp.text "Verifier not found in t."; Err.sexp [%sexp { verifier_index : int }] ]
   in
   let index = slot.index in
   match slot.verifier_status with

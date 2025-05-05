@@ -211,7 +211,7 @@ let%expect_test "remaining codes" =
     if Float.( >= ) (Float.abs (t_true.probability +. t_false.probability -. 1.)) 1e-7
     then
       Err.raise
-        [ Pp.text "Probability do not sum to 1"
+        [ Pp.text "Probability do not sum to 1."
         ; Err.sexp
             [%sexp
               { t_true : Interactive_solver.Expected_information_gained.t
