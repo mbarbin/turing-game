@@ -28,8 +28,7 @@
   (cmdlang
    (>= 0.0.9))
   (nonempty-list
-   (and
-    (>= v0.17)))
+   (>= v0.17))
   (patdiff
    (>= v0.17))
   (pp
@@ -55,8 +54,7 @@
   (ppxlib
    (>= 0.33))
   (reversed-list
-   (and
-    (>= v0.17)))
+   (>= v0.17))
   (stdio
    (>= v0.17))))
 
@@ -77,8 +75,7 @@
   (expect_test_helpers_core
    (>= v0.17))
   (nonempty-list
-   (and
-    (>= v0.17)))
+   (>= v0.17))
   (patdiff
    (>= v0.17))
   (pp
@@ -110,8 +107,7 @@
   (ppxlib
    (>= 0.33))
   (reversed-list
-   (and
-    (>= v0.17)))
+   (>= v0.17))
   (stdio
    (>= v0.17))
   (sherlodoc
