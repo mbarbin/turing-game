@@ -468,14 +468,14 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
 
 let cmd =
   Command.make
-    ~summary:"solve game interactively"
+    ~summary:"Solve a game interactively."
     (let%map_open.Command () = Log_cli.set_config ()
-     and stress_test = Arg.flag [ "stress-test" ] ~doc:"run for all hypotheses"
+     and stress_test = Arg.flag [ "stress-test" ] ~doc:"Run for all hypotheses."
      and verifiers =
        Arg.named
          [ "verifiers" ]
          (Param.comma_separated Param.int)
-         ~doc:"specify verifiers"
+         ~doc:"Specify verifiers."
        >>| Nonempty_list.of_list_exn
      in
      let config = Config.load_exn () in

@@ -10,4 +10,8 @@ module Resolution_path = Resolution_path
 module Symbol = Symbol
 module Verifier = Verifier
 
-let main = Command.group ~summary:"" [ "solver", Interactive_solver.cmd ]
+let main =
+  Command.group
+    ~summary:"A solver bot for the turing-game board game."
+    [ "solver", Interactive_solver.cmd ]
+;;
