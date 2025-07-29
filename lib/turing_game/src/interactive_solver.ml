@@ -469,9 +469,10 @@ let simulate_hypotheses ~decoder ~which_hypotheses =
 let cmd =
   Command.make
     ~summary:"Solve a game interactively."
-    (let%map_open.Command () = Log_cli.set_config ()
-     and stress_test = Arg.flag [ "stress-test" ] ~doc:"Run for all hypotheses."
-     and verifiers =
+    (let open Command.Std in
+     let+ () = Log_cli.set_config ()
+     and+ stress_test = Arg.flag [ "stress-test" ] ~doc:"Run for all hypotheses."
+     and+ verifiers =
        Arg.named
          [ "verifiers" ]
          (Param.comma_separated Param.int)
