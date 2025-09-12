@@ -1,3 +1,9 @@
+(*********************************************************************************)
+(*  turing-game - A bot that can play a board game called Turing Machine         *)
+(*  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*  SPDX-License-Identifier: MIT                                                 *)
+(*********************************************************************************)
+
 module Expected_information_gained = struct
   (* Evaluate a test in term of expected information bits gained. *)
   type t =

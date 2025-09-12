@@ -1,3 +1,9 @@
+(*_********************************************************************************)
+(*_  turing-game - A bot that can play a board game called Turing Machine         *)
+(*_  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*_  SPDX-License-Identifier: MIT                                                 *)
+(*_********************************************************************************)
+
 (** In this game, digits that are used in codes can only have values 1 to 5. We
     make use of an enumerable type for it so we can more easily manipulate all
     codes in an exhaustive fashion. *)

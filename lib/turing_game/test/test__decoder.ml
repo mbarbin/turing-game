@@ -1,3 +1,9 @@
+(*********************************************************************************)
+(*  turing-game - A bot that can play a board game called Turing Machine         *)
+(*  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*  SPDX-License-Identifier: MIT                                                 *)
+(*********************************************************************************)
+
 let config = Config.load_exn ()
 let decoder_01 = Config.decoder_exn config [ 4; 9; 11; 14 ]
 

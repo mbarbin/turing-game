@@ -1,3 +1,9 @@
+(*_********************************************************************************)
+(*_  turing-game - A bot that can play a board game called Turing Machine         *)
+(*_  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*_  SPDX-License-Identifier: MIT                                                 *)
+(*_********************************************************************************)
+
 (** A representation for a set of codes, where each code is unique. This is
     equivalent to a list with no duplicate. *)
 

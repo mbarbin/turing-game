@@ -1,3 +1,9 @@
+(*********************************************************************************)
+(*  turing-game - A bot that can play a board game called Turing Machine         *)
+(*  SPDX-FileCopyrightText: 2023-2025 Mathieu Barbin <mathieu.barbin@gmail.com>  *)
+(*  SPDX-License-Identifier: MIT                                                 *)
+(*********************************************************************************)
+
 let%expect_test "interactive solver simulation decoder 1" =
   let config = Config.load_exn () in
   let decoder = Config.decoder_exn config [ 4; 9; 11; 14 ] in
