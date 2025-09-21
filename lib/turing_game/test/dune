@@ -10,6 +10,8 @@
   -open
   Base
   -open
+  Pplumbing_err
+  -open
   Expect_test_helpers_base
   -open
   Turing_game)
@@ -18,7 +20,7 @@
   expect_test_helpers_core.expect_test_helpers_base
   patdiff.expect_test_patdiff
   pp
-  pplumbing.err
+  pplumbing-err
   turing_game)
  (inline_tests)
  (lint
