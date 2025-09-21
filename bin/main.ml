@@ -5,5 +5,8 @@
 (*********************************************************************************)
 
 let () =
-  Cmdlang_cmdliner_runner.run Turing_game.main ~name:"turing-game" ~version:"%%VERSION%%"
+  Cmdlang_cmdliner_err_runner.run
+    Turing_game.main
+    ~name:"turing-game"
+    ~version:"%%VERSION%%"
 ;;
